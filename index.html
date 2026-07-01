@@ -1,0 +1,929 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>OptoFill — AI-Powered Eye Exam Documentation</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --blue:     #2563eb;
+      --blue-lt:  #eff6ff;
+      --blue-dk:  #1e40af;
+      --teal:     #0d9488;
+      --teal-lt:  #f0fdfa;
+      --gray-50:  #f8fafc;
+      --gray-100: #f1f5f9;
+      --gray-200: #e2e8f0;
+      --gray-600: #475569;
+      --gray-700: #334155;
+      --gray-900: #0f172a;
+      --radius:   12px;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      color: var(--gray-700);
+      background: #fff;
+      line-height: 1.6;
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 5%;
+      height: 64px;
+      background: rgba(255,255,255,0.9);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--gray-200);
+    }
+
+    .nav-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--gray-900);
+      text-decoration: none;
+    }
+
+    .nav-logo .logo-icon {
+      width: 36px;
+      height: 36px;
+      background: linear-gradient(135deg, var(--blue), var(--teal));
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-size: 1rem;
+    }
+
+    .nav-links { display: flex; gap: 2rem; list-style: none; }
+    .nav-links a {
+      text-decoration: none;
+      color: var(--gray-600);
+      font-size: 0.9rem;
+      font-weight: 500;
+      transition: color .2s;
+    }
+    .nav-links a:hover { color: var(--blue); }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 0.55rem 1.25rem;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 0.9rem;
+      text-decoration: none;
+      transition: all .2s;
+      cursor: pointer;
+      border: none;
+    }
+    .btn-primary {
+      background: var(--blue);
+      color: #fff;
+    }
+    .btn-primary:hover { background: var(--blue-dk); transform: translateY(-1px); }
+    .btn-outline {
+      background: transparent;
+      color: var(--blue);
+      border: 1.5px solid var(--blue);
+    }
+    .btn-outline:hover { background: var(--blue-lt); }
+
+    /* ── HERO ── */
+    .hero {
+      text-align: center;
+      padding: 100px 5% 80px;
+      background: linear-gradient(160deg, var(--blue-lt) 0%, #fff 55%, var(--teal-lt) 100%);
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 14px;
+      background: var(--blue-lt);
+      color: var(--blue-dk);
+      border-radius: 999px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      margin-bottom: 24px;
+      border: 1px solid #bfdbfe;
+    }
+
+    .hero h1 {
+      font-size: clamp(2.2rem, 5vw, 3.8rem);
+      font-weight: 800;
+      color: var(--gray-900);
+      line-height: 1.15;
+      max-width: 780px;
+      margin: 0 auto 20px;
+    }
+
+    .hero h1 span { color: var(--blue); }
+
+    .hero p {
+      font-size: 1.15rem;
+      color: var(--gray-600);
+      max-width: 580px;
+      margin: 0 auto 36px;
+    }
+
+    .hero-cta { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+
+    .hero-visual {
+      margin-top: 64px;
+      max-width: 860px;
+      margin-left: auto;
+      margin-right: auto;
+      background: #fff;
+      border-radius: 16px;
+      box-shadow: 0 24px 60px rgba(0,0,0,0.12);
+      overflow: hidden;
+      border: 1px solid var(--gray-200);
+    }
+
+    .browser-bar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 16px;
+      background: var(--gray-100);
+      border-bottom: 1px solid var(--gray-200);
+    }
+    .browser-dot { width: 12px; height: 12px; border-radius: 50%; }
+    .browser-dot:nth-child(1) { background: #ef4444; }
+    .browser-dot:nth-child(2) { background: #f59e0b; }
+    .browser-dot:nth-child(3) { background: #22c55e; }
+    .browser-url {
+      margin-left: 10px;
+      flex: 1;
+      background: #fff;
+      border-radius: 6px;
+      padding: 5px 12px;
+      font-size: 0.8rem;
+      color: var(--gray-600);
+      border: 1px solid var(--gray-200);
+    }
+
+    .demo-screen {
+      padding: 28px;
+      background: var(--gray-50);
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    .demo-form-card {
+      background: #fff;
+      border-radius: var(--radius);
+      padding: 20px;
+      border: 1px solid var(--gray-200);
+    }
+
+    .demo-form-card h3 {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--gray-900);
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .field-row { margin-bottom: 10px; }
+    .field-label { font-size: 0.72rem; color: var(--gray-600); margin-bottom: 3px; }
+    .field-value {
+      background: var(--gray-50);
+      border: 1px solid var(--gray-200);
+      border-radius: 6px;
+      padding: 7px 10px;
+      font-size: 0.8rem;
+      color: var(--gray-900);
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .field-value.filled {
+      border-color: #86efac;
+      background: #f0fdf4;
+      color: #15803d;
+    }
+    .field-value .check { color: #22c55e; font-weight: 700; }
+
+    .ai-overlay {
+      background: linear-gradient(135deg, var(--blue), var(--teal));
+      border-radius: var(--radius);
+      padding: 20px;
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .ai-overlay h3 { font-size: 0.85rem; font-weight: 700; opacity: 0.9; }
+
+    .voice-wave {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      padding: 14px 0;
+    }
+    .wave-bar {
+      width: 4px;
+      border-radius: 2px;
+      background: rgba(255,255,255,0.7);
+      animation: wave 1.2s ease-in-out infinite;
+    }
+    .wave-bar:nth-child(1) { height: 12px; animation-delay: 0s; }
+    .wave-bar:nth-child(2) { height: 28px; animation-delay: .1s; }
+    .wave-bar:nth-child(3) { height: 20px; animation-delay: .2s; }
+    .wave-bar:nth-child(4) { height: 36px; animation-delay: .3s; }
+    .wave-bar:nth-child(5) { height: 24px; animation-delay: .4s; }
+    .wave-bar:nth-child(6) { height: 16px; animation-delay: .5s; }
+    .wave-bar:nth-child(7) { height: 30px; animation-delay: .4s; }
+    .wave-bar:nth-child(8) { height: 22px; animation-delay: .3s; }
+    .wave-bar:nth-child(9) { height: 14px; animation-delay: .2s; }
+
+    @keyframes wave {
+      0%, 100% { transform: scaleY(1); opacity: 0.7; }
+      50%       { transform: scaleY(1.6); opacity: 1; }
+    }
+
+    .ai-suggestion {
+      background: rgba(255,255,255,0.15);
+      border-radius: 8px;
+      padding: 10px 12px;
+      font-size: 0.78rem;
+      line-height: 1.5;
+    }
+    .ai-suggestion .label { font-weight: 700; font-size: 0.7rem; opacity: 0.8; margin-bottom: 4px; }
+
+    /* ── SECTIONS ── */
+    section { padding: 80px 5%; }
+    .section-label {
+      font-size: 0.8rem;
+      font-weight: 700;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: var(--blue);
+      margin-bottom: 12px;
+    }
+    .section-title {
+      font-size: clamp(1.6rem, 3vw, 2.4rem);
+      font-weight: 800;
+      color: var(--gray-900);
+      line-height: 1.2;
+      margin-bottom: 16px;
+    }
+    .section-sub {
+      font-size: 1.05rem;
+      color: var(--gray-600);
+      max-width: 540px;
+    }
+    .centered { text-align: center; }
+    .centered .section-sub { margin: 0 auto; }
+
+    /* ── HOW IT WORKS ── */
+    #how-it-works { background: var(--gray-50); }
+
+    .steps-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 24px;
+      margin-top: 52px;
+    }
+
+    .step-card {
+      background: #fff;
+      border-radius: var(--radius);
+      padding: 28px 24px;
+      border: 1px solid var(--gray-200);
+      position: relative;
+      transition: box-shadow .2s, transform .2s;
+    }
+    .step-card:hover { box-shadow: 0 12px 32px rgba(0,0,0,0.08); transform: translateY(-4px); }
+
+    .step-number {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--blue), var(--teal));
+      color: #fff;
+      font-size: 0.85rem;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 16px;
+    }
+
+    .step-icon {
+      font-size: 1.8rem;
+      margin-bottom: 12px;
+    }
+
+    .step-card h3 {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--gray-900);
+      margin-bottom: 8px;
+    }
+
+    .step-card p {
+      font-size: 0.88rem;
+      color: var(--gray-600);
+      line-height: 1.6;
+    }
+
+    .connector {
+      display: none;
+    }
+
+    /* ── FEATURES ── */
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 24px;
+      margin-top: 52px;
+    }
+
+    .feature-card {
+      display: flex;
+      gap: 16px;
+      padding: 24px;
+      background: #fff;
+      border: 1px solid var(--gray-200);
+      border-radius: var(--radius);
+      transition: box-shadow .2s;
+    }
+    .feature-card:hover { box-shadow: 0 8px 24px rgba(0,0,0,0.07); }
+
+    .feature-icon-wrap {
+      width: 46px;
+      height: 46px;
+      flex-shrink: 0;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.3rem;
+    }
+    .feature-icon-wrap.blue { background: var(--blue-lt); }
+    .feature-icon-wrap.teal { background: var(--teal-lt); }
+    .feature-icon-wrap.purple { background: #f5f3ff; }
+    .feature-icon-wrap.orange { background: #fff7ed; }
+    .feature-icon-wrap.green { background: #f0fdf4; }
+    .feature-icon-wrap.pink { background: #fdf2f8; }
+
+    .feature-card h3 { font-size: 0.95rem; font-weight: 700; color: var(--gray-900); margin-bottom: 6px; }
+    .feature-card p  { font-size: 0.85rem; color: var(--gray-600); line-height: 1.55; }
+
+    /* ── EXAM FIELDS ── */
+    #exam-fields { background: var(--gray-50); }
+
+    .fields-layout {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 48px;
+      margin-top: 52px;
+      align-items: start;
+    }
+
+    .field-group { margin-bottom: 28px; }
+    .field-group-title {
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      color: var(--blue);
+      margin-bottom: 12px;
+      padding-bottom: 8px;
+      border-bottom: 2px solid var(--blue-lt);
+    }
+
+    .field-chip-list { display: flex; flex-wrap: wrap; gap: 8px; }
+    .field-chip {
+      padding: 5px 12px;
+      border-radius: 999px;
+      font-size: 0.8rem;
+      font-weight: 500;
+      background: #fff;
+      border: 1px solid var(--gray-200);
+      color: var(--gray-700);
+    }
+    .field-chip.ai { border-color: #bfdbfe; background: var(--blue-lt); color: var(--blue-dk); }
+
+    .exam-visual {
+      background: #fff;
+      border-radius: var(--radius);
+      border: 1px solid var(--gray-200);
+      overflow: hidden;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.06);
+    }
+
+    .exam-header {
+      padding: 14px 20px;
+      background: linear-gradient(135deg, var(--blue), var(--teal));
+      color: #fff;
+      font-size: 0.85rem;
+      font-weight: 700;
+    }
+
+    .exam-body { padding: 20px; }
+
+    .exam-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .exam-field-box {
+      border: 1px solid var(--gray-200);
+      border-radius: 8px;
+      padding: 10px 12px;
+    }
+    .exam-field-box .lbl { font-size: 0.68rem; color: var(--gray-600); margin-bottom: 2px; }
+    .exam-field-box .val {
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--gray-900);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .exam-field-box.auto { border-color: #86efac; background: #f0fdf4; }
+    .exam-field-box.auto .lbl { color: #15803d; }
+    .auto-tag {
+      font-size: 0.62rem;
+      background: #dcfce7;
+      color: #15803d;
+      border-radius: 4px;
+      padding: 1px 5px;
+      font-weight: 700;
+    }
+
+    /* ── STATS ── */
+    .stats-section {
+      background: linear-gradient(135deg, var(--blue-dk), var(--blue), var(--teal));
+      color: #fff;
+      text-align: center;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 40px;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    .stat-item h2 {
+      font-size: 2.8rem;
+      font-weight: 900;
+      line-height: 1;
+      margin-bottom: 6px;
+    }
+    .stat-item p { font-size: 0.9rem; opacity: 0.85; }
+
+    /* ── CTA ── */
+    .cta-section {
+      text-align: center;
+      padding: 100px 5%;
+      background: var(--gray-50);
+    }
+    .cta-section h2 {
+      font-size: clamp(1.8rem, 3.5vw, 2.6rem);
+      font-weight: 800;
+      color: var(--gray-900);
+      margin-bottom: 16px;
+    }
+    .cta-section p { color: var(--gray-600); margin-bottom: 36px; font-size: 1.05rem; }
+
+    /* ── FOOTER ── */
+    footer {
+      background: var(--gray-900);
+      color: rgba(255,255,255,0.6);
+      padding: 40px 5%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+    footer .footer-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: #fff;
+      font-weight: 700;
+      font-size: 1rem;
+    }
+    footer .footer-logo .logo-icon {
+      width: 30px;
+      height: 30px;
+      background: linear-gradient(135deg, var(--blue), var(--teal));
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.85rem;
+    }
+    footer p { font-size: 0.82rem; }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 700px) {
+      .nav-links { display: none; }
+      .demo-screen { grid-template-columns: 1fr; }
+      .fields-layout { grid-template-columns: 1fr; }
+      .exam-row { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a class="nav-logo" href="#">
+    <div class="logo-icon">👁</div>
+    OptoFill
+  </a>
+  <ul class="nav-links">
+    <li><a href="#how-it-works">How It Works</a></li>
+    <li><a href="#features">Features</a></li>
+    <li><a href="#exam-fields">Exam Fields</a></li>
+  </ul>
+  <a href="#cta" class="btn btn-primary">Add to Chrome</a>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-badge">
+    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+    Chrome Extension · Powered by AI
+  </div>
+
+  <h1>Document Eye Exams <span>10× Faster</span> with Voice & AI</h1>
+  <p>OptoFill listens as you examine patients, then instantly fills out patient charts, exam forms, and clinical notes — no typing required.</p>
+
+  <div class="hero-cta">
+    <a href="#cta" class="btn btn-primary">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+      Add to Chrome — Free
+    </a>
+    <a href="#how-it-works" class="btn btn-outline">See How It Works</a>
+  </div>
+
+  <!-- DEMO VISUAL -->
+  <div class="hero-visual">
+    <div class="browser-bar">
+      <div class="browser-dot"></div>
+      <div class="browser-dot"></div>
+      <div class="browser-dot"></div>
+      <div class="browser-url">🔒 optometry-ehr.example.com/patient/exam</div>
+    </div>
+    <div class="demo-screen">
+      <div class="demo-form-card">
+        <h3>
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2.5"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+          Patient Information
+        </h3>
+        <div class="field-row">
+          <div class="field-label">Full Name</div>
+          <div class="field-value filled">Jane Doe <span class="check">✓</span></div>
+        </div>
+        <div class="field-row">
+          <div class="field-label">Date of Birth</div>
+          <div class="field-value filled">04 / 12 / 1985 <span class="check">✓</span></div>
+        </div>
+        <div class="field-row">
+          <div class="field-label">Chief Complaint</div>
+          <div class="field-value filled">Blurry distance vision <span class="check">✓</span></div>
+        </div>
+        <div class="field-row">
+          <div class="field-label">OD Sphere</div>
+          <div class="field-value filled">−2.25 <span class="check">✓</span></div>
+        </div>
+        <div class="field-row">
+          <div class="field-label">OS Sphere</div>
+          <div class="field-value filled">−1.75 <span class="check">✓</span></div>
+        </div>
+      </div>
+
+      <div class="ai-overlay">
+        <h3>🎙 OptoFill is listening…</h3>
+        <div class="voice-wave">
+          <div class="wave-bar"></div>
+          <div class="wave-bar"></div>
+          <div class="wave-bar"></div>
+          <div class="wave-bar"></div>
+          <div class="wave-bar"></div>
+          <div class="wave-bar"></div>
+          <div class="wave-bar"></div>
+          <div class="wave-bar"></div>
+          <div class="wave-bar"></div>
+        </div>
+        <div class="ai-suggestion">
+          <div class="label">AI DETECTED</div>
+          "Right eye minus two twenty-five, left eye minus one seventy-five, patient reports difficulty reading road signs at night…"
+        </div>
+        <div class="ai-suggestion">
+          <div class="label">AUTO-FILLED</div>
+          5 fields populated · 0 corrections needed
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section id="how-it-works">
+  <div class="centered">
+    <div class="section-label">How It Works</div>
+    <h2 class="section-title">From spoken words to completed charts in seconds</h2>
+    <p class="section-sub">OptoFill works silently in the background on any EHR or optometry platform — no integration required.</p>
+  </div>
+
+  <div class="steps-grid">
+    <div class="step-card">
+      <div class="step-icon">🔌</div>
+      <div class="step-number">1</div>
+      <h3>Install the Extension</h3>
+      <p>Add OptoFill to Chrome in one click. It works on any web-based EHR or optometry platform without any IT setup.</p>
+    </div>
+
+    <div class="step-card">
+      <div class="step-icon">🎙</div>
+      <div class="step-number">2</div>
+      <h3>Activate Voice Mode</h3>
+      <p>Click the OptoFill mic icon or press <strong>Ctrl+Shift+O</strong>. The extension begins listening as you speak naturally with your patient.</p>
+    </div>
+
+    <div class="step-card">
+      <div class="step-icon">🧠</div>
+      <div class="step-number">3</div>
+      <h3>AI Processes Speech</h3>
+      <p>Our clinical AI understands optometry-specific terminology — prescriptions, IOP readings, visual acuity, and more — in real time.</p>
+    </div>
+
+    <div class="step-card">
+      <div class="step-icon">⚡</div>
+      <div class="step-number">4</div>
+      <h3>Fields Auto-Fill</h3>
+      <p>OptoFill maps extracted data to the correct form fields on your screen and populates them instantly and accurately.</p>
+    </div>
+
+    <div class="step-card">
+      <div class="step-icon">✅</div>
+      <div class="step-number">5</div>
+      <h3>Review & Confirm</h3>
+      <p>A summary panel highlights every filled field. Edit anything with a click, then approve to finalize the record.</p>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section id="features">
+  <div class="centered">
+    <div class="section-label">Features</div>
+    <h2 class="section-title">Everything you need to document faster</h2>
+    <p class="section-sub">Built specifically for optometrists and ophthalmologists who want to spend less time on paperwork.</p>
+  </div>
+
+  <div class="features-grid">
+    <div class="feature-card">
+      <div class="feature-icon-wrap blue">🎙</div>
+      <div>
+        <h3>Real-Time Voice Dictation</h3>
+        <p>Speak naturally during the exam. OptoFill transcribes and extracts clinical data without interrupting your workflow.</p>
+      </div>
+    </div>
+
+    <div class="feature-card">
+      <div class="feature-icon-wrap teal">🧠</div>
+      <div>
+        <h3>Optometry-Aware AI</h3>
+        <p>Trained on clinical optometry language including sphere, cylinder, axis, prism, IOP, and visual acuity notations.</p>
+      </div>
+    </div>
+
+    <div class="feature-card">
+      <div class="feature-icon-wrap purple">🌐</div>
+      <div>
+        <h3>Works on Any EHR</h3>
+        <p>Compatible with WebPT, Eyefinity, Crystal PM, and any web-based practice management system — zero integration required.</p>
+      </div>
+    </div>
+
+    <div class="feature-card">
+      <div class="feature-icon-wrap orange">📋</div>
+      <div>
+        <h3>Smart Field Mapping</h3>
+        <p>OptoFill automatically detects form fields on the page and maps extracted values to the right input every time.</p>
+      </div>
+    </div>
+
+    <div class="feature-card">
+      <div class="feature-icon-wrap green">🔒</div>
+      <div>
+        <h3>HIPAA-Compliant</h3>
+        <p>Audio is processed locally and never stored. All transmitted data is encrypted end-to-end to keep patient records private.</p>
+      </div>
+    </div>
+
+    <div class="feature-card">
+      <div class="feature-icon-wrap pink">✏️</div>
+      <div>
+        <h3>One-Click Corrections</h3>
+        <p>Instantly edit any auto-filled field from the OptoFill sidebar before confirming. Corrections train the AI for next time.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- EXAM FIELDS -->
+<section id="exam-fields">
+  <div>
+    <div class="section-label">Exam Fields</div>
+    <h2 class="section-title">Covers every part of a comprehensive eye exam</h2>
+    <p class="section-sub">From patient intake to final prescription, OptoFill handles the full documentation workflow.</p>
+  </div>
+
+  <div class="fields-layout">
+    <div>
+      <div class="field-group">
+        <div class="field-group-title">Patient Information</div>
+        <div class="field-chip-list">
+          <span class="field-chip ai">Full Name</span>
+          <span class="field-chip ai">Date of Birth</span>
+          <span class="field-chip ai">Gender</span>
+          <span class="field-chip ai">Contact Info</span>
+          <span class="field-chip ai">Insurance ID</span>
+          <span class="field-chip">Chief Complaint</span>
+          <span class="field-chip">Medical History</span>
+          <span class="field-chip">Medications</span>
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-group-title">Refraction & Prescription</div>
+        <div class="field-chip-list">
+          <span class="field-chip ai">OD Sphere / Cylinder / Axis</span>
+          <span class="field-chip ai">OS Sphere / Cylinder / Axis</span>
+          <span class="field-chip ai">Add Power</span>
+          <span class="field-chip ai">Prism & Base</span>
+          <span class="field-chip ai">Near PD / Distance PD</span>
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-group-title">Visual Acuity</div>
+        <div class="field-chip-list">
+          <span class="field-chip ai">Distance VA (OD / OS / OU)</span>
+          <span class="field-chip ai">Near VA</span>
+          <span class="field-chip">Pinhole Acuity</span>
+          <span class="field-chip">Color Vision</span>
+          <span class="field-chip">Contrast Sensitivity</span>
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-group-title">Anterior & Posterior Segment</div>
+        <div class="field-chip-list">
+          <span class="field-chip ai">IOP (Tonometry)</span>
+          <span class="field-chip">Slit Lamp Findings</span>
+          <span class="field-chip">Dilated Fundus Exam</span>
+          <span class="field-chip">Cup-to-Disc Ratio</span>
+          <span class="field-chip">Macular Evaluation</span>
+        </div>
+      </div>
+
+      <div style="margin-top:12px; font-size:0.78rem; color:var(--gray-600); display:flex; align-items:center; gap:6px;">
+        <span style="display:inline-block; width:10px; height:10px; border-radius:50%; background:var(--blue);"></span>
+        Blue chips = auto-filled by AI from voice input
+      </div>
+    </div>
+
+    <div class="exam-visual">
+      <div class="exam-header">📄 Comprehensive Eye Exam — Jane Doe</div>
+      <div class="exam-body">
+        <div class="exam-row">
+          <div class="exam-field-box auto">
+            <div class="lbl">OD Visual Acuity <span class="auto-tag">AI</span></div>
+            <div class="val">20/200</div>
+          </div>
+          <div class="exam-field-box auto">
+            <div class="lbl">OS Visual Acuity <span class="auto-tag">AI</span></div>
+            <div class="val">20/150</div>
+          </div>
+        </div>
+        <div class="exam-row">
+          <div class="exam-field-box auto">
+            <div class="lbl">OD Sphere <span class="auto-tag">AI</span></div>
+            <div class="val">−2.25</div>
+          </div>
+          <div class="exam-field-box auto">
+            <div class="lbl">OS Sphere <span class="auto-tag">AI</span></div>
+            <div class="val">−1.75</div>
+          </div>
+        </div>
+        <div class="exam-row">
+          <div class="exam-field-box auto">
+            <div class="lbl">OD Cylinder <span class="auto-tag">AI</span></div>
+            <div class="val">−0.50</div>
+          </div>
+          <div class="exam-field-box auto">
+            <div class="lbl">OD Axis <span class="auto-tag">AI</span></div>
+            <div class="val">180°</div>
+          </div>
+        </div>
+        <div class="exam-row">
+          <div class="exam-field-box auto">
+            <div class="lbl">IOP Right <span class="auto-tag">AI</span></div>
+            <div class="val">14 mmHg</div>
+          </div>
+          <div class="exam-field-box auto">
+            <div class="lbl">IOP Left <span class="auto-tag">AI</span></div>
+            <div class="val">15 mmHg</div>
+          </div>
+        </div>
+        <div class="exam-row">
+          <div class="exam-field-box">
+            <div class="lbl">Slit Lamp OD</div>
+            <div class="val" style="font-size:0.75rem;">Clear cornea, deep AC</div>
+          </div>
+          <div class="exam-field-box">
+            <div class="lbl">Slit Lamp OS</div>
+            <div class="val" style="font-size:0.75rem;">Clear cornea, deep AC</div>
+          </div>
+        </div>
+        <div style="font-size:0.75rem; color:#15803d; margin-top:8px; padding:10px; background:#f0fdf4; border-radius:8px; border:1px solid #86efac;">
+          ✓ 8 fields auto-filled from voice dictation in 4.2 seconds
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- STATS -->
+<section class="stats-section">
+  <div class="stats-grid">
+    <div class="stat-item">
+      <h2>10×</h2>
+      <p>Faster documentation vs. manual entry</p>
+    </div>
+    <div class="stat-item">
+      <h2>98%</h2>
+      <p>Accuracy on clinical optometry terms</p>
+    </div>
+    <div class="stat-item">
+      <h2>5 min</h2>
+      <p>Average time saved per patient visit</p>
+    </div>
+    <div class="stat-item">
+      <h2>0 clicks</h2>
+      <p>Required to fill standard exam fields</p>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section id="cta" class="cta-section">
+  <div class="section-label centered">Get Started</div>
+  <h2>Ready to reclaim your time?</h2>
+  <p>Install OptoFill for free and see the difference in your very first exam.</p>
+  <div style="display:flex; gap:12px; justify-content:center; flex-wrap:wrap;">
+    <a href="#" class="btn btn-primary" style="font-size:1rem; padding:.75rem 1.75rem;">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
+      Add to Chrome — It's Free
+    </a>
+    <a href="#how-it-works" class="btn btn-outline" style="font-size:1rem; padding:.75rem 1.75rem;">Watch a Demo</a>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">
+    <div class="logo-icon">👁</div>
+    OptoFill
+  </div>
+  <p>© 2025 OptoFill. Built for optometrists, by clinicians who value their time.</p>
+  <p>HIPAA Compliant · Chrome Extension</p>
+</footer>
+
+</body>
+</html>
