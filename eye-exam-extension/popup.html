@@ -4,42 +4,49 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>OptoFill</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --bg: #0d1117;
-      --surface: #161b22;
-      --surface2: #1f2937;
-      --border: #30363d;
-      --accent: #2dd4bf;
-      --accent2: #06b6d4;
-      --danger: #f87171;
-      --text: #e6edf3;
-      --text-muted: #8b949e;
-      --success: #34d399;
+      --blue:       #2563eb;
+      --blue-dk:    #1e40af;
+      --blue-lt:    #eff6ff;
+      --blue-mid:   #bfdbfe;
+      --teal:       #0d9488;
+      --teal-lt:    #f0fdfa;
+      --teal-mid:   #5eead4;
+      --gray-50:    #f8fafc;
+      --gray-100:   #f1f5f9;
+      --gray-200:   #e2e8f0;
+      --gray-400:   #94a3b8;
+      --gray-600:   #475569;
+      --gray-700:   #334155;
+      --gray-900:   #0f172a;
+      --success:    #0d9488;
+      --success-lt: #f0fdfa;
+      --danger:     #dc2626;
+      --danger-lt:  #fef2f2;
+      --warn:       #d97706;
+      --warn-lt:    #fffbeb;
     }
 
     body {
       width: 360px;
       min-height: 480px;
-      background: var(--bg);
-      color: var(--text);
-      font-family: 'DM Sans', sans-serif;
+      background: var(--gray-50);
+      color: var(--gray-700);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
       font-size: 13px;
       overflow: hidden;
     }
 
-    /* Header */
+    /* ── Header ── */
     .header {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 14px 16px 12px;
-      border-bottom: 1px solid var(--border);
-      background: var(--surface);
+      padding: 12px 14px;
+      background: linear-gradient(135deg, var(--blue-dk), var(--blue), var(--teal));
     }
 
     .logo {
@@ -51,28 +58,28 @@
     .logo-icon {
       width: 28px;
       height: 28px;
-      background: linear-gradient(135deg, var(--accent), var(--accent2));
-      border-radius: 8px;
+      background: rgba(255,255,255,0.2);
+      border-radius: 7px;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 15px;
+      font-size: 14px;
+      border: 1px solid rgba(255,255,255,0.25);
     }
 
     .logo-text {
-      font-weight: 600;
+      font-weight: 700;
       font-size: 15px;
-      letter-spacing: -0.3px;
+      color: #fff;
+      letter-spacing: -0.2px;
     }
 
-    .logo-text span {
-      color: var(--accent);
-    }
+    .logo-text span { opacity: 0.85; }
 
     .settings-btn {
-      background: none;
-      border: 1px solid var(--border);
-      color: var(--text-muted);
+      background: rgba(255,255,255,0.15);
+      border: 1px solid rgba(255,255,255,0.25);
+      color: #fff;
       width: 28px;
       height: 28px;
       border-radius: 6px;
@@ -81,73 +88,71 @@
       align-items: center;
       justify-content: center;
       font-size: 14px;
-      transition: all 0.15s;
+      transition: background 0.15s;
     }
 
-    .settings-btn:hover {
-      border-color: var(--accent);
-      color: var(--accent);
-    }
+    .settings-btn:hover { background: rgba(255,255,255,0.25); }
 
-    /* Panels */
+    /* ── Panels ── */
     .panel { display: none; flex-direction: column; }
     .panel.active { display: flex; }
 
-    /* Main Panel */
-    #main-panel { padding: 16px; gap: 14px; }
+    #main-panel { padding: 14px; gap: 12px; }
 
+    /* ── Status bar ── */
     .status-bar {
       display: flex;
       align-items: center;
       gap: 8px;
-      padding: 8px 12px;
-      background: var(--surface);
-      border: 1px solid var(--border);
+      padding: 8px 11px;
+      background: #fff;
+      border: 1px solid var(--gray-200);
       border-radius: 8px;
       font-size: 12px;
-      color: var(--text-muted);
+      color: var(--gray-600);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.04);
     }
 
     .status-dot {
       width: 7px;
       height: 7px;
       border-radius: 50%;
-      background: var(--text-muted);
+      background: var(--gray-400);
       flex-shrink: 0;
       transition: background 0.3s;
     }
 
-    .status-dot.listening { background: var(--danger); animation: pulse 1.2s infinite; }
-    .status-dot.processing { background: var(--accent2); animation: pulse 0.8s infinite; }
-    .status-dot.ready { background: var(--success); }
+    .status-dot.listening  { background: var(--danger); animation: pulse 1.2s infinite; }
+    .status-dot.processing { background: var(--blue);   animation: pulse 0.8s infinite; }
+    .status-dot.ready      { background: var(--teal); }
 
     @keyframes pulse {
       0%, 100% { opacity: 1; transform: scale(1); }
-      50% { opacity: 0.5; transform: scale(0.85); }
+      50%       { opacity: 0.55; transform: scale(0.8); }
     }
 
-    /* Mic Button */
+    /* ── Mic area ── */
     .mic-area {
       display: flex;
       flex-direction: column;
       align-items: center;
       gap: 10px;
-      padding: 18px 0 8px;
+      padding: 16px 0 6px;
     }
 
     .mic-btn {
-      width: 72px;
-      height: 72px;
-      border-radius: 36px;
-      transition: width 0.2s, border-radius 0.2s;
-      border: 2px solid var(--border);
-      background: var(--surface);
-      color: var(--text-muted);
-      font-size: 28px;
+      width: 68px;
+      height: 68px;
+      border-radius: 50%;
+      border: none;
+      background: linear-gradient(135deg, var(--blue), var(--teal));
+      color: #fff;
+      font-size: 26px;
       cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
+      box-shadow: 0 4px 16px rgba(37,99,235,0.3);
       transition: all 0.2s;
       position: relative;
     }
@@ -155,93 +160,92 @@
     .mic-btn::before {
       content: '';
       position: absolute;
-      inset: -6px;
+      inset: -5px;
       border-radius: 50%;
       border: 2px solid transparent;
       transition: border-color 0.2s;
     }
 
     .mic-btn:hover {
-      border-color: var(--accent);
-      color: var(--accent);
-      background: rgba(45, 212, 191, 0.05);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(37,99,235,0.4);
     }
 
     .mic-btn.listening {
-      border-color: var(--danger);
-      color: var(--danger);
-      background: rgba(248, 113, 113, 0.08);
+      background: linear-gradient(135deg, var(--danger), #f97316);
+      box-shadow: 0 4px 16px rgba(220,38,38,0.35);
       width: auto;
+      border-radius: 34px;
       padding: 0 20px;
-      border-radius: 36px;
-      display: flex;
-      gap: 6px;
-      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.4px;
     }
 
     .mic-btn.listening::before {
-      border-color: rgba(248, 113, 113, 0.3);
+      border-color: rgba(220,38,38,0.25);
       animation: ring 1.5s linear infinite;
     }
 
     @keyframes ring {
-      0% { transform: scale(1); opacity: 1; }
-      100% { transform: scale(1.4); opacity: 0; }
+      0%   { transform: scale(1);   opacity: 1; }
+      100% { transform: scale(1.45); opacity: 0; }
     }
 
     .mic-hint {
       font-size: 11.5px;
-      color: var(--text-muted);
+      color: var(--gray-400);
       text-align: center;
     }
 
-    /* Transcript */
+    /* ── Transcript ── */
     .transcript-label {
-      font-size: 11px;
-      font-weight: 500;
+      font-size: 10.5px;
+      font-weight: 700;
       text-transform: uppercase;
-      letter-spacing: 0.8px;
-      color: var(--text-muted);
-      margin-bottom: 6px;
+      letter-spacing: 0.7px;
+      color: var(--blue);
+      margin-bottom: 5px;
     }
 
     .transcript-box {
-      background: var(--surface);
-      border: 1px solid var(--border);
+      background: #fff;
+      border: 1.5px solid var(--gray-200);
       border-radius: 8px;
       padding: 10px 12px;
       min-height: 80px;
       max-height: 120px;
       overflow-y: auto;
-      font-family: 'DM Mono', monospace;
-      font-size: 11.5px;
+      font-family: inherit;
+      font-size: 12px;
       line-height: 1.6;
-      color: var(--text);
+      color: var(--gray-700);
       resize: none;
       width: 100%;
       outline: none;
-      transition: border-color 0.2s;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.04);
     }
 
-    .transcript-box:focus { border-color: var(--accent2); }
-    .transcript-box.empty { color: var(--text-muted); font-style: italic; }
-
-    textarea.transcript-box {
-      font-family: 'DM Mono', monospace;
-      font-size: 11.5px;
+    .transcript-box:focus {
+      border-color: var(--blue-mid);
+      box-shadow: 0 0 0 3px rgba(37,99,235,0.08);
     }
 
-    /* Action Buttons */
+    .transcript-box.empty { color: var(--gray-400); font-style: italic; }
+
+    /* ── Action buttons ── */
     .actions { display: flex; gap: 8px; }
 
     .btn {
       flex: 1;
       padding: 9px 14px;
-      border-radius: 7px;
+      border-radius: 8px;
       border: none;
-      font-family: 'DM Sans', sans-serif;
+      font-family: inherit;
       font-size: 12.5px;
-      font-weight: 500;
+      font-weight: 600;
       cursor: pointer;
       transition: all 0.15s;
       display: flex;
@@ -251,47 +255,49 @@
     }
 
     .btn-primary {
-      background: linear-gradient(135deg, var(--accent), var(--accent2));
-      color: #0d1117;
+      background: linear-gradient(135deg, var(--blue), var(--teal));
+      color: #fff;
+      box-shadow: 0 2px 8px rgba(37,99,235,0.25);
     }
 
-    .btn-primary:hover { opacity: 0.9; transform: translateY(-1px); }
-    .btn-primary:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+    .btn-primary:hover  { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(37,99,235,0.35); }
+    .btn-primary:disabled { opacity: 0.45; cursor: not-allowed; transform: none; box-shadow: none; }
 
     .btn-secondary {
-      background: var(--surface2);
-      color: var(--text-muted);
-      border: 1px solid var(--border);
+      background: #fff;
+      color: var(--gray-600);
+      border: 1.5px solid var(--gray-200);
     }
 
-    .btn-secondary:hover { color: var(--text); border-color: var(--text-muted); }
+    .btn-secondary:hover { border-color: var(--gray-400); color: var(--gray-700); }
 
-    /* Results */
-    .results-area { display: none; flex-direction: column; gap: 8px; }
+    /* ── Results ── */
+    .results-area { display: none; flex-direction: column; gap: 7px; }
     .results-area.visible { display: flex; }
 
     .results-label {
-      font-size: 11px;
-      font-weight: 500;
+      font-size: 10.5px;
+      font-weight: 700;
       text-transform: uppercase;
-      letter-spacing: 0.8px;
-      color: var(--text-muted);
+      letter-spacing: 0.7px;
+      color: var(--teal);
     }
 
     .result-list {
-      background: var(--surface);
-      border: 1px solid var(--border);
+      background: #fff;
+      border: 1.5px solid var(--teal-mid);
       border-radius: 8px;
       max-height: 130px;
       overflow-y: auto;
+      box-shadow: 0 1px 4px rgba(13,148,136,0.08);
     }
 
     .result-item {
       display: flex;
       justify-content: space-between;
       align-items: flex-start;
-      padding: 7px 12px;
-      border-bottom: 1px solid var(--border);
+      padding: 7px 11px;
+      border-bottom: 1px solid var(--gray-100);
       gap: 8px;
       font-size: 11.5px;
     }
@@ -299,116 +305,130 @@
     .result-item:last-child { border-bottom: none; }
 
     .result-field {
-      color: var(--text-muted);
-      font-family: 'DM Mono', monospace;
-      font-size: 10.5px;
+      color: var(--gray-600);
+      font-size: 11px;
       flex-shrink: 0;
-      max-width: 120px;
+      max-width: 130px;
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
     }
 
     .result-value {
-      color: var(--accent);
-      font-weight: 500;
+      color: var(--teal);
+      font-weight: 600;
       text-align: right;
     }
 
     .spinner {
       display: inline-block;
-      width: 14px;
-      height: 14px;
-      border: 2px solid rgba(45, 212, 191, 0.2);
-      border-top-color: var(--accent);
+      width: 13px;
+      height: 13px;
+      border: 2px solid rgba(37,99,235,0.2);
+      border-top-color: var(--blue);
       border-radius: 50%;
       animation: spin 0.7s linear infinite;
     }
 
     @keyframes spin { to { transform: rotate(360deg); } }
 
-    /* Settings Panel */
-    #settings-panel {
-      padding: 16px;
-      gap: 14px;
-    }
+    /* ── Settings Panel ── */
+    #settings-panel { padding: 14px; gap: 13px; }
 
     .settings-title {
       font-size: 13px;
-      font-weight: 600;
-      color: var(--text);
+      font-weight: 700;
+      color: var(--gray-900);
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 7px;
+      padding-bottom: 10px;
+      border-bottom: 1.5px solid var(--blue-lt);
     }
 
     .field-group { display: flex; flex-direction: column; gap: 5px; }
 
     .field-label {
-      font-size: 11px;
-      font-weight: 500;
-      color: var(--text-muted);
+      font-size: 10.5px;
+      font-weight: 700;
+      color: var(--blue);
       text-transform: uppercase;
-      letter-spacing: 0.7px;
+      letter-spacing: 0.6px;
     }
 
     .field-input {
-      background: var(--surface);
-      border: 1px solid var(--border);
+      background: #fff;
+      border: 1.5px solid var(--gray-200);
       border-radius: 7px;
       padding: 8px 11px;
-      color: var(--text);
-      font-family: 'DM Mono', monospace;
+      color: var(--gray-900);
+      font-family: inherit;
       font-size: 12px;
       outline: none;
-      transition: border-color 0.2s;
+      transition: border-color 0.2s, box-shadow 0.2s;
       width: 100%;
     }
 
-    .field-input:focus { border-color: var(--accent2); }
-    .field-input::placeholder { color: var(--text-muted); }
+    .field-input:focus {
+      border-color: var(--blue-mid);
+      box-shadow: 0 0 0 3px rgba(37,99,235,0.08);
+    }
+
+    .field-input::placeholder { color: var(--gray-400); }
 
     .field-hint {
       font-size: 10.5px;
-      color: var(--text-muted);
+      color: var(--gray-400);
       line-height: 1.5;
     }
 
     .save-row {
       display: flex;
       gap: 8px;
-      margin-top: 4px;
+      margin-top: 2px;
     }
 
+    /* ── Mic setup bar ── */
+    #mic-setup-bar {
+      display: none;
+      background: var(--warn-lt);
+      border: 1px solid #fde68a;
+      border-radius: 8px;
+      padding: 8px 11px;
+      font-size: 11.5px;
+      color: var(--warn);
+      line-height: 1.5;
+      cursor: pointer;
+      text-align: center;
+    }
+
+    /* ── Toast ── */
     .toast {
       position: fixed;
       bottom: 12px;
       left: 50%;
       transform: translateX(-50%) translateY(20px);
-      background: var(--surface2);
-      border: 1px solid var(--border);
-      color: var(--text);
-      padding: 7px 14px;
+      background: var(--gray-900);
+      color: #fff;
+      padding: 7px 16px;
       border-radius: 20px;
       font-size: 12px;
+      font-weight: 500;
       opacity: 0;
       transition: all 0.25s;
       pointer-events: none;
       white-space: nowrap;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.2);
     }
 
-    .toast.show {
-      opacity: 1;
-      transform: translateX(-50%) translateY(0);
-    }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+    .toast.success { background: var(--teal); }
+    .toast.error   { background: var(--danger); }
 
-    .toast.success { border-color: var(--success); color: var(--success); }
-    .toast.error { border-color: var(--danger); color: var(--danger); }
-
-    /* Scrollbar */
+    /* ── Scrollbar ── */
     ::-webkit-scrollbar { width: 4px; }
     ::-webkit-scrollbar-track { background: transparent; }
-    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+    ::-webkit-scrollbar-thumb { background: var(--gray-200); border-radius: 4px; }
   </style>
 </head>
 <body>
@@ -424,16 +444,17 @@
   <!-- Main Panel -->
   <div class="panel active" id="main-panel">
 
-    <div id="mic-setup-bar" style="display:none;background:rgba(251,191,36,0.1);border:1px solid rgba(251,191,36,0.4);border-radius:7px;padding:8px 12px;font-size:11.5px;color:#fbbf24;line-height:1.5;cursor:pointer;text-align:center;">
+    <div id="mic-setup-bar">
       🎙 <strong>First time?</strong> Click here to enable microphone, then reopen the extension
     </div>
+
     <div class="status-bar">
       <div class="status-dot" id="status-dot"></div>
       <span id="status-text">Ready — click mic to dictate your exam</span>
     </div>
 
     <div class="mic-area">
-      <button class="mic-btn" id="mic-btn" title="Hold to record">🎙</button>
+      <button class="mic-btn" id="mic-btn" title="Click to record">🎙</button>
       <div class="mic-hint" id="mic-hint">Click to start recording</div>
     </div>
 
@@ -452,7 +473,7 @@
     <div class="results-area" id="results-area">
       <div class="results-label" style="display:flex;align-items:center;justify-content:space-between;">
         Fields Filled
-        <button id="refill-btn" style="background:none;border:1px solid var(--border);color:var(--text-muted);border-radius:5px;padding:2px 8px;font-size:11px;cursor:pointer;" title="Re-fill current tab's visible fields">↺ Re-fill tab</button>
+        <button id="refill-btn" style="background:none;border:1.5px solid var(--gray-200);color:var(--gray-600);border-radius:5px;padding:2px 8px;font-size:11px;cursor:pointer;font-family:inherit;" title="Re-fill current tab's visible fields">↺ Re-fill tab</button>
       </div>
       <div class="result-list" id="result-list"></div>
     </div>
@@ -461,17 +482,19 @@
 
   <!-- Settings Panel -->
   <div class="panel" id="settings-panel">
-    <div class="settings-title">⚙ Settings</div>
+    <div class="settings-title">
+      <span>⚙</span> Settings
+    </div>
 
     <div class="field-group">
       <div class="field-label">Anthropic API Key</div>
       <input type="password" class="field-input" id="api-key-input" placeholder="sk-ant-…" />
-      <div class="field-hint">Your key is stored locally in your browser only. Get yours at console.anthropic.com</div>
+      <div class="field-hint">Stored locally in your browser only. Get yours at console.anthropic.com</div>
     </div>
 
     <div class="field-group">
       <div class="field-label">Custom Instructions (optional)</div>
-      <textarea class="field-input" id="custom-instructions" rows="3" placeholder="e.g. Always use -/+ notation for sphere/cylinder. Patient is 45 years old…" style="resize:vertical;"></textarea>
+      <textarea class="field-input" id="custom-instructions" rows="3" placeholder="e.g. Always use -/+ notation for sphere/cylinder…" style="resize:vertical;"></textarea>
       <div class="field-hint">Extra context sent to Claude with every exam dictation.</div>
     </div>
 
