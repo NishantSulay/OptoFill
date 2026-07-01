@@ -425,6 +425,79 @@
     .toast.success { background: var(--teal); }
     .toast.error   { background: var(--danger); }
 
+    /* ── Listening overlay (matches landing page AI panel) ── */
+    .listening-overlay {
+      background: linear-gradient(135deg, #1e40af 0%, #2563eb 50%, #0d9488 100%);
+      border-radius: 10px;
+      padding: 22px 16px 18px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .listening-title {
+      color: #fff;
+      font-weight: 700;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+    }
+
+    .voice-wave {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      padding: 8px 0;
+    }
+
+    .wave-bar {
+      width: 4px;
+      border-radius: 2px;
+      background: rgba(255,255,255,0.75);
+      animation: waveAnim 1.2s ease-in-out infinite;
+    }
+    .wave-bar:nth-child(1) { height: 10px; animation-delay: 0s;    }
+    .wave-bar:nth-child(2) { height: 22px; animation-delay: .1s;   }
+    .wave-bar:nth-child(3) { height: 16px; animation-delay: .2s;   }
+    .wave-bar:nth-child(4) { height: 30px; animation-delay: .3s;   }
+    .wave-bar:nth-child(5) { height: 20px; animation-delay: .4s;   }
+    .wave-bar:nth-child(6) { height: 26px; animation-delay: .3s;   }
+    .wave-bar:nth-child(7) { height: 14px; animation-delay: .2s;   }
+    .wave-bar:nth-child(8) { height: 24px; animation-delay: .1s;   }
+    .wave-bar:nth-child(9) { height: 12px; animation-delay: 0s;    }
+
+    @keyframes waveAnim {
+      0%, 100% { transform: scaleY(1);   opacity: 0.7; }
+      50%       { transform: scaleY(1.7); opacity: 1;   }
+    }
+
+    .ai-card {
+      background: rgba(255,255,255,0.15);
+      border-radius: 10px;
+      padding: 11px 14px;
+      width: 100%;
+      text-align: center;
+      backdrop-filter: blur(4px);
+    }
+
+    .ai-card-label {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.7);
+      margin-bottom: 6px;
+    }
+
+    .ai-card-text {
+      font-size: 12px;
+      color: #fff;
+      line-height: 1.55;
+    }
+
     /* ── Scrollbar ── */
     ::-webkit-scrollbar { width: 4px; }
     ::-webkit-scrollbar-track { background: transparent; }
@@ -453,14 +526,37 @@
       <span id="status-text">Ready — click mic to dictate your exam</span>
     </div>
 
-    <div class="mic-area">
-      <button class="mic-btn" id="mic-btn" title="Click to record">🎙</button>
-      <div class="mic-hint" id="mic-hint">Click to start recording</div>
+    <!-- Listening overlay — shown while mic is active -->
+    <div id="listening-panel" class="listening-overlay" style="display:none;">
+      <div class="listening-title">🎙 OptoFill is listening…</div>
+      <div class="voice-wave">
+        <div class="wave-bar"></div>
+        <div class="wave-bar"></div>
+        <div class="wave-bar"></div>
+        <div class="wave-bar"></div>
+        <div class="wave-bar"></div>
+        <div class="wave-bar"></div>
+        <div class="wave-bar"></div>
+        <div class="wave-bar"></div>
+        <div class="wave-bar"></div>
+      </div>
+      <div class="ai-card">
+        <div class="ai-card-label">AI Detected</div>
+        <div class="ai-card-text" id="live-transcript-text">Speak and your dictation will appear here…</div>
+      </div>
+      <button class="btn" id="stop-btn" style="background:rgba(255,255,255,0.2);color:#fff;border:1.5px solid rgba(255,255,255,0.35);width:100%;font-size:12.5px;">⏹ Stop Recording</button>
     </div>
 
-    <div>
-      <div class="transcript-label">Transcript</div>
-      <textarea class="transcript-box empty" id="transcript" placeholder="Your dictation will appear here…" rows="5"></textarea>
+    <div id="mic-idle">
+      <div class="mic-area">
+        <button class="mic-btn" id="mic-btn" title="Click to record">🎙</button>
+        <div class="mic-hint" id="mic-hint">Click to start recording</div>
+      </div>
+
+      <div>
+        <div class="transcript-label">Transcript</div>
+        <textarea class="transcript-box empty" id="transcript" placeholder="Your dictation will appear here…" rows="5"></textarea>
+      </div>
     </div>
 
     <div class="actions">
@@ -507,5 +603,26 @@
   <div class="toast" id="toast"></div>
 
   <script src="popup.js"></script>
+  <script>
+    // Patch setListeningState to toggle the landing-page-style overlay
+    const _orig = setListeningState;
+    setListeningState = function(listening) {
+      _orig(listening);
+      document.getElementById('listening-panel').style.display = listening ? 'flex' : 'none';
+      document.getElementById('mic-idle').style.display        = listening ? 'none' : 'block';
+    };
+
+    // Mirror transcript into the AI Detected card in real time
+    document.getElementById('transcript').addEventListener('input', function() {
+      const t = this.value.trim();
+      document.getElementById('live-transcript-text').textContent =
+        t ? '“' + t.slice(-160) + '…”' : 'Speak and your dictation will appear here…';
+    });
+
+    // Stop button inside the overlay calls the same mic-btn click handler
+    document.getElementById('stop-btn').addEventListener('click', function() {
+      document.getElementById('mic-btn').click();
+    });
+  </script>
 </body>
 </html>
