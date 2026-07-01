@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<title>OptoFill – Settings</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=DM+Mono:wght@400&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body {
+  min-height: 100vh; background: #0d1117;
+  font-family: 'DM Sans', sans-serif; color: #e6edf3;
+  display: flex; align-items: center; justify-content: center; padding: 24px;
+}
+.card {
+  background: #161b22; border: 1px solid #30363d; border-radius: 14px;
+  padding: 36px 40px; max-width: 460px; width: 100%;
+  display: flex; flex-direction: column; gap: 22px;
+}
+.logo { display: flex; align-items: center; gap: 10px; }
+.logo-icon {
+  width: 40px; height: 40px;
+  background: linear-gradient(135deg, #2dd4bf, #06b6d4);
+  border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 20px;
+}
+.logo-text { font-size: 20px; font-weight: 600; }
+.logo-text span { color: #2dd4bf; }
+.field-group { display: flex; flex-direction: column; gap: 6px; }
+.field-label { font-size: 11px; font-weight: 500; color: #8b949e; text-transform: uppercase; letter-spacing: 0.7px; }
+.field-input {
+  background: #0d1117; border: 1px solid #30363d; border-radius: 7px;
+  padding: 9px 12px; color: #e6edf3; font-family: 'DM Mono', monospace;
+  font-size: 12px; outline: none; transition: border-color 0.2s; width: 100%;
+}
+.field-input:focus { border-color: #2dd4bf; }
+.field-hint { font-size: 11px; color: #8b949e; line-height: 1.5; }
+.info-box {
+  background: #1f2937; border: 1px solid #30363d; border-radius: 8px;
+  padding: 12px 14px; font-size: 12.5px; color: #8b949e; line-height: 1.6;
+}
+.info-box strong { color: #2dd4bf; }
+.save-row { display: flex; gap: 8px; align-items: center; }
+.btn {
+  padding: 9px 20px; border-radius: 7px; border: none;
+  font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 600;
+  cursor: pointer; background: linear-gradient(135deg, #2dd4bf, #06b6d4); color: #0d1117;
+}
+.btn:hover { opacity: 0.9; }
+.saved { display: none; font-size: 12px; color: #34d399; }
+.saved.show { display: inline; }
+.status { font-size: 12px; color: #8b949e; margin-top: 4px; min-height: 18px; }
+.status.error { color: #f87171; }
+.status.success { color: #34d399; }
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="logo">
+    <div class="logo-icon">👁</div>
+    <div class="logo-text">Opto<span>Fill</span> — Settings</div>
+  </div>
+
+  <div class="info-box">
+    🎙 <strong>Microphone:</strong> When you first click Record on your exam page, Chrome will ask for microphone access. Click <strong>Allow</strong> — it only asks once per site.
+  </div>
+
+  <div class="field-group">
+    <div class="field-label">Anthropic API Key</div>
+    <input type="password" class="field-input" id="api-key" placeholder="sk-ant-…"/>
+    <div class="field-hint">Get yours at console.anthropic.com — stored locally, never sent anywhere except Anthropic's API.</div>
+  </div>
+
+  <div class="field-group">
+    <div class="field-label">Custom Instructions (optional)</div>
+    <textarea class="field-input" id="custom-instructions" rows="3" style="resize:vertical"
+      placeholder="e.g. Always use minus sign for myopia. Use OD/OS notation."></textarea>
+    <div class="field-hint">Extra context sent to Claude with every dictation.</div>
+  </div>
+
+  <div class="save-row">
+    <button class="btn" id="save-btn">Save Settings</button>
+    <span class="saved" id="saved-badge">✓ Saved</span>
+  </div>
+  <div class="status" id="status"></div>
+</div>
+<script src="options.js"></script>
+</body>
+</html>

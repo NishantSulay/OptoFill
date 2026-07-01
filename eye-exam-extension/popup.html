@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>OptoFill</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0d1117;
+      --surface: #161b22;
+      --surface2: #1f2937;
+      --border: #30363d;
+      --accent: #2dd4bf;
+      --accent2: #06b6d4;
+      --danger: #f87171;
+      --text: #e6edf3;
+      --text-muted: #8b949e;
+      --success: #34d399;
+    }
+
+    body {
+      width: 360px;
+      min-height: 480px;
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      overflow: hidden;
+    }
+
+    /* Header */
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 16px 12px;
+      border-bottom: 1px solid var(--border);
+      background: var(--surface);
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .logo-icon {
+      width: 28px;
+      height: 28px;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 15px;
+    }
+
+    .logo-text {
+      font-weight: 600;
+      font-size: 15px;
+      letter-spacing: -0.3px;
+    }
+
+    .logo-text span {
+      color: var(--accent);
+    }
+
+    .settings-btn {
+      background: none;
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      width: 28px;
+      height: 28px;
+      border-radius: 6px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      transition: all 0.15s;
+    }
+
+    .settings-btn:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    /* Panels */
+    .panel { display: none; flex-direction: column; }
+    .panel.active { display: flex; }
+
+    /* Main Panel */
+    #main-panel { padding: 16px; gap: 14px; }
+
+    .status-bar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .status-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--text-muted);
+      flex-shrink: 0;
+      transition: background 0.3s;
+    }
+
+    .status-dot.listening { background: var(--danger); animation: pulse 1.2s infinite; }
+    .status-dot.processing { background: var(--accent2); animation: pulse 0.8s infinite; }
+    .status-dot.ready { background: var(--success); }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(0.85); }
+    }
+
+    /* Mic Button */
+    .mic-area {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      padding: 18px 0 8px;
+    }
+
+    .mic-btn {
+      width: 72px;
+      height: 72px;
+      border-radius: 36px;
+      transition: width 0.2s, border-radius 0.2s;
+      border: 2px solid var(--border);
+      background: var(--surface);
+      color: var(--text-muted);
+      font-size: 28px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+      position: relative;
+    }
+
+    .mic-btn::before {
+      content: '';
+      position: absolute;
+      inset: -6px;
+      border-radius: 50%;
+      border: 2px solid transparent;
+      transition: border-color 0.2s;
+    }
+
+    .mic-btn:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+      background: rgba(45, 212, 191, 0.05);
+    }
+
+    .mic-btn.listening {
+      border-color: var(--danger);
+      color: var(--danger);
+      background: rgba(248, 113, 113, 0.08);
+      width: auto;
+      padding: 0 20px;
+      border-radius: 36px;
+      display: flex;
+      gap: 6px;
+      align-items: center;
+    }
+
+    .mic-btn.listening::before {
+      border-color: rgba(248, 113, 113, 0.3);
+      animation: ring 1.5s linear infinite;
+    }
+
+    @keyframes ring {
+      0% { transform: scale(1); opacity: 1; }
+      100% { transform: scale(1.4); opacity: 0; }
+    }
+
+    .mic-hint {
+      font-size: 11.5px;
+      color: var(--text-muted);
+      text-align: center;
+    }
+
+    /* Transcript */
+    .transcript-label {
+      font-size: 11px;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+    }
+
+    .transcript-box {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 12px;
+      min-height: 80px;
+      max-height: 120px;
+      overflow-y: auto;
+      font-family: 'DM Mono', monospace;
+      font-size: 11.5px;
+      line-height: 1.6;
+      color: var(--text);
+      resize: none;
+      width: 100%;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .transcript-box:focus { border-color: var(--accent2); }
+    .transcript-box.empty { color: var(--text-muted); font-style: italic; }
+
+    textarea.transcript-box {
+      font-family: 'DM Mono', monospace;
+      font-size: 11.5px;
+    }
+
+    /* Action Buttons */
+    .actions { display: flex; gap: 8px; }
+
+    .btn {
+      flex: 1;
+      padding: 9px 14px;
+      border-radius: 7px;
+      border: none;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 12.5px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.15s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      color: #0d1117;
+    }
+
+    .btn-primary:hover { opacity: 0.9; transform: translateY(-1px); }
+    .btn-primary:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+
+    .btn-secondary {
+      background: var(--surface2);
+      color: var(--text-muted);
+      border: 1px solid var(--border);
+    }
+
+    .btn-secondary:hover { color: var(--text); border-color: var(--text-muted); }
+
+    /* Results */
+    .results-area { display: none; flex-direction: column; gap: 8px; }
+    .results-area.visible { display: flex; }
+
+    .results-label {
+      font-size: 11px;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: var(--text-muted);
+    }
+
+    .result-list {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      max-height: 130px;
+      overflow-y: auto;
+    }
+
+    .result-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      padding: 7px 12px;
+      border-bottom: 1px solid var(--border);
+      gap: 8px;
+      font-size: 11.5px;
+    }
+
+    .result-item:last-child { border-bottom: none; }
+
+    .result-field {
+      color: var(--text-muted);
+      font-family: 'DM Mono', monospace;
+      font-size: 10.5px;
+      flex-shrink: 0;
+      max-width: 120px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .result-value {
+      color: var(--accent);
+      font-weight: 500;
+      text-align: right;
+    }
+
+    .spinner {
+      display: inline-block;
+      width: 14px;
+      height: 14px;
+      border: 2px solid rgba(45, 212, 191, 0.2);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Settings Panel */
+    #settings-panel {
+      padding: 16px;
+      gap: 14px;
+    }
+
+    .settings-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .field-group { display: flex; flex-direction: column; gap: 5px; }
+
+    .field-label {
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.7px;
+    }
+
+    .field-input {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      padding: 8px 11px;
+      color: var(--text);
+      font-family: 'DM Mono', monospace;
+      font-size: 12px;
+      outline: none;
+      transition: border-color 0.2s;
+      width: 100%;
+    }
+
+    .field-input:focus { border-color: var(--accent2); }
+    .field-input::placeholder { color: var(--text-muted); }
+
+    .field-hint {
+      font-size: 10.5px;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+
+    .save-row {
+      display: flex;
+      gap: 8px;
+      margin-top: 4px;
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 12px;
+      left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 7px 14px;
+      border-radius: 20px;
+      font-size: 12px;
+      opacity: 0;
+      transition: all 0.25s;
+      pointer-events: none;
+      white-space: nowrap;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    .toast.success { border-color: var(--success); color: var(--success); }
+    .toast.error { border-color: var(--danger); color: var(--danger); }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+  </style>
+</head>
+<body>
+
+  <div class="header">
+    <div class="logo">
+      <div class="logo-icon">👁</div>
+      <div class="logo-text">Opto<span>Fill</span></div>
+    </div>
+    <button class="settings-btn" id="toggle-settings" title="Settings">⚙</button>
+  </div>
+
+  <!-- Main Panel -->
+  <div class="panel active" id="main-panel">
+
+    <div id="mic-setup-bar" style="display:none;background:rgba(251,191,36,0.1);border:1px solid rgba(251,191,36,0.4);border-radius:7px;padding:8px 12px;font-size:11.5px;color:#fbbf24;line-height:1.5;cursor:pointer;text-align:center;">
+      🎙 <strong>First time?</strong> Click here to enable microphone, then reopen the extension
+    </div>
+    <div class="status-bar">
+      <div class="status-dot" id="status-dot"></div>
+      <span id="status-text">Ready — click mic to dictate your exam</span>
+    </div>
+
+    <div class="mic-area">
+      <button class="mic-btn" id="mic-btn" title="Hold to record">🎙</button>
+      <div class="mic-hint" id="mic-hint">Click to start recording</div>
+    </div>
+
+    <div>
+      <div class="transcript-label">Transcript</div>
+      <textarea class="transcript-box empty" id="transcript" placeholder="Your dictation will appear here…" rows="5"></textarea>
+    </div>
+
+    <div class="actions">
+      <button class="btn btn-secondary" id="clear-btn">✕ Clear</button>
+      <button class="btn btn-primary" id="fill-btn" disabled>
+        <span id="fill-btn-content">✦ Fill Fields</span>
+      </button>
+    </div>
+
+    <div class="results-area" id="results-area">
+      <div class="results-label" style="display:flex;align-items:center;justify-content:space-between;">
+        Fields Filled
+        <button id="refill-btn" style="background:none;border:1px solid var(--border);color:var(--text-muted);border-radius:5px;padding:2px 8px;font-size:11px;cursor:pointer;" title="Re-fill current tab's visible fields">↺ Re-fill tab</button>
+      </div>
+      <div class="result-list" id="result-list"></div>
+    </div>
+
+  </div>
+
+  <!-- Settings Panel -->
+  <div class="panel" id="settings-panel">
+    <div class="settings-title">⚙ Settings</div>
+
+    <div class="field-group">
+      <div class="field-label">Anthropic API Key</div>
+      <input type="password" class="field-input" id="api-key-input" placeholder="sk-ant-…" />
+      <div class="field-hint">Your key is stored locally in your browser only. Get yours at console.anthropic.com</div>
+    </div>
+
+    <div class="field-group">
+      <div class="field-label">Custom Instructions (optional)</div>
+      <textarea class="field-input" id="custom-instructions" rows="3" placeholder="e.g. Always use -/+ notation for sphere/cylinder. Patient is 45 years old…" style="resize:vertical;"></textarea>
+      <div class="field-hint">Extra context sent to Claude with every exam dictation.</div>
+    </div>
+
+    <div class="save-row">
+      <button class="btn btn-secondary" id="back-btn" style="flex:0.6">← Back</button>
+      <button class="btn btn-primary" id="save-settings-btn">Save Settings</button>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script src="popup.js"></script>
+</body>
+</html>
