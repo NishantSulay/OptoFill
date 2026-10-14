@@ -54,13 +54,16 @@ const val = (page, name) => page.$eval(`[name="${name}"]`, el => el.value);
     bv_pfv_dist: 'b1', bv_nfv_dist: 'b2', bv_pfv_near: 'b3', bv_nfv_near: 'b4',
     va_dist_sc_od: 'v1', va_dist_sc_os: 'v3', va_dist_sc_ou: 'v5', va_dist_cc_od: 'v7', va_dist_cc_os: 'v9', va_near_sc_od: 'v13', va_near_sc_os: 'v15',
     pupils_light_od: 'p1', pupils_apd_os: 'p10', cover_dist_eye: 'c1', cover_dist_amount: 'c4', cover_near_direction: 'c7',
-    pd_dist_od: 'd1', pd_dist_ou: 'd3', pd_near_os: 'd5', color_os: 'cv2', color_method: 'cv3', stereo: 's1', stereo_method: 's2',
+    pd_dist_od: 'd1', pd_dist_ou: 'd3', pd_near_os: 'd5', color_od: 'cv1', color_os: 'cv2', color_method: 'cv3', stereo: 's1', stereo_method: 's2',
+    pupils_notes: 'pn', va_dist_cc_ou: 'v11', cover_near_amount: 'c8',
     rx_sph_od: 'r1', rx_cyl_os: 'r7', rx_axis_os: 'r8', rx_add_od: 'r4', iop_od: 't1', iop_os: 't2',
   };
   const wrong = Object.entries(expect).filter(([k, n]) => mapped[k] !== n).map(([k, n]) => `${k}: got ${mapped[k] || 'none'}, want ${n}`);
   check(`auto-map: ${Object.keys(expect).length - wrong.length}/${Object.keys(expect).length} key boxes mapped correctly`, !wrong.length, wrong.join('; '));
   const stray = Object.entries(mapped).filter(([, n]) => ['n1', 'v8'].includes(n));
   check('auto-map: top note box and second VA box are left for the doctor to map', !stray.length, JSON.stringify(stray));
+  const nearCc = ['va_near_cc_od', 'va_near_cc_os', 'va_near_cc_ou'].filter(k => mapped[k]);
+  check('auto-map: no near-corrected keys on a page that only has near uncorrected boxes', !nearCc.length, nearCc.map(k => `${k}→${mapped[k]}`).join(', '));
   const cover_vertical = Object.entries(mapped).filter(([, n]) => ['c9', 'c10', 'c11', 'c12'].includes(n));
   check('auto-map: Vertical Dx row is not mistaken for distance cover test', !cover_vertical.length, JSON.stringify(cover_vertical));
 

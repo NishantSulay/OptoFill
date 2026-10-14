@@ -17,8 +17,6 @@ const VALUES = {
   bv_amplitude_od: '6 cm', bv_amplitude_os: '5 cm', bv_npc: '8 cm', pd_dist_ou: '64', pd_near_ou: '61',
   color_od: 'normal', color_os: 'normal', color_method: 'Ishihara', stereo: '40"', stereo_method: 'Randot',
 };
-// Boxes auto-map doesn't suggest on the mock EMR; mapped by clicking them in setup, as a doctor would
-const MANUAL_MAP = { pupils_notes: 'pn', color_od: 'cv1' };
 
 // Stand-ins for the extension APIs, installed in every frame before its scripts run
 function installStubs(values) {
@@ -99,22 +97,16 @@ async function openStage(browser, { width, height, scale = 2, setup = true }) {
   await emr.addScriptTag({ url: `${base}/eye-exam-extension/schema.js` });
   await emr.addScriptTag({ url: `${base}/eye-exam-extension/content.js` });
   if (setup) {
-    const unmapped = await emr.evaluate(async ([keys, manual]) => {
+    const unmapped = await emr.evaluate(async (keys) => {
       const map = {};
       autoMapVisible(map);
       document.querySelector('[data-tab=refraction]').click();
       await new Promise(r => setTimeout(r, 50));
       autoMapVisible(map);
       document.querySelector('[data-tab=pretest]').click();
-      await new Promise(r => setTimeout(r, 50));
-      const fields = getAllFields(true);
-      for (const [key, name] of Object.entries(manual)) {
-        const f = fields.find(x => x.name === name);
-        map[key] = mappingEntry(lastScannedEls[f.index], f);
-      }
       await saveMap(map);
       return keys.filter(k => !map[k]);
-    }, [Object.keys(VALUES), MANUAL_MAP]);
+    }, Object.keys(VALUES));
     if (unmapped.length) throw new Error('Demo values without a mapped box: ' + unmapped.join(', '));
   }
 

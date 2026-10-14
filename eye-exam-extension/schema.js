@@ -86,5 +86,6 @@
   add('notes_general', 'Other clinical notes not covered by any field above', {}, 'Other');
 
   root.OPTOFILL_SCHEMA = S;
+  root.OPTOFILL_WORDS = W;   // shared word groups, so auto-map can tell rival groups apart (corrected vs uncorrected, distance vs near)
   if (typeof module !== 'undefined' && module.exports) module.exports = S;
 })(typeof self !== 'undefined' ? self : globalThis);

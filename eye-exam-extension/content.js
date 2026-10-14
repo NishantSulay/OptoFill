@@ -175,15 +175,34 @@ function getLayoutContext(el, anchors) {
     if (!col || a.r.bottom > col.r.bottom) col = a;
   }
 
-  // Nearby headings above, nearest first (e.g. "Near Vision", "BV Vergences")
   const skip = new Set([row?.text, col?.text]);
-  const context = anchors
+  const headingDist = a => (f.top - a.r.bottom) + 0.5 * Math.max(0, a.r.left - f.right, f.left - a.r.right);
+  // Labels further left on the same line (e.g. "Stereoacuity  [ ]  Method Used [select]"), nearest first
+  // Must line up with this row's own label, so a heading of a neighbouring column that happens to sit at this height
+  // doesn't count
+  const sameRow = !row ? [] : anchors
+    .filter(a => a !== row && a.r.right <= row.r.left + 2 && row.r.left - a.r.right < 500 &&
+                 Math.abs(cy(a) - cy(row)) < 4 && !skip.has(a.text))
+    .sort((a, b) => b.r.right - a.r.right)
+    .slice(0, 2);
+  // Other rows' labels (lined up with this row's label, e.g. "OD:20/" above "OU:20/") aren't headings: skip them
+  // and any other copy of their text, so they don't push the real headings out of the nearest 4
+  const siblingRows = new Set(row ? anchors.filter(a => a !== row && Math.abs(a.r.left - row.r.left) < 6 && a.r.bottom <= row.r.top + 2)
+                                          .map(a => a.text) : []);
+  // Nearby headings above, nearest first (e.g. "Near Vision", "BV Vergences")
+  const above = anchors
     .filter(a => a.r.bottom <= f.top + 2 && f.top - a.r.bottom < 300 &&
-                 a.r.right >= f.left - 250 && a.r.left <= f.right + 50 && !skip.has(a.text))
-    .sort((a, b) => b.r.bottom - a.r.bottom)
+                 a.r.right >= f.left - 250 && a.r.left <= f.right + 50 && !skip.has(a.text) && !siblingRows.has(a.text))
+    // Nearest first: distance above, plus half the sideways gap (a heading right over the box beats one off to the side)
+    .sort((a, b) => headingDist(a) - headingDist(b))
+    .filter((a, i, arr) => arr.findIndex(x => x.text === a.text) === i)   // de-duplicate before taking the nearest 4
+    .slice(0, 4);
+  // The panel's title (its top-left text, e.g. "Pupils", "Color Vision"), which busy grids push out of range
+  const title = panel && anchors.filter(a => a.r.bottom <= f.top + 2)
+    .sort((a, b) => a.r.top - b.r.top || a.r.left - b.r.left)[0];
+  const context = [...sameRow, ...above, ...(title ? [title] : [])]
     .map(a => a.text)
-    .filter((t, i, arr) => arr.indexOf(t) === i)
-    .slice(0, 4)
+    .filter((t, i, arr) => !skip.has(t) && arr.indexOf(t) === i)
     .join(' / ');
 
   return { row: row?.text || '', col: col?.text || '', context };
@@ -498,6 +517,13 @@ function normText(t) {
 }
 const hasToken = (text, token) => text.includes(` ${token} `);
 
+// Word groups that exclude each other (schema.js shares these arrays between keys, so they're matched by identity)
+const RIVALS = new Map();
+{
+  const W = self.OPTOFILL_WORDS;
+  if (W) for (const [a, b] of [['sc', 'cc'], ['dist', 'near']]) { RIVALS.set(W[a], W[b]); RIVALS.set(W[b], W[a]); }
+}
+
 function scoreKey(entry, f) {
   if (!entry.must || !entry.must.length) return 0;
   const own = normText([f.label, f.row, f.col, f.placeholder].join(' | '));
@@ -506,12 +532,23 @@ function scoreKey(entry, f) {
   let score = 0;
   if (entry.eye) {
     if (!EYE_WORDS[entry.eye].some(t => hasToken(own, t))) return 0;
-    for (const [eye, words] of Object.entries(EYE_WORDS)) if (eye !== entry.eye && words.some(t => hasToken(own, t))) return 0;
+    for (const [eye, words] of Object.entries(EYE_WORDS)) {
+      // "OD/OU" boxes are the OD box when the field has no OU variant (e.g. colour vision)
+      if (eye === 'ou' && entry.eye === 'od' && !SCHEMA_BY_KEY[entry.key.replace(/_od$/, '_ou')]) continue;
+      if (eye !== entry.eye && words.some(t => hasToken(own, t))) return 0;
+    }
     score += 10;
   }
   for (const group of entry.must) {
     const pos = sources.findIndex(s => group.some(t => hasToken(s, t)));
     if (pos < 0) return 0;
+    // Corrected vs uncorrected, distance vs near: the nearer label decides ("Uncorrected" right above beats
+    // a "Corrected" heading further away)
+    const rival = RIVALS.get(group);
+    if (rival) {
+      const rpos = sources.findIndex(s => rival.some(t => hasToken(s, t)));
+      if (rpos >= 0 && rpos < pos) return 0;
+    }
     score += 10 - Math.min(pos, 9);
   }
   return score;
