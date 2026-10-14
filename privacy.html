@@ -109,7 +109,7 @@
 <div class="content">
 
   <div class="highlight">
-    <strong>Short version:</strong> OptoFill does not collect, store, or sell any personal data. Your API key stays on your device. Dictations are sent only to Anthropic's API to process your request and are not retained by this extension.
+    <strong>Short version:</strong> OptoFill has no servers and does not collect, store, or sell any data. Your API key stays on your device. When you dictate, <strong>Chrome's speech recognition sends your audio to Google</strong> to turn it into text, and when you fill, that text is sent to <strong>Anthropic</strong> (Claude). Do not dictate patient names or other identifiers.
   </div>
 
   <h2>1. Who We Are</h2>
@@ -127,15 +127,15 @@
 
   <p><strong>b) Voice Dictations / Transcripts</strong></p>
   <ul>
-    <li>Speech is transcribed on-device using the browser's built-in Web Speech API (Google Chrome's speech recognition). OptoFill does not receive or store audio.</li>
-    <li>The resulting text transcript is sent to <code>api.anthropic.com</code> when you click "Fill Fields." This is the only external transmission of transcript data.</li>
-    <li>OptoFill does not store, log, or retain any transcript content on its own servers.</li>
+    <li>Speech is transcribed by Chrome's built-in speech recognition (the Web Speech API). <strong>Chrome sends your audio to Google's speech service</strong> to do this; it is not transcribed on your device. OptoFill itself never receives, stores, or sends audio.</li>
+    <li>The resulting text transcript is sent to <code>api.anthropic.com</code> when you click "Fill Fields."</li>
+    <li>The current transcript is kept in Chrome's session storage so it survives closing the popup, and is cleared when you clear it or close Chrome. OptoFill has no servers and keeps no copy.</li>
   </ul>
 
   <p><strong>c) Form Field Metadata</strong></p>
   <ul>
     <li>Once you have set up your EMR in OptoFill (see below), only your dictation is sent to Anthropic. Claude turns it into standard exam values, and OptoFill places them into the boxes on your own computer.</li>
-    <li>If you use "Fill Fields" on an EMR you have not set up yet ("quick fill"), OptoFill also sends a description of the visible form fields — their labels, field names, input types, and nearby text such as row and column headings — so Claude can guess which box to fill. Nearby text can include whatever is printed on screen near a box.</li>
+    <li>If you use "Fill Fields" on an EMR you have not set up yet ("quick fill"), OptoFill also sends a description of the visible form fields — their labels, field names, input types, and nearby text such as row and column headings — so Claude can guess which box to fill. Nearby text can include whatever is printed on screen near a box, <strong>which may include the patient's name or other details shown on the page</strong>. Setting up your EMR avoids this: after setup, only your dictation is sent.</li>
     <li>This data is not stored by OptoFill and is not transmitted to any service other than Anthropic. OptoFill never sends screenshots of your screen.</li>
   </ul>
 
@@ -155,24 +155,25 @@
     <li>Does <strong>not</strong> operate any servers or databases that store your data.</li>
     <li>Does <strong>not</strong> collect analytics, usage statistics, or telemetry.</li>
     <li>Does <strong>not</strong> track which websites you visit.</li>
-    <li>Does <strong>not</strong> share any information with third parties other than Anthropic (solely for AI processing at your explicit request).</li>
+    <li>Does <strong>not</strong> share any information with third parties other than Anthropic (for AI processing when you click "Fill Fields"). Your audio reaches Google through Chrome's own speech recognition, described below.</li>
     <li>Does <strong>not</strong> sell, rent, or monetize user data in any form.</li>
-    <li>Does <strong>not</strong> store or transmit audio recordings.</li>
+    <li>Does <strong>not</strong> record or store audio.</li>
   </ul>
 
   <h2>4. Third-Party Services</h2>
   <p><strong>Anthropic (Claude AI)</strong><br/>
-  When you click "Fill Fields," a request is sent to <code>api.anthropic.com</code> containing your transcript and form field metadata. This request is governed by <a href="https://www.anthropic.com/privacy" target="_blank">Anthropic's Privacy Policy</a>. Anthropic may process this data according to their API terms. We recommend reviewing their policy if you process sensitive patient data.</p>
+  When you click "Fill Fields," a request is sent to <code>api.anthropic.com</code> containing your transcript and form field metadata. This request is governed by <a href="https://www.anthropic.com/privacy" target="_blank">Anthropic's Privacy Policy</a> and API terms, including how long Anthropic keeps API data. If Claude declines a quick-fill request, Anthropic may retry it on another Claude model; the data still goes only to Anthropic.</p>
 
   <p><strong>Google Chrome Web Speech API</strong><br/>
-  Voice transcription is performed by Chrome's built-in speech recognition. Audio may be processed by Google's servers depending on your Chrome configuration. Refer to <a href="https://policies.google.com/privacy" target="_blank">Google's Privacy Policy</a> for details.</p>
+  Voice transcription is performed by Chrome's built-in speech recognition, which sends your audio to Google's servers to be transcribed. OptoFill does not control how Google handles that audio. Refer to <a href="https://policies.google.com/privacy" target="_blank">Google's Privacy Policy</a> for details.</p>
 
-  <h2>5. HIPAA Considerations</h2>
-  <p>OptoFill is a software tool, not a covered entity or business associate under HIPAA. If you use OptoFill to process Protected Health Information (PHI):</p>
+  <h2>5. Patient Privacy Laws (HIPAA, PHIPA and Others)</h2>
+  <p>OptoFill is a software tool. It is not a covered entity, business associate, or health information custodian. If you use OptoFill with patient information, you are responsible for making sure your use complies with the laws that apply to you — for example HIPAA in the United States, or PHIPA and other provincial health privacy laws in Canada. This page is not legal advice.</p>
   <ul>
-    <li>You are responsible for ensuring your use complies with HIPAA and applicable regulations in your jurisdiction.</li>
-    <li>We recommend avoiding inclusion of patient names, dates of birth, or other direct identifiers in your dictations where possible — clinical findings (sphere, cylinder, IOP values) are sufficient for form filling.</li>
-    <li>Anthropic offers a Business Associate Agreement (BAA) for eligible API customers. If PHI processing is required, obtain a BAA with Anthropic before using OptoFill in a clinical setting.</li>
+    <li><strong>Do not dictate patient identifiers</strong> such as names, dates of birth, health card or insurance numbers, addresses, or phone numbers. Clinical findings (VA, refraction, IOP, and so on) are all OptoFill needs.</li>
+    <li>Your audio is sent to Google by Chrome's speech recognition, and your dictation text is sent to Anthropic. Check whether your obligations allow this, and whether you need an agreement with either company, before using OptoFill with real patients.</li>
+    <li>Anthropic offers agreements for handling health information to some API customers. Contact Anthropic to find out whether one is available for your account.</li>
+    <li>Set up your EMR rather than relying on quick fill, so that text shown on the page is not sent.</li>
   </ul>
 
   <h2>6. Data Retention</h2>
@@ -187,8 +188,8 @@
   <ul>
     <li><strong>activeTab</strong> — Allows OptoFill to interact with the tab you are currently viewing when you click the extension icon. Required to read and fill form fields on your EHR page.</li>
     <li><strong>storage</strong> — Allows local storage of your API key and settings on your device only.</li>
-    <li><strong>scripting</strong> — Allows OptoFill to inject the field-scanning script into your active EHR tab when you trigger a fill. No scripts run without your explicit action.</li>
-    <li><strong>host_permissions (&lt;all_urls&gt;)</strong> — OptoFill must work on any web-based EHR system. Because different optometry practices use different platforms at different URLs, the extension cannot pre-specify a fixed list of domains. This permission is used only when you actively click "Fill Fields."</li>
+    <li><strong>scripting</strong> — Allows OptoFill to load its page script into your EHR tab if it isn't there yet, and to find which part of the page (including embedded frames) holds the exam form.</li>
+    <li><strong>host_permissions (&lt;all_urls&gt;)</strong> — OptoFill must work on any web-based EHR system, and practices use different platforms at different URLs, so the extension cannot list domains in advance. OptoFill's page script loads on every page you visit (including embedded frames) so it is ready when you need it, but it does not read, fill, or send anything from a page until you use OptoFill on that page — set it up, dictate, or click "Fill Fields."</li>
   </ul>
 
   <h2>8. Children's Privacy</h2>

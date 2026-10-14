@@ -6,41 +6,41 @@
 OptoFill – Eye Exam Autofill
 
 ### Short Description (132 chars max)
-Dictate your eye exam and let AI fill every EHR field instantly. Save 5+ minutes per patient with voice + Claude AI.
+Dictate your eye exam and OptoFill fills your web-based EMR's exam form, checks every box, and lets you undo. Powered by Claude.
 
 ### Full Description
 
-**OptoFill turns your voice into a completed patient chart.**
+**Dictate the eye exam. OptoFill fills the form.**
 
-As an optometrist or ophthalmologist, you spend 5–10 minutes per patient manually typing exam findings into your EHR. OptoFill eliminates that entirely. Speak naturally during the exam — OptoFill listens, understands, and fills every form field automatically.
+OptoFill turns your spoken exam findings into entries on your web-based EMR's exam form — visual acuity, refraction, IOP, pupils, binocular vision, slit lamp and fundus findings, assessment and plan.
 
 **How it works:**
-1. Click the OptoFill icon while your EHR form is open
-2. Click 🎙 and dictate your exam findings naturally
-3. Click ✦ Fill Fields — Claude AI maps your findings to the correct fields
-4. Review the highlighted results and confirm
+1. Add your Anthropic API key in OptoFill's Settings (stored only on your computer).
+2. Set up your EMR once: open the exam screen, start setup, and let Auto-map suggest what each box is from its row and column labels. Click any box to correct it.
+3. Click 🎙 in the OptoFill popup and dictate your findings.
+4. Click ✦ Fill Fields. Claude turns your dictation into standard exam values, and OptoFill puts each one in the box you set up.
+5. Every box is read back to confirm the value took; anything that didn't is listed. One click undoes the whole fill.
+
+On an EMR you haven't set up yet, Quick fill lets Claude match values to boxes from the page's labels.
 
 **What it fills:**
-- Visual acuity (OD/OS/OU, distance and near)
-- Manifest refraction (sphere, cylinder, axis, prism, add power)
-- Intraocular pressure
-- Patient information and chief complaint
+- Visual acuity (distance and near, sc/cc, OD/OS/OU)
+- Manifest refraction (sphere, cylinder, axis, add, prism) and PD
+- Intraocular pressure, pupils, cover test, NPC, vergences, EOMs, color vision, stereo
 - Slit lamp and fundus findings
-- Diagnosis and clinical notes
-- Any other visible form field
+- Chief complaint, assessment, plan and notes
 
-**Works everywhere:**
-Compatible with any web-based EHR, optometry practice management system, or online form — WebPT, Eyefinity, Crystal PM, and more. No integration, no IT setup, no configuration needed.
+**Works with web-based EMRs:** any EMR that runs in Chrome, including exam forms split across tabs or embedded in a frame. You set each EMR up once; no integration from your EMR vendor is needed.
 
-**Privacy first:**
-- Your API key is stored locally on your device only
-- No audio is ever transmitted — transcription happens on-device
-- No data is collected by OptoFill
-- One secure call to Anthropic's API per fill, nothing else
+**Privacy:**
+- No OptoFill servers, no analytics. Your API key and EMR setup are stored only on your computer.
+- Chrome's built-in speech recognition sends your audio to Google to transcribe it.
+- Your dictation text is sent to Anthropic's API (Claude) when you click Fill Fields. In Quick fill, labels and nearby text from the page are sent too.
+- Do not dictate patient names or other identifiers. You are responsible for complying with the health privacy laws that apply to you.
 
 **Requirements:**
-- Your own Anthropic API key (get one free at console.anthropic.com)
-- Works on any web-based EHR or optometry form
+- Your own Anthropic API key with credit (console.anthropic.com). You pay Anthropic directly — in our tests, less than a tenth of a cent per fill on a set-up EMR.
+- Google Chrome and a web-based EMR.
 
 ---
 
@@ -48,16 +48,16 @@ Compatible with any web-based EHR, optometry practice management system, or onli
 (Copy-paste these into the Chrome Web Store "Permission justification" field)
 
 ### activeTab
-OptoFill needs access to the currently active tab to scan form fields and fill them when the user explicitly clicks "Fill Fields." This permission is used only when the user interacts with the extension — it is never used passively.
+Lets OptoFill work with the tab the user is on when they open the popup: scanning the exam form's boxes during setup and filling them when the user clicks "Fill Fields."
 
 ### storage
-Required to store the user's Anthropic API key and custom instructions locally on their device using chrome.storage.local. No data is synced to the cloud or transmitted to OptoFill.
+Stores the user's Anthropic API key, custom instructions, and per-EMR setup (which box holds which exam value) locally with chrome.storage.local, and the current transcript in chrome.storage.session. Nothing is synced or sent to OptoFill.
 
 ### scripting
-Required to inject the field-scanning and field-filling content script into the active EHR tab when the user clicks "Fill Fields." The script reads visible form field labels and fills matched values. It runs only on explicit user action and is not injected passively.
+Used to load OptoFill's page script into the EHR tab if it isn't loaded yet, and to count the form boxes in each frame so OptoFill can find an exam form that is embedded in an iframe.
 
 ### host_permissions: <all_urls>
-OptoFill is designed for use on any web-based EHR or optometry practice management system. These platforms can be hosted on any domain (e.g., clinic-specific subdomains, white-labeled SaaS products). It is technically impossible to enumerate all possible EHR URLs in advance. This permission is used only when the user explicitly clicks "Fill Fields" on their currently open EHR tab — it is never used to access arbitrary websites passively or in the background.
+OptoFill is for any web-based EHR or optometry practice management system, and these are hosted on many different domains (clinic-specific subdomains, white-labeled products), so the URLs cannot be listed in advance. The content script loads on pages so it is ready when the user opens OptoFill, but it does not read, fill, or send anything from a page until the user uses OptoFill on that page (setup, dictation, or Fill Fields).
 
 ---
 
@@ -96,9 +96,9 @@ Upload `optofill-extension.zip` to the Chrome Web Store dashboard.
 
 ## Screenshots Required
 Upload these from the `store-assets/` folder:
-- `screenshot-1.png` — Extension in action filling an eye exam form (1280×800)
-- `screenshot-2.png` — How it works step-by-step (1280×800)
-- `screenshot-3.png` — Privacy and security features (1280×800)
+- `screenshot-1.png` — Extension in action filling an eye exam form (1280×800) — **outdated: the dictation includes a patient name, age and sex, and the header shows a DOB. Replace it before submitting.**
+- `screenshot-2.png` — How it works step-by-step (1280×800) — **outdated: says "no setup needed". Replace it before submitting.**
+- `screenshot-3.png` — Privacy and security features (1280×800) — **outdated: it claims audio is transcribed on-device, "scripts only run when you click Fill" and "HIPAA-ready". Replace it before submitting.**
 
 Store icon (128×128) is already in `eye-exam-extension/icons/icon128.png`.
 
@@ -113,4 +113,4 @@ Store icon (128×128) is already in `eye-exam-extension/icons/icon128.png`.
 Common requests for extensions with broad permissions:
 1. **Narrower permissions** — If asked, explain that EHR URLs cannot be known in advance
 2. **Single-purpose statement** — "This extension's sole purpose is to fill optometry EHR form fields from voice dictation"
-3. **Data use disclosure** — Already handled in privacy policy
+3. **Data use disclosure** — See the privacy policy (audio to Google via Chrome's speech recognition, dictation to Anthropic)

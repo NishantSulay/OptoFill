@@ -566,61 +566,62 @@
     <li><a href="#how-it-works">How It Works</a></li>
     <li><a href="#features">Features</a></li>
     <li><a href="#exam-fields">Exam Fields</a></li>
+    <li><a href="privacy.html">Privacy</a></li>
   </ul>
-  <a href="#cta" class="btn btn-primary">Add to Chrome</a>
+  <a href="#cta" class="btn btn-primary">Get OptoFill</a>
 </nav>
 
 <!-- HERO -->
 <section class="hero">
   <div class="hero-badge">
     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-    Chrome Extension · Powered by AI
+    Chrome Extension · Powered by Claude
   </div>
 
-  <h1>Document Eye Exams <span>10× Faster</span> with Voice & AI</h1>
-  <p>OptoFill listens as you examine patients, then instantly fills out patient charts, exam forms, and clinical notes — no typing required.</p>
+  <h1>Dictate the eye exam. <span>OptoFill fills the form.</span></h1>
+  <p>Speak your findings and OptoFill enters them into your web-based EMR's exam form — visual acuity, refraction, IOP, slit lamp and more. Every box is checked after it's filled, and one click undoes the whole fill.</p>
 
   <div class="hero-cta">
     <a href="#cta" class="btn btn-primary">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
-      Add to Chrome — Free
+      Get OptoFill — Free
     </a>
     <a href="#how-it-works" class="btn btn-outline">See How It Works</a>
   </div>
 
-  <!-- DEMO VISUAL -->
+  <!-- DEMO VISUAL (synthetic example) -->
   <div class="hero-visual">
     <div class="browser-bar">
       <div class="browser-dot"></div>
       <div class="browser-dot"></div>
       <div class="browser-dot"></div>
-      <div class="browser-url">🔒 optometry-ehr.example.com/patient/exam</div>
+      <div class="browser-url">🔒 your-emr.example.com/exam</div>
     </div>
     <div class="demo-screen">
       <div class="demo-form-card">
         <h3>
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2.5"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
-          Patient Information
+          Exam — Pretest &amp; Refraction
         </h3>
-        <div class="field-row">
-          <div class="field-label">Full Name</div>
-          <div class="field-value filled">Jane Doe <span class="check">✓</span></div>
-        </div>
-        <div class="field-row">
-          <div class="field-label">Date of Birth</div>
-          <div class="field-value filled">04 / 12 / 1985 <span class="check">✓</span></div>
-        </div>
         <div class="field-row">
           <div class="field-label">Chief Complaint</div>
           <div class="field-value filled">Blurry distance vision <span class="check">✓</span></div>
         </div>
         <div class="field-row">
-          <div class="field-label">OD Sphere</div>
+          <div class="field-label">VA sc OD</div>
+          <div class="field-value filled">20/40 <span class="check">✓</span></div>
+        </div>
+        <div class="field-row">
+          <div class="field-label">Sphere OD</div>
           <div class="field-value filled">−2.25 <span class="check">✓</span></div>
         </div>
         <div class="field-row">
-          <div class="field-label">OS Sphere</div>
+          <div class="field-label">Sphere OS</div>
           <div class="field-value filled">−1.75 <span class="check">✓</span></div>
+        </div>
+        <div class="field-row">
+          <div class="field-label">IOP OD / OS</div>
+          <div class="field-value filled">14 / 15 <span class="check">✓</span></div>
         </div>
       </div>
 
@@ -638,12 +639,12 @@
           <div class="wave-bar"></div>
         </div>
         <div class="ai-suggestion">
-          <div class="label">AI DETECTED</div>
-          "Right eye minus two twenty-five, left eye minus one seventy-five, patient reports difficulty reading road signs at night…"
+          <div class="label">DICTATION</div>
+          "Blurry at distance. VA right 20/40. Right eye minus two twenty-five, left eye minus one seventy-five. Pressures 14 and 15…"
         </div>
         <div class="ai-suggestion">
-          <div class="label">AUTO-FILLED</div>
-          5 fields populated · 0 corrections needed
+          <div class="label">FILLED &amp; CHECKED</div>
+          6 boxes filled · each one read back · Undo available
         </div>
       </div>
     </div>
@@ -654,44 +655,44 @@
 <section id="how-it-works">
   <div class="centered">
     <div class="section-label">How It Works</div>
-    <h2 class="section-title">From spoken words to completed charts in seconds</h2>
-    <p class="section-sub">OptoFill works silently in the background on any EHR or optometry platform — no integration required.</p>
+    <h2 class="section-title">From dictation to a filled exam form</h2>
+    <p class="section-sub">Works in your browser on web-based EMRs, with no IT integration. You set each EMR up once.</p>
   </div>
 
   <div class="steps-grid">
     <div class="step-card">
       <div class="step-icon">🔌</div>
       <div class="step-number">1</div>
-      <h3>Install the Extension</h3>
-      <p>Add OptoFill to Chrome in one click. It works on any web-based EHR or optometry platform without any IT setup.</p>
+      <h3>Install &amp; Add Your Key</h3>
+      <p>Add OptoFill to Chrome and paste your Anthropic API key in Settings. The key is stored only on your computer.</p>
+    </div>
+
+    <div class="step-card">
+      <div class="step-icon">🧩</div>
+      <div class="step-number">2</div>
+      <h3>Set Up Your EMR Once</h3>
+      <p>Open your exam screen and start setup. Auto-map suggests what each box is from its row and column labels; click any box to correct it.</p>
     </div>
 
     <div class="step-card">
       <div class="step-icon">🎙</div>
-      <div class="step-number">2</div>
-      <h3>Activate Voice Mode</h3>
-      <p>Click the OptoFill mic icon or press <strong>Ctrl+Shift+O</strong>. The extension begins listening as you speak naturally with your patient.</p>
+      <div class="step-number">3</div>
+      <h3>Dictate</h3>
+      <p>Click the mic in the OptoFill popup and speak your findings the way you normally would. Leave out patient names and other identifiers.</p>
     </div>
 
     <div class="step-card">
       <div class="step-icon">🧠</div>
-      <div class="step-number">3</div>
-      <h3>AI Processes Speech</h3>
-      <p>Our clinical AI understands optometry-specific terminology — prescriptions, IOP readings, visual acuity, and more — in real time.</p>
-    </div>
-
-    <div class="step-card">
-      <div class="step-icon">⚡</div>
       <div class="step-number">4</div>
-      <h3>Fields Auto-Fill</h3>
-      <p>OptoFill maps extracted data to the correct form fields on your screen and populates them instantly and accurately.</p>
+      <h3>Claude Reads the Dictation</h3>
+      <p>Claude turns your words into standard exam values — VA, refraction, IOP and more. It only sees your dictation, never your EMR page.</p>
     </div>
 
     <div class="step-card">
       <div class="step-icon">✅</div>
       <div class="step-number">5</div>
-      <h3>Review & Confirm</h3>
-      <p>A summary panel highlights every filled field. Edit anything with a click, then approve to finalize the record.</p>
+      <h3>Fill, Check &amp; Undo</h3>
+      <p>OptoFill puts each value in the box you set up, reads every box back to confirm it took, and lists anything that didn't. One click undoes the fill.</p>
     </div>
   </div>
 </section>
@@ -700,56 +701,56 @@
 <section id="features">
   <div class="centered">
     <div class="section-label">Features</div>
-    <h2 class="section-title">Everything you need to document faster</h2>
-    <p class="section-sub">Built specifically for optometrists and ophthalmologists who want to spend less time on paperwork.</p>
+    <h2 class="section-title">Built for the way optometrists dictate</h2>
+    <p class="section-sub">Less typing, with you in control of every value that goes into the record.</p>
   </div>
 
   <div class="features-grid">
     <div class="feature-card">
       <div class="feature-icon-wrap blue">🎙</div>
       <div>
-        <h3>Real-Time Voice Dictation</h3>
-        <p>Speak naturally during the exam. OptoFill transcribes and extracts clinical data without interrupting your workflow.</p>
+        <h3>Natural Dictation</h3>
+        <p>Speak in plain clinical language. Mid-sentence corrections ("eighteen — sorry, nineteen") and shorthand like "left eye same as right" are understood.</p>
       </div>
     </div>
 
     <div class="feature-card">
       <div class="feature-icon-wrap teal">🧠</div>
       <div>
-        <h3>Optometry-Aware AI</h3>
-        <p>Trained on clinical optometry language including sphere, cylinder, axis, prism, IOP, and visual acuity notations.</p>
+        <h3>Optometry-Aware Extraction</h3>
+        <p>Claude is instructed in optometry notation — sphere, cylinder, axis, add, VA, IOP, cover test — and records only what you said. It never fills in normals you didn't dictate.</p>
       </div>
     </div>
 
     <div class="feature-card">
       <div class="feature-icon-wrap purple">🌐</div>
       <div>
-        <h3>Works on Any EHR</h3>
-        <p>Compatible with WebPT, Eyefinity, Crystal PM, and any web-based practice management system — zero integration required.</p>
+        <h3>Works With Web-Based EMRs</h3>
+        <p>Set up any browser-based EMR in minutes, including exam forms split across tabs or embedded in a frame. No integration from your EMR vendor needed.</p>
       </div>
     </div>
 
     <div class="feature-card">
       <div class="feature-icon-wrap orange">📋</div>
       <div>
-        <h3>Smart Field Mapping</h3>
-        <p>OptoFill automatically detects form fields on the page and maps extracted values to the right input every time.</p>
+        <h3>Checked Fills, One-Click Undo</h3>
+        <p>Values only go into boxes you've set up. Each box is read back after filling, anything that didn't take is flagged, and Undo restores the form exactly.</p>
       </div>
     </div>
 
     <div class="feature-card">
       <div class="feature-icon-wrap green">🔒</div>
       <div>
-        <h3>HIPAA-Compliant</h3>
-        <p>Audio is processed locally and never stored. All transmitted data is encrypted end-to-end to keep patient records private.</p>
+        <h3>Clear About Your Data</h3>
+        <p>No OptoFill servers and no analytics. Chrome's speech recognition sends audio to Google to transcribe it, and the text goes to Anthropic. <a href="privacy.html">Read exactly what goes where.</a></p>
       </div>
     </div>
 
     <div class="feature-card">
-      <div class="feature-icon-wrap pink">✏️</div>
+      <div class="feature-icon-wrap pink">⚡</div>
       <div>
-        <h3>One-Click Corrections</h3>
-        <p>Instantly edit any auto-filled field from the OptoFill sidebar before confirming. Corrections train the AI for next time.</p>
+        <h3>Quick Fill Before Setup</h3>
+        <p>On an EMR you haven't set up yet, Quick fill lets Claude match values to boxes from the page's labels — then set the EMR up for dependable fills.</p>
       </div>
     </div>
   </div>
@@ -759,67 +760,58 @@
 <section id="exam-fields">
   <div>
     <div class="section-label">Exam Fields</div>
-    <h2 class="section-title">Covers every part of a comprehensive eye exam</h2>
-    <p class="section-sub">From patient intake to final prescription, OptoFill handles the full documentation workflow.</p>
+    <h2 class="section-title">Covers the comprehensive eye exam</h2>
+    <p class="section-sub">About 100 exam values OptoFill can recognise in your dictation and place into the matching boxes on your EMR.</p>
   </div>
 
   <div class="fields-layout">
     <div>
       <div class="field-group">
-        <div class="field-group-title">Patient Information</div>
+        <div class="field-group-title">History, Assessment &amp; Plan</div>
         <div class="field-chip-list">
-          <span class="field-chip ai">Full Name</span>
-          <span class="field-chip ai">Date of Birth</span>
-          <span class="field-chip ai">Gender</span>
-          <span class="field-chip ai">Contact Info</span>
-          <span class="field-chip ai">Insurance ID</span>
-          <span class="field-chip">Chief Complaint</span>
-          <span class="field-chip">Medical History</span>
-          <span class="field-chip">Medications</span>
+          <span class="field-chip ai">Chief Complaint</span>
+          <span class="field-chip ai">Assessment</span>
+          <span class="field-chip ai">Plan &amp; Follow-up</span>
+          <span class="field-chip ai">Other Notes</span>
         </div>
       </div>
 
       <div class="field-group">
-        <div class="field-group-title">Refraction & Prescription</div>
+        <div class="field-group-title">Visual Acuity &amp; Refraction</div>
         <div class="field-chip-list">
-          <span class="field-chip ai">OD Sphere / Cylinder / Axis</span>
-          <span class="field-chip ai">OS Sphere / Cylinder / Axis</span>
-          <span class="field-chip ai">Add Power</span>
-          <span class="field-chip ai">Prism & Base</span>
-          <span class="field-chip ai">Near PD / Distance PD</span>
+          <span class="field-chip ai">Distance &amp; Near VA (sc / cc, OD / OS / OU)</span>
+          <span class="field-chip ai">Sphere / Cylinder / Axis</span>
+          <span class="field-chip ai">Add &amp; Prism</span>
+          <span class="field-chip ai">Best-Corrected VA</span>
+          <span class="field-chip ai">Distance / Near PD</span>
         </div>
       </div>
 
       <div class="field-group">
-        <div class="field-group-title">Visual Acuity</div>
+        <div class="field-group-title">Pupils &amp; Binocular Vision</div>
         <div class="field-chip-list">
-          <span class="field-chip ai">Distance VA (OD / OS / OU)</span>
-          <span class="field-chip ai">Near VA</span>
-          <span class="field-chip">Pinhole Acuity</span>
-          <span class="field-chip">Color Vision</span>
-          <span class="field-chip">Contrast Sensitivity</span>
+          <span class="field-chip ai">Pupils &amp; APD</span>
+          <span class="field-chip ai">Cover Test</span>
+          <span class="field-chip ai">NPC &amp; Amplitude</span>
+          <span class="field-chip ai">Fusional Vergences</span>
+          <span class="field-chip ai">EOMs &amp; Confrontation Fields</span>
+          <span class="field-chip ai">Color Vision &amp; Stereo</span>
         </div>
       </div>
 
       <div class="field-group">
-        <div class="field-group-title">Anterior & Posterior Segment</div>
+        <div class="field-group-title">Ocular Health</div>
         <div class="field-chip-list">
           <span class="field-chip ai">IOP (Tonometry)</span>
-          <span class="field-chip">Slit Lamp Findings</span>
-          <span class="field-chip">Dilated Fundus Exam</span>
-          <span class="field-chip">Cup-to-Disc Ratio</span>
-          <span class="field-chip">Macular Evaluation</span>
+          <span class="field-chip ai">Slit Lamp: Lids, Conj, Cornea, AC, Iris, Lens</span>
+          <span class="field-chip ai">C/D Ratio &amp; Optic Nerve</span>
+          <span class="field-chip ai">Macula, Vessels, Periphery, Vitreous</span>
         </div>
-      </div>
-
-      <div style="margin-top:12px; font-size:0.78rem; color:var(--gray-600); display:flex; align-items:center; gap:6px;">
-        <span style="display:inline-block; width:10px; height:10px; border-radius:50%; background:var(--blue);"></span>
-        Blue chips = auto-filled by AI from voice input
       </div>
     </div>
 
     <div class="exam-visual">
-      <div class="exam-header">📄 Comprehensive Eye Exam — Jane Doe</div>
+      <div class="exam-header">📄 Comprehensive Eye Exam — Test Patient</div>
       <div class="exam-body">
         <div class="exam-row">
           <div class="exam-field-box auto">
@@ -848,7 +840,7 @@
           </div>
           <div class="exam-field-box auto">
             <div class="lbl">OD Axis <span class="auto-tag">AI</span></div>
-            <div class="val">180°</div>
+            <div class="val">180</div>
           </div>
         </div>
         <div class="exam-row">
@@ -862,17 +854,17 @@
           </div>
         </div>
         <div class="exam-row">
-          <div class="exam-field-box">
-            <div class="lbl">Slit Lamp OD</div>
-            <div class="val" style="font-size:0.75rem;">Clear cornea, deep AC</div>
+          <div class="exam-field-box auto">
+            <div class="lbl">Cornea OD <span class="auto-tag">AI</span></div>
+            <div class="val" style="font-size:0.75rem;">Clear</div>
           </div>
-          <div class="exam-field-box">
-            <div class="lbl">Slit Lamp OS</div>
-            <div class="val" style="font-size:0.75rem;">Clear cornea, deep AC</div>
+          <div class="exam-field-box auto">
+            <div class="lbl">Cornea OS <span class="auto-tag">AI</span></div>
+            <div class="val" style="font-size:0.75rem;">Clear</div>
           </div>
         </div>
         <div style="font-size:0.75rem; color:#15803d; margin-top:8px; padding:10px; background:#f0fdf4; border-radius:8px; border:1px solid #86efac;">
-          ✓ 8 fields auto-filled from voice dictation in 4.2 seconds
+          ✓ 10 boxes filled from dictation and checked · Undo available
         </div>
       </div>
     </div>
@@ -883,20 +875,20 @@
 <section class="stats-section">
   <div class="stats-grid">
     <div class="stat-item">
-      <h2>10×</h2>
-      <p>Faster documentation vs. manual entry</p>
+      <h2>139/139</h2>
+      <p>Values extracted correctly across our 18 synthetic test dictations</p>
     </div>
     <div class="stat-item">
-      <h2>98%</h2>
-      <p>Accuracy on clinical optometry terms</p>
+      <h2>1×</h2>
+      <p>Setup per EMR — after that, fills are a lookup</p>
     </div>
     <div class="stat-item">
-      <h2>5 min</h2>
-      <p>Average time saved per patient visit</p>
+      <h2>100%</h2>
+      <p>Of filled boxes read back to check the value took</p>
     </div>
     <div class="stat-item">
-      <h2>0 clicks</h2>
-      <p>Required to fill standard exam fields</p>
+      <h2>0</h2>
+      <p>OptoFill servers — nothing is stored by us</p>
     </div>
   </div>
 </section>
@@ -904,14 +896,14 @@
 <!-- CTA -->
 <section id="cta" class="cta-section">
   <div class="section-label centered">Get Started</div>
-  <h2>Ready to reclaim your time?</h2>
-  <p>Install OptoFill for free and see the difference in your very first exam.</p>
+  <h2>Try it on your EMR</h2>
+  <p>OptoFill is free. You use your own Anthropic API key and pay Anthropic directly — less than a tenth of a cent per fill on an EMR you've set up, in our tests.</p>
   <div style="display:flex; gap:12px; justify-content:center; flex-wrap:wrap;">
-    <a href="#" class="btn btn-primary" style="font-size:1rem; padding:.75rem 1.75rem;">
+    <span class="btn btn-primary" style="font-size:1rem; padding:.75rem 1.75rem; cursor:default;">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
-      Add to Chrome — It's Free
-    </a>
-    <a href="#how-it-works" class="btn btn-outline" style="font-size:1rem; padding:.75rem 1.75rem;">Watch a Demo</a>
+      Chrome Web Store — Coming Soon
+    </span>
+    <a href="privacy.html" class="btn btn-outline" style="font-size:1rem; padding:.75rem 1.75rem;">Read the Privacy Policy</a>
   </div>
 </section>
 
@@ -921,8 +913,8 @@
     <div class="logo-icon">👁</div>
     OptoFill
   </div>
-  <p>© 2025 OptoFill. Built for optometrists, by clinicians who value their time.</p>
-  <p>HIPAA Compliant · Chrome Extension</p>
+  <p>© 2025 OptoFill. Built for optometrists.</p>
+  <p><a href="privacy.html" style="color:inherit;">Privacy Policy</a> · Chrome Extension</p>
 </footer>
 
 </body>
