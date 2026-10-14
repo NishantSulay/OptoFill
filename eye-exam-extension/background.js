@@ -58,7 +58,7 @@ async function getExamTabId() {
 
 async function callClaudeAPI(apiKey, dictation, fields, customInstructions, tabId) {
   const fieldList = fields.map((f,i) =>
-    `[${i}] label="${f.label}" | name="${f.name}" | id="${f.id}" | type="${f.type}" | placeholder="${f.placeholder}"${
+    `[${i}] row="${f.row||''}" | col="${f.col||''}" | context="${f.context||''}" | label="${f.label}" | name="${f.name}" | id="${f.id}" | type="${f.type}" | placeholder="${f.placeholder}"${
       f.options?.length ? ` | options=${f.options.map(o=>o.text).join(', ')}` : ''}`
   ).join('\n');
 
@@ -88,7 +88,9 @@ RULES:
 - Use standard optometric notation (-1.25, +2.00, 20/20, 0.75 x 180).
 - For checkboxes use "true" or "false".
 - For radio buttons: labels show "Question — Option" (e.g. "Do you drive? — Yes"). Set "true" ONLY for the matching option. Never guess by position.
-- A screenshot is attached showing the form with numbered blue boxes [0][1][2]… over each detected field. Use the visual layout and column context to disambiguate duplicate labels (e.g. two "Sphere" fields in separate OD and OS columns).
+- Each field has layout hints from the screen: "row" = text immediately to its left, "col" = column header directly above it, "context" = nearby section headings above. Many EMR grids have no HTML labels, so these are usually the most reliable way to identify a field. Example: "amplitude OD 5" goes to the field with row="Amplitude" and col="OD".
+- Never put a specific measurement into a generic Notes/Note field when a matching row/col field exists.
+- A screenshot is attached showing the form with numbered yellow badges over each detected field. Use the visual layout and column context to disambiguate duplicate labels (e.g. two "Sphere" fields in separate OD and OS columns).
 ${customInstructions ? `\nDOCTOR INSTRUCTIONS:\n${customInstructions}` : ''}
 
 EXAMPLE: {"2":"20/40","5":"-1.25","6":"-0.50","7":"90","12":"Mild myopia OU"}`;

@@ -127,7 +127,7 @@ function injectFieldHighlights(fields) {
       overlay.style.cssText = `position:fixed;left:${rect.left}px;top:${rect.top}px;width:${rect.width}px;height:${rect.height}px;border:2px solid #2563eb;background:rgba(37,99,235,0.08);z-index:2147483647;pointer-events:none;box-sizing:border-box`;
       const badge = document.createElement('span');
       badge.textContent = i;
-      badge.style.cssText = `position:absolute;top:-1px;left:-1px;background:#2563eb;color:#fff;font-size:10px;font-family:monospace;font-weight:bold;padding:1px 4px;border-radius:0 0 4px 0;line-height:14px`;
+      badge.style.cssText = `position:absolute;top:-2px;left:-2px;background:#facc15;color:#000;border:1px solid #000;font-size:15px;font-family:Arial,sans-serif;font-weight:bold;padding:0 4px;line-height:18px`;
       overlay.appendChild(badge);
       document.body.appendChild(overlay);
     } catch(e) {}
@@ -138,7 +138,64 @@ function removeFieldHighlights() {
   document.querySelectorAll('.optofill-hl').forEach(el => el.remove());
 }
 
-function getAllFields() {
+// Short visible text snippets with their on-screen boxes, used to label fields by layout
+function getTextAnchors() {
+  const anchors = [];
+  const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+  const range = document.createRange();
+  let n;
+  while ((n = walker.nextNode())) {
+    const text = n.textContent.replace(/\s+/g, ' ').trim();
+    if (text.length < 2 || text.length > 40) continue;
+    const p = n.parentElement;
+    if (!p || p.closest('.optofill-hl, script, style, noscript, option, select, textarea')) continue;
+    range.selectNodeContents(n);
+    const r = range.getBoundingClientRect();
+    if (!r.width || !r.height) continue;
+    if (getComputedStyle(p).visibility === 'hidden') continue;
+    anchors.push({ text, r });
+  }
+  return anchors;
+}
+
+function getLayoutContext(el, anchors) {
+  const f = el.getBoundingClientRect();
+  if (!f.width || !f.height) return { row: '', col: '', context: '' };
+  const cy = a => (a.r.top + a.r.bottom) / 2;
+  const cx = a => (a.r.left + a.r.right) / 2;
+
+  // Row label: nearest text to the left on the same horizontal band
+  let row = null;
+  for (const a of anchors) {
+    if (a.r.right > f.left + 2 || f.left - a.r.right > 400) continue;
+    if (cy(a) < f.top - 4 || cy(a) > f.bottom + 4) continue;
+    if (!row || a.r.right > row.r.right) row = a;
+  }
+
+  // Column header: nearest text directly above, horizontally within the field
+  let col = null;
+  for (const a of anchors) {
+    if (a.r.bottom > f.top + 2 || f.top - a.r.bottom > 250) continue;
+    if (cx(a) < f.left - 4 || cx(a) > f.right + 4) continue;
+    if (!col || a.r.bottom > col.r.bottom) col = a;
+  }
+
+  // Nearby headings above, for section context (e.g. "Near Vision", "BV Vergences")
+  const skip = new Set([row?.text, col?.text]);
+  const context = anchors
+    .filter(a => a.r.bottom <= f.top + 2 && f.top - a.r.bottom < 300 &&
+                 a.r.right >= f.left - 250 && a.r.left <= f.right + 50 && !skip.has(a.text))
+    .sort((a, b) => b.r.bottom - a.r.bottom)
+    .map(a => a.text)
+    .filter((t, i, arr) => arr.indexOf(t) === i)
+    .slice(0, 3)
+    .join(' / ');
+
+  return { row: row?.text || '', col: col?.text || '', context };
+}
+
+function getAllFields(withLayout) {
+  const anchors = withLayout ? getTextAnchors() : null;
   const fields = [], seen = new Set();
   const selectors = [
     'input:not([type="hidden"]):not([type="submit"]):not([type="button"]):not([type="reset"]):not([type="image"])',
@@ -176,7 +233,8 @@ function getAllFields() {
     }
     if (!label) label=name||id||placeholder||`field_${rawIndex}`;
     const options=el.tagName==='SELECT'?Array.from(el.options).map(o=>({value:o.value,text:o.text.trim()})):[];
-    fields.push({ index:fields.length, label:label.substring(0,80), name:name.substring(0,40), id:id.substring(0,40), type, placeholder:placeholder.substring(0,60), options, selector:buildSelector(el) });
+    const layout = anchors ? getLayoutContext(el, anchors) : {};
+    fields.push({ index:fields.length, label:label.substring(0,80), name:name.substring(0,40), id:id.substring(0,40), type, placeholder:placeholder.substring(0,60), options, selector:buildSelector(el), ...layout });
   });
   return fields;
 }
@@ -254,7 +312,7 @@ function fillFields(mapping, fields) {
 }
 
 chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
-  if (msg.action==='getFields')       { sendResponse({fields:getAllFields()}); return true; }
+  if (msg.action==='getFields')       { sendResponse({fields:getAllFields(true)}); return true; }
   if (msg.action==='fillFields')      { sendResponse({filled:fillFields(msg.mapping,getAllFields())}); return true; }
   if (msg.action==='injectHighlights'){ injectFieldHighlights(msg.fields); sendResponse({done:true}); return true; }
   if (msg.action==='removeHighlights'){ removeFieldHighlights(); sendResponse({done:true}); return true; }
