@@ -56,16 +56,33 @@ const val = (page, name) => page.$eval(`[name="${name}"]`, el => el.value);
     pupils_light_od: 'p1', pupils_apd_os: 'p10', cover_dist_eye: 'c1', cover_dist_amount: 'c4', cover_near_direction: 'c7',
     pd_dist_od: 'd1', pd_dist_ou: 'd3', pd_near_os: 'd5', color_od: 'cv1', color_os: 'cv2', color_method: 'cv3', stereo: 's1', stereo_method: 's2',
     pupils_notes: 'pn', va_dist_cc_ou: 'v11', cover_near_amount: 'c8',
+    va_dist_sc_od_mod: 'v2', va_dist_sc_os_mod: 'v4', va_dist_cc_od_mod: 'v8', va_near_sc_os_mod: 'v16',
     rx_sph_od: 'r1', rx_cyl_os: 'r7', rx_axis_os: 'r8', rx_add_od: 'r4', iop_od: 't1', iop_os: 't2',
   };
   const wrong = Object.entries(expect).filter(([k, n]) => mapped[k] !== n).map(([k, n]) => `${k}: got ${mapped[k] || 'none'}, want ${n}`);
   check(`auto-map: ${Object.keys(expect).length - wrong.length}/${Object.keys(expect).length} key boxes mapped correctly`, !wrong.length, wrong.join('; '));
-  const stray = Object.entries(mapped).filter(([, n]) => ['n1', 'v8'].includes(n));
-  check('auto-map: top note box and second VA box are left for the doctor to map', !stray.length, JSON.stringify(stray));
+  const stray = Object.entries(mapped).filter(([, n]) => ['n1'].includes(n));
+  check('auto-map: the top note box is left for the doctor to map', !stray.length, JSON.stringify(stray));
+  const modsOnMain = Object.entries(mapped).filter(([k, n]) => k.endsWith('_mod') && ['v1', 'v3', 'v5', 'v7', 'v9', 'v11', 'v13', 'v15'].includes(n));
+  check('auto-map: modifier keys only go to the second VA box, never the main one', !modsOnMain.length, JSON.stringify(modsOnMain));
   const nearCc = ['va_near_cc_od', 'va_near_cc_os', 'va_near_cc_ou'].filter(k => mapped[k]);
   check('auto-map: no near-corrected keys on a page that only has near uncorrected boxes', !nearCc.length, nearCc.map(k => `${k}→${mapped[k]}`).join(', '));
   const cover_vertical = Object.entries(mapped).filter(([, n]) => ['c9', 'c10', 'c11', 'c12'].includes(n));
   check('auto-map: Vertical Dx row is not mistaken for distance cover test', !cover_vertical.length, JSON.stringify(cover_vertical));
+
+  // 1b. "20/50-2" splits between the VA box and its modifier box; a value with no modifier leaves that box alone
+  const split = await page.evaluate(async () => {
+    const r = await fillSchema({ va_dist_sc_od: '20/50-2', va_dist_cc_os: '20/25' });
+    const v = n => document.querySelector(`[name=${n}]`).value;
+    const out = { v1: v('v1'), v2: v('v2'), v9: v('v9'), v10: v('v10'), statuses: r.map(x => `${x.key}:${x.status}`) };
+    undoLastFill();
+    out.afterUndo = [v('v1'), v('v2'), v('v9')].join('|');
+    return out;
+  });
+  check('modifier: 20/50-2 fills "50" and "-2" into the two VA boxes, both checked',
+        split.v1 === '50' && split.v2 === '-2' && split.statuses.includes('va_dist_sc_od_mod:filled'), JSON.stringify(split));
+  check('modifier: 20/25 fills only the main box', split.v9 === '25' && split.v10 === '', JSON.stringify(split));
+  check('modifier: undo clears both boxes', split.afterUndo === '||', split.afterUndo);
 
   // 2. Fill schema values on the Pretest screen
   const results = await page.evaluate(() => fillSchema({
@@ -118,6 +135,12 @@ const val = (page, name) => page.$eval(`[name="${name}"]`, el => el.value);
   }));
   check('setup: clicking a box opens the picker (and does not type into the EMR)', pick.open && pick.focusedPage !== 'b5', JSON.stringify(pick));
   check('setup: top suggestion for Amplitude/OD box', /accommodation amplitude OD/i.test(pick.first || ''), pick.first);
+  await page.keyboard.press('Escape');
+  await page.evaluate(() => { delete setup.map.va_dist_sc_os_mod; renderSetup(); });
+  await page.click('[name=v4]');
+  await page.waitForTimeout(200);
+  const modPick = await page.evaluate(() => setup.root.querySelector('.opt')?.textContent);
+  check('setup: the box after a VA box suggests its modifier first', /VA distance uncorrected.*OS.*modifier|Visual acuity distance uncorrected.*OS.*modifier/i.test(modPick || ''), modPick);
   await page.screenshot({ path: path.join(OUT, 'setup-mode.png') });
   await page.keyboard.press('Escape');
   page.once('dialog', d => d.accept());

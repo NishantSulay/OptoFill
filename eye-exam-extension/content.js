@@ -407,7 +407,9 @@ function undoLastFill() {
 
 const MAPS_KEY = 'optofillMaps';
 const SCHEMA = self.OPTOFILL_SCHEMA || [];
-const SCHEMA_BY_KEY = Object.fromEntries(SCHEMA.map(s => [s.key, s]));
+const MODIFIERS = self.OPTOFILL_MODIFIERS || [];          // VA modifier boxes, set up like schema keys but never sent to the AI
+const ALL_KEYS = [...SCHEMA, ...MODIFIERS];
+const SCHEMA_BY_KEY = Object.fromEntries(ALL_KEYS.map(s => [s.key, s]));
 
 async function loadMap() {
   const data = await chrome.storage.local.get(MAPS_KEY);
@@ -451,9 +453,21 @@ function formatForBox(entry, value) {
 let pendingSchema = {};   // mapped values whose box isn't on screen yet (e.g. another EMR tab)
 let lastFill = null;      // results of the last fill, kept up to date as waiting values fill — the popup shows them on reopen
 
+// "20/50-2" → ["20/50", "-2"]: a trailing letter-count modifier, split off when the VA box has a modifier box set up
+function splitModifier(value) {
+  const m = String(value).match(/^(.*\d)\s*([+-])\s*(\d{1,2})$/);
+  return m && /\/\s*\d+$/.test(m[1]) ? [m[1], m[2] + m[3]] : null;
+}
+
 // values: { schemaKey: value } → [{ key, label, value, status, reason }]
-async function fillSchema(values, { mergeIntoLast = false } = {}) {
+async function fillSchema(input, { mergeIntoLast = false } = {}) {
   const map = await loadMap();
+  const values = {};
+  for (const [key, value] of Object.entries(input)) {
+    const parts = map[`${key}_mod`] && splitModifier(value);
+    if (parts) { values[key] = parts[0]; values[`${key}_mod`] = parts[1]; }
+    else values[key] = value;
+  }
   const fields = getAllFields(true);
   const items = [], out = [], usedEls = new Set();
   for (const [key, value] of Object.entries(values)) {
@@ -578,7 +592,24 @@ function autoMapVisible(map) {
     usedEls.add(c.el);
     added++;
   }
+  // VA modifier boxes: the box straight after a mapped VA box on the same row
+  for (const mod of MODIFIERS) {
+    if (map[mod.key] || !map[mod.modifierOf]) continue;
+    const vaEl = locateMapped(map[mod.modifierOf], fields);
+    const f = vaEl && fields.find(f => !usedEls.has(lastScannedEls[f.index]) && isModifierBoxOf(lastScannedEls[f.index], vaEl));
+    if (!f) continue;
+    map[mod.key] = mappingEntry(lastScannedEls[f.index], f);
+    usedEls.add(lastScannedEls[f.index]);
+    added++;
+  }
   return added;
+}
+
+// A small text box right after the VA box on the same line, with nothing in between: where EMRs put "−2" / "+1"
+function isModifierBoxOf(el, vaEl) {
+  if (el === vaEl || el.tagName !== 'INPUT' || !['text', 'number', ''].includes(el.type)) return false;
+  const a = vaEl.getBoundingClientRect(), b = el.getBoundingClientRect();
+  return Math.abs((a.top + a.bottom) / 2 - (b.top + b.bottom) / 2) < 6 && b.left >= a.right - 2 && b.left - a.right < 40;
 }
 
 // ─── Setup mode (in-page) ─────────────────────────────────────────────────────
@@ -746,7 +777,10 @@ function openPicker(el, f) {
   p.querySelector('.unmap').style.display = key ? '' : 'none';
   const input = p.querySelector('input');
   input.value = '';
-  setup.suggested = SCHEMA.map(s => ({ s, score: scoreKey(s, f) })).filter(x => x.score > 0)
+  // A box right after a set-up VA box is suggested as its modifier box first
+  const mods = MODIFIERS.filter(m => { const va = setup.map[m.modifierOf] && locateMapped(setup.map[m.modifierOf], setup.fields);
+                                       return va && isModifierBoxOf(el, va); }).map(m => ({ s: m, score: 1000 }));
+  setup.suggested = [...mods, ...SCHEMA.map(s => ({ s, score: scoreKey(s, f) }))].filter(x => x.score > 0)
     .sort((a, b) => b.score - a.score).slice(0, 6).map(x => x.s.key);
   renderPickerList();
   p.hidden = false;
@@ -780,7 +814,7 @@ function renderPickerList() {
   const suggested = setup.suggested.map(k => SCHEMA_BY_KEY[k]).filter(match);
   addSection('Suggested', suggested, 'suggested');
   const groups = {};
-  for (const s of SCHEMA) if (match(s) && !suggested.includes(s)) (groups[s.group || 'Other'] ||= []).push(s);
+  for (const s of ALL_KEYS) if (match(s) && !suggested.includes(s)) (groups[s.group || 'Other'] ||= []).push(s);
   for (const [g, items] of Object.entries(groups)) addSection(g, items);
 }
 

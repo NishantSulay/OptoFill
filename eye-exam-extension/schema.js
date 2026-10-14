@@ -85,7 +85,13 @@
   add('plan', 'Plan / recommendations / follow-up', { must: [['plan', 'recommendation', 'recommendations']] }, 'Assessment & plan');
   add('notes_general', 'Other clinical notes not covered by any field above', {}, 'Other');
 
+  // Modifier boxes ("−2", "+1") that some EMRs put right after a VA box. Not part of the schema the AI fills:
+  // OptoFill splits a value like "20/50-2" between the VA box and its modifier box when both are set up.
+  const MODS = S.filter(s => /^(va_|rx_va_)/.test(s.key))
+    .map(s => ({ key: `${s.key}_mod`, label: `${s.label} — modifier (e.g. −2)`, group: s.group, modifierOf: s.key }));
+
   root.OPTOFILL_SCHEMA = S;
+  root.OPTOFILL_MODIFIERS = MODS;
   root.OPTOFILL_WORDS = W;   // shared word groups, so auto-map can tell rival groups apart (corrected vs uncorrected, distance vs near)
   if (typeof module !== 'undefined' && module.exports) module.exports = S;
 })(typeof self !== 'undefined' ? self : globalThis);

@@ -16,7 +16,7 @@ Two steps, kept separate:
 
 ## Architecture
 - `eye-exam-extension/` — Chrome MV3 extension
-  - `schema.js` — clinical schema + auto-map hints (shared by content script, background, evals)
+  - `schema.js` — clinical schema + auto-map hints (shared by content script, background, evals); also VA modifier keys (`*_mod`), which the AI never sees — content.js splits "20/50-2" into the VA box and its modifier box
   - `redact.js` — removes patient identifiers (names after cues, dates, ID/phone numbers, emails, addresses) from text before it goes to Anthropic
   - `extract.js` — extraction prompt/request/parse (shared by background and `core/evals`)
   - `quickfill.js` — Quick fill prompt/request/parse (shared by background and `core/evals/quickfill.js`)
