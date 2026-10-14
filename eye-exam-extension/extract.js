@@ -5,11 +5,32 @@
   const MODEL = 'claude-sonnet-4-6';
   const TOOL = 'record_exam_findings';
 
-  function buildSystemPrompt(customInstructions) {
+  // Sonnet/Opus 4.6 don't take output_config.format, so they get a forced tool call instead;
+  // newer models reject forced tool_choice and use structured outputs.
+  const usesTool = model => /^claude-(sonnet|opus)-4-6$/.test(model);
+
+  const FINDINGS_SCHEMA = {
+    type: 'object',
+    properties: {
+      findings: {
+        type: 'array',
+        items: {
+          type: 'object',
+          properties: { key: { type: 'string', enum: KEYS }, value: { type: 'string' } },
+          required: ['key', 'value'],
+          additionalProperties: false
+        }
+      }
+    },
+    required: ['findings'],
+    additionalProperties: false
+  };
+
+  function buildSystemPrompt(customInstructions, model = MODEL) {
     const fieldList = SCHEMA.map(f => `${f.key}: ${f.label}`).join('\n');
     return `You extract eye exam findings from an optometrist's dictation into a fixed clinical schema.
 
-Call the ${TOOL} tool exactly once with every finding that was dictated.
+${usesTool(model) ? `Call the ${TOOL} tool exactly once with every finding that was dictated.` : 'Return every finding that was dictated as a list of {key, value} entries.'}
 
 RULES:
 - Only record values the doctor actually said. Never infer, guess, or fill normal defaults.
@@ -24,54 +45,57 @@ SCHEMA KEYS:
 ${fieldList}`;
   }
 
-  function buildRequest(dictation, customInstructions) {
-    return {
-      model: MODEL,
-      max_tokens: 4000,
-      system: buildSystemPrompt(customInstructions),
-      tools: [{
-        name: TOOL,
-        description: 'Record the clinical findings dictated in this exam, one entry per schema key.',
-        input_schema: {
-          type: 'object',
-          properties: {
-            findings: {
-              type: 'array',
-              items: {
-                type: 'object',
-                properties: {
-                  key: { type: 'string', enum: KEYS },
-                  value: { type: 'string' }
-                },
-                required: ['key', 'value']
-              }
-            }
-          },
-          required: ['findings']
-        }
-      }],
-      tool_choice: { type: 'tool', name: TOOL },
+  function buildRequest(dictation, customInstructions, model = MODEL) {
+    const base = {
+      model,
+      system: buildSystemPrompt(customInstructions, model),
       messages: [{ role: 'user', content: `DICTATION:\n${dictation}` }]
+    };
+    if (usesTool(model)) {
+      return {
+        ...base,
+        max_tokens: 4000,
+        tools: [{
+          name: TOOL,
+          description: 'Record the clinical findings dictated in this exam, one entry per schema key.',
+          input_schema: FINDINGS_SCHEMA
+        }],
+        tool_choice: { type: 'tool', name: TOOL }
+      };
+    }
+    // Low effort keeps latency down; extraction from a short dictation doesn't need deep reasoning.
+    return {
+      ...base,
+      max_tokens: 8000,
+      output_config: { effort: 'low', format: { type: 'json_schema', schema: FINDINGS_SCHEMA } }
     };
   }
 
   // Returns { key: value } using only known schema keys.
   function parseResponse(body) {
+    if (body.stop_reason === 'refusal') throw new Error('Claude declined this request' + (body.stop_details?.category ? ` (${body.stop_details.category})` : ''));
     if (body.stop_reason === 'max_tokens') throw new Error('Dictation too long — response was cut off');
-    const block = (body.content || []).find(b => b.type === 'tool_use' && b.name === TOOL);
-    if (!block) throw new Error('Claude did not return findings');
+    const content = body.content || [];
+    const toolBlock = content.find(b => b.type === 'tool_use' && b.name === TOOL);
+    const textBlock = content.find(b => b.type === 'text');
+    let input;
+    if (toolBlock) input = toolBlock.input;
+    else if (textBlock) {
+      try { input = JSON.parse(textBlock.text); } catch (e) { throw new Error('Claude returned invalid JSON'); }
+    } else throw new Error('Claude did not return findings');
     const out = {};
-    for (const f of block.input?.findings || []) {
+    for (const f of input?.findings || []) {
       if (KEYS.includes(f.key) && f.value != null && String(f.value).trim()) out[f.key] = String(f.value).trim();
     }
     return out;
   }
 
-  async function extractFindings({ apiKey, dictation, customInstructions, fetchImpl = fetch, browser = false }) {
+  // meta (optional) receives the response's usage, for cost reporting in the eval.
+  async function extractFindings({ apiKey, dictation, customInstructions, model = MODEL, fetchImpl = fetch, browser = false, meta }) {
     const headers = { 'Content-Type': 'application/json', 'x-api-key': apiKey, 'anthropic-version': '2023-06-01' };
     if (browser) headers['anthropic-dangerous-direct-browser-access'] = 'true';
     const res = await fetchImpl('https://api.anthropic.com/v1/messages', {
-      method: 'POST', headers, body: JSON.stringify(buildRequest(dictation, customInstructions))
+      method: 'POST', headers, body: JSON.stringify(buildRequest(dictation, customInstructions, model))
     });
     const text = await res.text();
     if (!res.ok) {
@@ -79,7 +103,9 @@ ${fieldList}`;
       try { m = JSON.parse(text).error?.message || m; } catch (_) {}
       throw new Error(m);
     }
-    return parseResponse(JSON.parse(text));
+    const body = JSON.parse(text);
+    if (meta) meta.usage = body.usage;
+    return parseResponse(body);
   }
 
   const api = { SCHEMA, KEYS, MODEL, buildRequest, buildSystemPrompt, parseResponse, extractFindings };
