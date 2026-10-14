@@ -103,11 +103,9 @@ chrome.storage.session.get(['isRecording', 'transcript'], (data) => {
       const bar = document.getElementById('mic-setup-bar');
       bar.style.display = 'block';
       bar.addEventListener('click', async () => {
-        // Tell content script to call getUserMedia on the page
-        // This will trigger Chrome's permission prompt, closing this popup — that's intentional
-        // After allowing, user reopens popup and mic works instantly
+        // Tell content script to call getUserMedia on the page, which shows Chrome's permission prompt there
         await chrome.tabs.sendMessage(tab.id, { action: 'requestMicPermission' }, { frameId: 0 });
-        window.close();
+        bar.style.display = 'none';
       });
     }
   } catch(e) { /* scripting not available on this page type */ }
@@ -235,12 +233,21 @@ async function refreshPageStatus() {
 }
 refreshPageStatus();
 
+// The side panel stays open across tabs: when you switch tab or the page reloads, show that page's status
+function onTabChange() {
+  resultsArea.classList.remove('visible');
+  resultList.innerHTML = '';
+  refreshPageStatus();
+}
+chrome.tabs.onActivated?.addListener(onTabChange);
+chrome.tabs.onUpdated?.addListener((tabId, info, tab) => { if (info.status === 'complete' && tab.active) onTabChange(); });
+
 document.getElementById('setup-btn').addEventListener('click', async () => {
   const tab = await getExamTab();
   if (!tab) return;
   try {
     await sendToPage(tab.id, { action: 'startSetup' });
-    window.close();
+    showToast('Setup is open on the page — click any box to tell OptoFill what it is.', 'success');
   } catch(e) { showToast('Could not start setup on this page.', 'error'); }
 });
 

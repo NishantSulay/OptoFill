@@ -17,7 +17,7 @@ OptoFill turns your spoken exam findings into entries on your web-based EMR's ex
 **How it works:**
 1. Add your Anthropic API key in OptoFill's Settings (stored only on your computer).
 2. Set up your EMR once: open the exam screen, start setup, and let Auto-map suggest what each box is from its row and column labels. Click any box to correct it.
-3. Click 🎙 in the OptoFill popup and dictate your findings.
+3. Click the OptoFill icon to open its side panel next to your EMR, click 🎙 and dictate your findings.
 4. Click ✦ Fill Fields. Claude turns your dictation into standard exam values, and OptoFill puts each one in the box you set up.
 5. Every box is read back to confirm the value took; anything that didn't is listed. One click undoes the whole fill.
 
@@ -48,7 +48,10 @@ On an EMR you haven't set up yet, Quick fill lets Claude match values to boxes f
 (Copy-paste these into the Chrome Web Store "Permission justification" field)
 
 ### activeTab
-Lets OptoFill work with the tab the user is on when they open the popup: scanning the exam form's boxes during setup and filling them when the user clicks "Fill Fields."
+Lets OptoFill work with the tab the user is on when they open the OptoFill side panel: scanning the exam form's boxes during setup and filling them when the user clicks "Fill Fields."
+
+### sidePanel
+OptoFill's interface (dictation, Fill Fields, results and setup) runs in Chrome's side panel so it stays open next to the EHR while the user works.
 
 ### storage
 Stores the user's Anthropic API key, custom instructions, and per-EMR setup (which box holds which exam value) locally with chrome.storage.local, and the current transcript in chrome.storage.session. Nothing is synced or sent to OptoFill.

@@ -3,6 +3,9 @@ importScripts('schema.js', 'redact.js', 'extract.js', 'quickfill.js');
 
 let popupPort = null;
 
+// OptoFill runs in Chrome's side panel: clicking the toolbar icon opens it, and it stays open while you work in the EMR
+chrome.sidePanel?.setPanelBehavior({ openPanelOnActionClick: true }).catch(() => {});
+
 chrome.runtime.onConnect.addListener((port) => {
   if (port.name !== 'popup') return;
   popupPort = port;
