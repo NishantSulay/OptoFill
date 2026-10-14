@@ -103,7 +103,7 @@
 
 <div class="hero">
   <h1>Privacy Policy</h1>
-  <p class="last-updated">Effective date: July 1, 2025 &nbsp;·&nbsp; Last updated: July 1, 2025</p>
+  <p class="last-updated">Effective date: July 1, 2025 &nbsp;·&nbsp; Last updated: October 14, 2026</p>
 </div>
 
 <div class="content">
@@ -134,11 +134,18 @@
 
   <p><strong>c) Form Field Metadata</strong></p>
   <ul>
-    <li>When you click "Fill Fields," OptoFill scans the visible form fields on your active browser tab (labels, field names, input types). This metadata is included in the Anthropic API request to help Claude identify which field to fill.</li>
-    <li>This data is not stored by OptoFill and is not transmitted to any service other than Anthropic.</li>
+    <li>Once you have set up your EMR in OptoFill (see below), only your dictation is sent to Anthropic. Claude turns it into standard exam values, and OptoFill places them into the boxes on your own computer.</li>
+    <li>If you use "Fill Fields" on an EMR you have not set up yet ("quick fill"), OptoFill also sends a description of the visible form fields — their labels, field names, input types, and nearby text such as row and column headings — so Claude can guess which box to fill. Nearby text can include whatever is printed on screen near a box.</li>
+    <li>This data is not stored by OptoFill and is not transmitted to any service other than Anthropic. OptoFill never sends screenshots of your screen.</li>
   </ul>
 
-  <p><strong>d) Custom Instructions</strong></p>
+  <p><strong>d) EMR Setup</strong></p>
+  <ul>
+    <li>When you set up an EMR, OptoFill saves which box holds which exam value (for example, "this box is Amplitude OD") along with the box's on-page label and position text. This is stored only on your device via <code>chrome.storage.local</code>, separately for each website.</li>
+    <li>The setup contains no patient data and is never transmitted anywhere.</li>
+  </ul>
+
+  <p><strong>e) Custom Instructions</strong></p>
   <ul>
     <li>Any custom instructions you enter in Settings are stored locally via <code>chrome.storage.local</code> and sent to Anthropic's API as part of the system prompt when you process a transcript.</li>
   </ul>
@@ -169,7 +176,7 @@
   </ul>
 
   <h2>6. Data Retention</h2>
-  <p>OptoFill retains no data on its own. Data stored locally (API key, custom instructions, session transcript) persists only in your browser's local storage and can be cleared at any time by:</p>
+  <p>OptoFill retains no data on its own. Data stored locally (API key, custom instructions, session transcript, EMR setup) persists only in your browser's local storage and can be cleared at any time by:</p>
   <ul>
     <li>Clearing your Chrome extension storage (Settings → clear API key)</li>
     <li>Removing the OptoFill extension from Chrome</li>

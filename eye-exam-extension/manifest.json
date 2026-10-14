@@ -29,6 +29,7 @@
         "<all_urls>"
       ],
       "js": [
+        "schema.js",
         "content.js"
       ],
       "run_at": "document_idle"

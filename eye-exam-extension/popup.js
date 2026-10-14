@@ -1,8 +1,6 @@
 let isListening = false;
 let transcript = '';
 let port = null;
-let pendingFillFields = null;
-let pendingTabId = null;
 
 const micBtn             = document.getElementById('mic-btn');
 const micHint            = document.getElementById('mic-hint');
@@ -54,6 +52,7 @@ function connectPort() {
       setListeningState(false);
     }
     if (msg.action === 'claudeResult') handleClaudeResult(msg);
+    if (msg.action === 'extractResult') handleExtractResult(msg);
   });
   port.onDisconnect.addListener(() => setTimeout(connectPort, 100));
 }
@@ -156,144 +155,195 @@ clearBtn.addEventListener('click', () => {
   setStatus('', 'Ready — click mic to dictate your exam');
 });
 
+// ─── Talking to the exam page ─────────────────────────────────────────────────
+async function getExamTab() {
+  const tabs = await chrome.tabs.query({ active: true, lastFocusedWindow: true });
+  return tabs.find(t => t.url && !t.url.startsWith('chrome-extension://') && !t.url.startsWith('chrome://'));
+}
+
+async function sendToPage(tabId, msg) {
+  try {
+    return await chrome.tabs.sendMessage(tabId, msg);
+  } catch(e) {
+    await chrome.scripting.executeScript({ target: { tabId }, files: ['schema.js', 'content.js'] });
+    await new Promise(r => setTimeout(r, 300));
+    return chrome.tabs.sendMessage(tabId, msg);
+  }
+}
+
+// ─── EMR setup status + Undo ──────────────────────────────────────────────────
+const emrSetup     = document.getElementById('emr-setup');
+const emrSetupText = document.getElementById('emr-setup-text');
+const undoBtn      = document.getElementById('undo-btn');
+let mappedCount = 0;
+
+async function refreshPageStatus() {
+  const tab = await getExamTab();
+  if (!tab) { emrSetupText.textContent = 'Open your EMR exam page to use OptoFill.'; return; }
+  try {
+    const s = await sendToPage(tab.id, { action: 'getStatus' });
+    mappedCount = s?.mappedCount || 0;
+    emrSetup.classList.toggle('warn', mappedCount === 0);
+    emrSetupText.textContent = mappedCount
+      ? `${mappedCount} exam fields set up for this EMR.`
+      : 'This EMR isn’t set up yet — fills are a best guess. Set it up once for reliable filling.';
+    document.getElementById('setup-btn').textContent = mappedCount ? 'Edit setup' : 'Set up EMR';
+    undoBtn.style.display = s?.undoDepth ? '' : 'none';
+  } catch(e) {
+    emrSetupText.textContent = 'OptoFill can’t reach this page.';
+  }
+}
+refreshPageStatus();
+
+document.getElementById('setup-btn').addEventListener('click', async () => {
+  const tab = await getExamTab();
+  if (!tab) return;
+  try {
+    await sendToPage(tab.id, { action: 'startSetup' });
+    window.close();
+  } catch(e) { showToast('Could not start setup on this page.', 'error'); }
+});
+
+undoBtn.addEventListener('click', async () => {
+  const tab = await getExamTab();
+  if (!tab) return;
+  const r = await sendToPage(tab.id, { action: 'undoFill' }).catch(() => null);
+  if (r?.restored) showToast(`↶ Restored ${r.restored} box${r.restored === 1 ? '' : 'es'}`, 'success');
+  else showToast('Nothing to undo.', '');
+  undoBtn.style.display = r?.undoDepth ? '' : 'none';
+  resultsArea.classList.remove('visible');
+  setStatus('ready', 'Fill undone — boxes restored');
+});
+
 // ─── Fill Fields ──────────────────────────────────────────────────────────────
+let pendingTabId = null;
+let pendingQuickFields = null;
+
 fillBtn.addEventListener('click', async () => {
   const { apiKey, customInstructions: ci } = await getSettings();
   if (!apiKey) { showToast('Enter your API key in Settings first.', 'error'); showSettingsPanel(); return; }
   if (!transcript.trim()) return;
 
-  setStatus('processing', 'Scanning page fields…');
   fillBtn.disabled = true;
+  const tab = await getExamTab();
+  if (!tab) { showToast('Open your exam form first.', 'error'); resetFillBtn(); return; }
+  pendingTabId = tab.id;
+
+  await refreshPageStatus();
+  if (mappedCount > 0) {
+    setStatus('processing', 'Reading your dictation…');
+    fillBtnContent.innerHTML = '<span class="spinner"></span> Reading…';
+    port.postMessage({ action: 'extract', apiKey, transcript: transcript.trim(), customInstructions: ci });
+    return;
+  }
+
+  // Quick fill for EMRs that aren't set up: Claude guesses boxes from the page layout
+  setStatus('processing', 'Scanning page fields…');
   fillBtnContent.innerHTML = '<span class="spinner"></span> Scanning…';
-
-  let fields, tabId;
+  let fields;
   try {
-    const tabs = await chrome.tabs.query({ active: true, lastFocusedWindow: true });
-    const tab = tabs.find(t => t.url && !t.url.startsWith('chrome-extension://') && !t.url.startsWith('chrome://'));
-    if (!tab) throw new Error('No exam tab found');
-    tabId = tab.id;
-
-    // Try sending message to content script
-    let response = null;
-    try {
-      response = await chrome.tabs.sendMessage(tabId, { action: 'getFields' });
-    } catch(e) {
-      // Content script not loaded yet — inject it now and retry
-      await chrome.scripting.executeScript({ target: { tabId }, files: ['content.js'] });
-      await new Promise(r => setTimeout(r, 300)); // wait for script to initialize
-      response = await chrome.tabs.sendMessage(tabId, { action: 'getFields' });
-    }
-    fields = response?.fields;
+    fields = (await sendToPage(tab.id, { action: 'getFields' }))?.fields;
   } catch(e) {
     showToast('Could not reach page. Make sure you are on your exam form and try again.', 'error');
     resetFillBtn(); return;
   }
-
-  if (!fields || fields.length === 0) {
-    showToast('No form fields found on this page.', 'error');
-    resetFillBtn(); return;
-  }
-
+  if (!fields || fields.length === 0) { showToast('No form fields found on this page.', 'error'); resetFillBtn(); return; }
+  pendingQuickFields = fields;
   setStatus('processing', 'Claude is mapping your exam data…');
   fillBtnContent.innerHTML = '<span class="spinner"></span> Mapping…';
-  pendingFillFields = fields;
-  pendingTabId = tabId;
-
   port.postMessage({ action: 'callClaude', apiKey, transcript: transcript.trim(), fields, customInstructions: ci });
 });
 
-async function handleClaudeResult(msg) {
-  const fields = pendingFillFields, tabId = pendingTabId;
-  pendingFillFields = null; pendingTabId = null;
+async function handleExtractResult(msg) {
+  const tabId = pendingTabId;
+  if (!msg.ok) { showToast('Claude error: ' + msg.error, 'error'); resetFillBtn(); return; }
+  if (!Object.keys(msg.values || {}).length) {
+    showToast('No exam findings recognised. Try a more detailed dictation.', 'error');
+    resetFillBtn(); return;
+  }
+  setStatus('processing', 'Filling and checking boxes…');
+  fillBtnContent.innerHTML = '<span class="spinner"></span> Filling…';
+  let res;
+  try { res = await sendToPage(tabId, { action: 'fillSchema', values: msg.values }); }
+  catch(e) { showToast('Could not fill fields on the page.', 'error'); resetFillBtn(); return; }
+  showResults((res?.results || []).map(r => ({
+    label: r.label.replace(/\s*\([^)]*\)/g, '').replace(/^Visual acuity /, 'VA '), value: r.value, status: r.status, reason: r.reason, key: r.key
+  })));
+  resetFillBtn();
+  refreshPageStatus();
+}
 
+async function handleClaudeResult(msg) {
+  const fields = pendingQuickFields, tabId = pendingTabId;
+  pendingQuickFields = null;
   if (!msg.ok) { showToast('Claude error: ' + msg.error, 'error'); resetFillBtn(); return; }
   const mapping = msg.mapping;
   if (!mapping || !Object.keys(mapping).length) {
     showToast('No fields mapped. Try a more detailed dictation.', 'error');
     resetFillBtn(); return;
   }
-
-  setStatus('processing', 'Filling fields…');
+  setStatus('processing', 'Filling and checking boxes…');
   fillBtnContent.innerHTML = '<span class="spinner"></span> Filling…';
-
-  // Fill fields and capture debug result in one call
-  let fillResult = null;
-  try {
-    fillResult = await chrome.tabs.sendMessage(tabId, { action: 'fillFields', mapping });
-  } catch(e) {
-    showToast('Could not fill fields on the page.', 'error');
-    resetFillBtn(); return;
-  }
-
-  // Store mapping in content script so it auto-fills when form tabs switch
-  chrome.tabs.sendMessage(tabId, { action: 'storeMappingForRetry', mapping }).catch(() => {});
-
-  const attempted = Object.keys(mapping).length;
-  const actuallyFilled = fillResult?.filled?.filter(f => !f.error)?.length ?? attempted;
-  const failed = fillResult?.filled?.filter(f => f.error) ?? [];
-
-  showResults(mapping, fields, fillResult?.filled ?? []);
-  setStatus('ready', `Done — ${actuallyFilled}/${attempted} field(s) filled`);
+  let res;
+  try { res = await sendToPage(tabId, { action: 'fillFields', mapping }); }
+  catch(e) { showToast('Could not fill fields on the page.', 'error'); resetFillBtn(); return; }
+  showResults((res?.filled || []).map(r => {
+    const f = fields[parseInt(r.idx)];
+    return { label: f?.row ? [f.row, f.col].filter(Boolean).join(' · ') : (f?.label || `Field ${r.idx}`),
+             value: r.value, status: r.ok ? 'filled' : 'failed', reason: r.reason, selector: f?.selector };
+  }));
   resetFillBtn();
-
-  if (failed.length > 0) {
-    showToast(`⚠ ${failed.length} field(s) could not be filled`, 'error');
-  } else {
-    showToast(`✓ Filled ${actuallyFilled} fields`, 'success');
-  }
+  refreshPageStatus();
 }
 
-// ─── Helpers ──────────────────────────────────────────────────────────────────
-function showResults(mapping, fields, fillResults = []) {
-  resultList.innerHTML = '';
-  // Build a map of idx -> fill result for status icons
-  const fillMap = {};
-  fillResults.forEach(r => { fillMap[r.idx] = r; });
+// ─── Results ──────────────────────────────────────────────────────────────────
+const STATUS_ICON = { filled: '✓', failed: '⚠', pending: '⏳', unmapped: '○' };
 
-  Object.entries(mapping).forEach(([idx, value]) => {
-    const field = fields[parseInt(idx)];
-    const label = field?.label || field?.name || field?.id || `Field ${idx}`;
-    const selector = field?.selector || '';
-    const fillInfo = fillMap[idx];
-    const didFill = fillInfo && !fillInfo.error;
+function showResults(items) {
+  resultList.innerHTML = '';
+  const order = { failed: 0, unmapped: 1, pending: 2, filled: 3 };
+  items.sort((a, b) => order[a.status] - order[b.status]);
+  for (const it of items) {
+    const ok = it.status === 'filled';
+    const color = it.status === 'failed' ? 'var(--danger)' : it.status === 'filled' ? '' : 'var(--gray-600)';
     const item = document.createElement('div');
     item.className = 'result-item';
-    item.style.cssText = 'cursor:pointer;';
-    item.title = didFill ? 'Click to highlight this field on the page' : (fillInfo?.error || 'Field not found on page');
-    item.innerHTML = `
-      <span class="result-field" title="${label}" style="color:${didFill ? '' : 'var(--danger)'}">${label}</span>
-      <span class="result-value" style="display:flex;align-items:center;gap:5px;color:${didFill ? '' : 'var(--danger)'}">
-        ${String(value).substring(0,28)}
-        <span style="font-size:11px;">${didFill ? '🔍' : '⚠'}</span>
-      </span>
-    `;
+    item.style.cssText = 'cursor:pointer;flex-wrap:wrap;';
+    item.title = ok ? 'Click to show this box on the page' : (it.reason || '');
+    const name = document.createElement('span');
+    name.className = 'result-field'; name.style.color = color; name.textContent = it.label; name.title = it.label;
+    const val = document.createElement('span');
+    val.className = 'result-value'; val.style.cssText = `display:flex;align-items:center;gap:5px;color:${color}`;
+    val.textContent = String(it.value).substring(0, 28);
+    const icon = document.createElement('span');
+    icon.className = 'result-status'; icon.textContent = STATUS_ICON[it.status] || '';
+    val.appendChild(icon);
+    item.append(name, val);
     item.addEventListener('click', async () => {
-      if (didFill && selector) {
-        // Scroll to and highlight the field on the page
-        const tabs = await chrome.tabs.query({ active: true, lastFocusedWindow: true });
-        const tab = tabs.find(t => t.url && !t.url.startsWith('chrome-extension://'));
+      if (ok) {
+        const tab = await getExamTab();
         if (!tab) return;
-        chrome.tabs.sendMessage(tab.id, { action: 'highlightField', selector });
-      } else {
-        // Show error reason inline
-        const existing = item.querySelector('.fill-error');
-        if (existing) { existing.remove(); return; }
-        const errDiv = document.createElement('div');
-        errDiv.className = 'fill-error';
-        errDiv.style.cssText = 'margin-top:4px;padding:5px 8px;background:rgba(248,113,113,0.1);border:1px solid rgba(248,113,113,0.3);border-radius:5px;font-size:10.5px;color:#f87171;line-height:1.5;grid-column:1/-1;';
-        const reason = fillInfo?.error
-          ? `Error: ${fillInfo.error}`
-          : selector
-            ? `Selector not found on page: ${selector}`
-            : `Claude mapped this field but no selector was generated — field label may be ambiguous`;
-        errDiv.textContent = reason;
-        item.style.flexWrap = 'wrap';
-        item.appendChild(errDiv);
+        chrome.tabs.sendMessage(tab.id, it.key ? { action: 'highlightKey', key: it.key } : { action: 'highlightField', selector: it.selector });
+        return;
       }
+      const existing = item.querySelector('.fill-error');
+      if (existing) { existing.remove(); return; }
+      const errDiv = document.createElement('div');
+      errDiv.className = 'fill-error';
+      errDiv.style.cssText = 'flex-basis:100%;margin-top:4px;padding:5px 8px;background:var(--danger-lt);border:1px solid rgba(220,38,38,0.25);border-radius:5px;font-size:10.5px;color:var(--gray-600);line-height:1.5;';
+      errDiv.textContent = it.reason || 'Not filled';
+      item.appendChild(errDiv);
     });
     resultList.appendChild(item);
-  });
+  }
   resultsArea.classList.add('visible');
+
+  const n = s => items.filter(i => i.status === s).length;
+  const filled = n('filled'), failed = n('failed'), unmapped = n('unmapped'), pending = n('pending');
+  setStatus('ready', `Done — ${filled}/${items.length} filled and checked`);
+  const extra = [failed && `${failed} didn’t stick`, unmapped && `${unmapped} not set up`, pending && `${pending} on another tab`].filter(Boolean);
+  if (extra.length) showToast(`⚠ ${extra.join(' · ')}`, 'error');
+  else showToast(`✓ Filled ${filled} box${filled === 1 ? '' : 'es'}`, 'success');
 }
 
 function setStatus(type, message) {
@@ -317,13 +367,13 @@ function getSettings() {
   return new Promise(resolve => chrome.storage.local.get(['apiKey','customInstructions'], resolve));
 }
 
-// Re-fill button — manually re-apply mapping to current tab's visible fields
+// Re-fill button — fill values whose boxes are on an EMR tab that wasn't open before
 document.getElementById('refill-btn').addEventListener('click', async () => {
-  const tabs = await chrome.tabs.query({ active: true, lastFocusedWindow: true });
-  const tab = tabs.find(t => t.url && !t.url.startsWith('chrome-extension://'));
+  const tab = await getExamTab();
   if (!tab) return;
-  chrome.tabs.sendMessage(tab.id, { action: 'refillCurrentTab' }).catch(() => {});
-  showToast('Re-filling visible fields…', '');
+  const r = await sendToPage(tab.id, { action: 'refillPending' }).catch(() => null);
+  const n = (r?.results || []).filter(x => x.status === 'filled').length;
+  showToast(n ? `✓ Filled ${n} more box${n === 1 ? '' : 'es'}` : 'Nothing waiting for this tab.', n ? 'success' : '');
 });
 
 function showSettingsPanel() { mainPanel.classList.remove('active'); settingsPanel.classList.add('active'); }

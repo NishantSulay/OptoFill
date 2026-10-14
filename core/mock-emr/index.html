@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mock EMR — OptoFill test page</title>
+<!-- Synthetic test page. All data is fake. Field names are deliberately cryptic and some ids repeat across tabs, like real EMRs. -->
+<style>
+  body { margin: 0; font: 14px Arial, sans-serif; background: #e5e7eb; color: #111; }
+  header { background: #2bb3ad; color: #fff; padding: 10px 18px; font-size: 18px; display: flex; gap: 14px; align-items: center; }
+  header .pt { background: #fff; color: #111; border-radius: 12px; padding: 1px 10px; font-size: 15px; }
+  .tabs { display: flex; gap: 4px; padding: 8px 18px 0; }
+  .tabs button { border: 0; padding: 7px 14px; border-radius: 6px 6px 0 0; background: #c2410c; color: #fff; cursor: pointer; font-size: 13px; }
+  .tabs button.on { background: #fff; color: #111; }
+  .screen { display: none; gap: 12px; padding: 12px 18px; background: #fff; }
+  .screen.on { display: flex; }
+  .col { flex: 1; display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+  .card { border: 1px solid #d1d5db; border-radius: 6px; padding: 10px; }
+  .h { color: #2563eb; margin-bottom: 8px; }
+  .lbl { background: #555; color: #fff; padding: 3px 6px; display: inline-block; min-width: 54px; text-align: center; }
+  .grid { display: grid; gap: 5px; align-items: center; }
+  input[type=text], textarea, select { border: 1px solid #9ca3af; border-radius: 3px; padding: 4px; font: inherit; }
+  .grid input[type=text], .grid select, .grid textarea { width: 100%; min-width: 0; box-sizing: border-box; }
+  .grid input.sm { width: 38px; }
+  textarea { width: 100%; box-sizing: border-box; }
+  .center { text-align: center; }
+</style>
+</head>
+<body>
+<header>EMR <span class="pt">Test Patient</span> 40 - F</header>
+<div class="tabs">
+  <button class="on" data-tab="pretest">Pretest/BV</button>
+  <button data-tab="refraction">Refraction</button>
+</div>
+
+<!-- Pretest / BV -->
+<div class="screen on" id="pretest">
+  <div class="col">
+    <div class="card"><textarea id="note" name="n1" rows="3" placeholder="Note here"></textarea></div>
+    <div class="card">
+      <div class="h">Visual Acuity</div>
+      <div style="display:flex;gap:40px">
+        <div>
+          <div class="h">Distance Vision</div><b>Uncorrected</b>
+          <div class="grid" style="grid-template-columns:auto 44px 44px">
+            <span class="lbl">OD:20/</span><input type="text" class="sm" name="v1"><input type="text" class="sm" name="v2">
+            <span class="lbl">OS:20/</span><input type="text" class="sm" name="v3"><input type="text" class="sm" name="v4">
+            <span class="lbl">OU:20/</span><input type="text" class="sm" name="v5"><input type="text" class="sm" name="v6">
+          </div>
+        </div>
+        <div>
+          <div style="height:18px"></div><b>Corrected</b>
+          <div class="grid" style="grid-template-columns:auto 44px 44px">
+            <span class="lbl">OD:20/</span><input type="text" class="sm" name="v7"><input type="text" class="sm" name="v8">
+            <span class="lbl">OS:20/</span><input type="text" class="sm" name="v9"><input type="text" class="sm" name="v10">
+            <span class="lbl">OU:20/</span><input type="text" class="sm" name="v11"><input type="text" class="sm" name="v12">
+          </div>
+        </div>
+      </div>
+      <div style="display:flex;gap:40px;margin-top:14px">
+        <div>
+          <div class="h">Near Vision</div><b>Uncorrected</b>
+          <div class="grid" style="grid-template-columns:auto 44px 44px">
+            <span class="lbl">OD:20/</span><input type="text" class="sm" name="v13"><input type="text" class="sm" name="v14">
+            <span class="lbl">OS:20/</span><input type="text" class="sm" name="v15"><input type="text" class="sm" name="v16">
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="h">Pupils</div>
+      <div class="grid" style="grid-template-columns:30px repeat(5,70px)">
+        <span></span><span class="lbl">Light</span><span class="lbl">Dark</span><span class="lbl">Direct</span><span class="lbl">Consensual</span><span class="lbl">APD</span>
+        <span>OD</span><input type="text" name="p1"><input type="text" name="p2"><input type="text" name="p3"><input type="text" name="p4"><input type="text" name="p5">
+        <span>OS</span><input type="text" name="p6"><input type="text" name="p7"><input type="text" name="p8"><input type="text" name="p9"><input type="text" name="p10">
+      </div>
+      <textarea id="notes" name="pn" rows="2" placeholder="Notes" style="margin-top:8px"></textarea>
+    </div>
+  </div>
+
+  <div class="col">
+    <div class="card">
+      <div class="h">Cover Test</div>
+      <div class="grid" style="grid-template-columns:100px 1fr 1fr 1fr 50px">
+        <span></span><span>Eye</span><span>Intermittent</span><span>Direction</span><span>Amt</span>
+        <span class="lbl">Dx</span><input type="text" name="c1"><input type="text" name="c2"><input type="text" name="c3"><input type="text" name="c4">
+        <span class="lbl">Near</span><input type="text" name="c5"><input type="text" name="c6"><input type="text" name="c7"><input type="text" name="c8">
+        <span class="lbl">Vertical Dx</span><input type="text" name="c9"><input type="text" name="c10"><input type="text" name="c11"><input type="text" name="c12">
+      </div>
+    </div>
+    <div class="card">
+      <div class="h">BV Vergences</div>
+      <div class="grid" style="grid-template-columns:130px 1fr 1fr">
+        <span></span><b class="center">+ve fusional vergences</b><b class="center">-ve fusional vergences</b>
+        <b>Dx</b><input type="text" name="b1"><input type="text" name="b2">
+        <b>Near</b><input type="text" name="b3"><input type="text" name="b4">
+        <span></span><span class="center">OD</span><span class="center">OS</span>
+        <span class="lbl">Amplitude</span><input type="text" name="b5"><input type="text" name="b6">
+        <span class="lbl">C Fields</span><input type="text" name="b7"><input type="text" name="b8">
+        <span class="lbl">EOMS</span><input type="text" name="b9"><input type="text" name="b10">
+        <span class="lbl">NPC</span><input type="text" name="b11" style="grid-column:span 2">
+        <span class="lbl">Pursuits</span><input type="text" name="b12" style="grid-column:span 2">
+        <span>Additional Tests</span><textarea name="b13" rows="2" placeholder="Note Here" style="grid-column:span 2"></textarea>
+      </div>
+    </div>
+  </div>
+
+  <div class="col">
+    <div class="card">
+      <div class="h">Pupillary Distance</div>
+      <div class="grid" style="grid-template-columns:70px 50px 50px 50px">
+        <span></span><span class="lbl">OD</span><span class="lbl">OS</span><span class="lbl">OU</span>
+        <b>Distance</b><input type="text" class="sm" name="d1"><input type="text" class="sm" name="d2"><input type="text" class="sm" name="d3">
+        <b>Near</b><input type="text" class="sm" name="d4"><input type="text" class="sm" name="d5"><input type="text" class="sm" name="d6">
+      </div>
+    </div>
+    <div class="card">
+      <div class="h">Color Vision</div>
+      <div class="grid" style="grid-template-columns:70px 1fr">
+        <span class="lbl">OD/OU</span><input type="text" name="cv1">
+        <span class="lbl">OS</span><input type="text" name="cv2">
+        <span>Method Used</span><select name="cv3"><option>Select</option><option>Ishihara</option><option>HRR</option><option>D-15</option></select>
+      </div>
+    </div>
+    <div class="card">
+      <div class="grid" style="grid-template-columns:auto 1fr">
+        <span class="lbl">Stereoacuity</span><input type="text" name="s1">
+        <span class="lbl">Method Used</span><select name="s2"><option>Select</option><option>Randot</option><option>Titmus</option></select>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Refraction (hidden until its tab is clicked; reuses the id "notes" like many EMR templates) -->
+<div class="screen" id="refraction">
+  <div class="col">
+    <div class="card">
+      <div class="h">Manifest Refraction</div>
+      <div class="grid" style="grid-template-columns:40px repeat(5,80px)">
+        <span></span><span>Sphere</span><span>Cylinder</span><span>Axis</span><span>Add</span><span>VA</span>
+        <span>OD</span><input type="text" name="r1"><input type="text" name="r2"><input type="text" name="r3"><input type="text" name="r4"><input type="text" name="r5">
+        <span>OS</span><input type="text" name="r6"><input type="text" name="r7"><input type="text" name="r8"><input type="text" name="r9"><input type="text" name="r10">
+      </div>
+      <textarea id="notes" name="rn" rows="2" placeholder="Notes" style="margin-top:8px"></textarea>
+    </div>
+    <div class="card">
+      <div class="h">Tonometry</div>
+      <div class="grid" style="grid-template-columns:60px 80px">
+        <span>IOP OD</span><input type="text" name="t1">
+        <span>IOP OS</span><input type="text" name="t2">
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.querySelectorAll('.tabs button').forEach(b => b.addEventListener('click', () => {
+    document.querySelectorAll('.tabs button').forEach(x => x.classList.toggle('on', x === b));
+    document.querySelectorAll('.screen').forEach(s => s.classList.toggle('on', s.id === b.dataset.tab));
+  }));
+  // ?revert=1 simulates an EMR that wipes script-set values in the NPC box
+  if (new URLSearchParams(location.search).get('revert')) {
+    const npc = document.querySelector('[name=b11]');
+    npc.addEventListener('change', () => setTimeout(() => { npc.value = ''; }, 150));
+  }
+</script>
+</body>
+</html>

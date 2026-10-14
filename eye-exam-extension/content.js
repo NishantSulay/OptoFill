@@ -113,30 +113,7 @@ function getRadioQuestionText(el) {
   }
   return '';
 }
-
-function injectFieldHighlights(fields) {
-  removeFieldHighlights();
-  fields.forEach((f, i) => {
-    try {
-      const el = document.querySelector(f.selector);
-      if (!el) return;
-      const rect = el.getBoundingClientRect();
-      if (rect.width === 0 || rect.height === 0) return;
-      const overlay = document.createElement('div');
-      overlay.className = 'optofill-hl';
-      overlay.style.cssText = `position:fixed;left:${rect.left}px;top:${rect.top}px;width:${rect.width}px;height:${rect.height}px;border:2px solid #2563eb;background:rgba(37,99,235,0.08);z-index:2147483647;pointer-events:none;box-sizing:border-box`;
-      const badge = document.createElement('span');
-      badge.textContent = i;
-      badge.style.cssText = `position:absolute;top:-2px;left:-2px;background:#facc15;color:#000;border:1px solid #000;font-size:15px;font-family:Arial,sans-serif;font-weight:bold;padding:0 4px;line-height:18px`;
-      overlay.appendChild(badge);
-      document.body.appendChild(overlay);
-    } catch(e) {}
-  });
-}
-
-function removeFieldHighlights() {
-  document.querySelectorAll('.optofill-hl').forEach(el => el.remove());
-}
+// ─── Page scanning ────────────────────────────────────────────────────────────
 
 // Short visible text snippets with their on-screen boxes, used to label fields by layout
 function getTextAnchors() {
@@ -148,19 +125,37 @@ function getTextAnchors() {
     const text = n.textContent.replace(/\s+/g, ' ').trim();
     if (text.length < 2 || text.length > 40) continue;
     const p = n.parentElement;
-    if (!p || p.closest('.optofill-hl, script, style, noscript, option, select, textarea')) continue;
+    if (!p || p.closest('#optofill-setup-host, script, style, noscript, option, select, textarea')) continue;
     range.selectNodeContents(n);
     const r = range.getBoundingClientRect();
     if (!r.width || !r.height) continue;
     if (getComputedStyle(p).visibility === 'hidden') continue;
-    anchors.push({ text, r });
+    anchors.push({ text, r, node: p });
   }
   return anchors;
+}
+
+// The bordered panel/card a box sits in — labels from neighbouring panels must not leak in
+const TABLE_TAGS = new Set(['TD', 'TH', 'TR', 'TBODY', 'THEAD', 'TFOOT', 'TABLE']);
+function panelOf(el) {
+  const f = el.getBoundingClientRect();
+  for (let n = el.parentElement; n && n !== document.body && n !== document.documentElement; n = n.parentElement) {
+    if (TABLE_TAGS.has(n.tagName)) continue;
+    const s = getComputedStyle(n);
+    const boxed = (parseFloat(s.borderTopWidth) > 0 && s.borderTopStyle !== 'none' &&
+                   parseFloat(s.borderBottomWidth) > 0 && s.borderBottomStyle !== 'none') || s.boxShadow !== 'none';
+    if (!boxed) continue;
+    const r = n.getBoundingClientRect();
+    if (r.height > f.height * 2.5 || r.width > f.width + 150) return n;
+  }
+  return null;
 }
 
 function getLayoutContext(el, anchors) {
   const f = el.getBoundingClientRect();
   if (!f.width || !f.height) return { row: '', col: '', context: '' };
+  const panel = panelOf(el);
+  if (panel) anchors = anchors.filter(a => panel.contains(a.node));
   const cy = a => (a.r.top + a.r.bottom) / 2;
   const cx = a => (a.r.left + a.r.right) / 2;
 
@@ -180,7 +175,7 @@ function getLayoutContext(el, anchors) {
     if (!col || a.r.bottom > col.r.bottom) col = a;
   }
 
-  // Nearby headings above, for section context (e.g. "Near Vision", "BV Vergences")
+  // Nearby headings above, nearest first (e.g. "Near Vision", "BV Vergences")
   const skip = new Set([row?.text, col?.text]);
   const context = anchors
     .filter(a => a.r.bottom <= f.top + 2 && f.top - a.r.bottom < 300 &&
@@ -188,234 +183,618 @@ function getLayoutContext(el, anchors) {
     .sort((a, b) => b.r.bottom - a.r.bottom)
     .map(a => a.text)
     .filter((t, i, arr) => arr.indexOf(t) === i)
-    .slice(0, 3)
+    .slice(0, 4)
     .join(' / ');
 
   return { row: row?.text || '', col: col?.text || '', context };
 }
 
+function isVisibleField(el) {
+  if (!el || !el.isConnected) return false;
+  const style = window.getComputedStyle(el);
+  return !(style.display === 'none' || style.visibility === 'hidden' || el.offsetParent === null);
+}
+
+// Elements from the most recent scan, by index — fills target these exact elements
+let lastScannedEls = [];
+
 function getAllFields(withLayout) {
   const anchors = withLayout ? getTextAnchors() : null;
-  const fields = [], seen = new Set();
+  const fields = [], els = [], seen = new Set();
   const selectors = [
     'input:not([type="hidden"]):not([type="submit"]):not([type="button"]):not([type="reset"]):not([type="image"])',
     'textarea', 'select'
   ];
   document.querySelectorAll(selectors.join(', ')).forEach((el, rawIndex) => {
-    const style = window.getComputedStyle(el);
-    if (style.display==='none'||style.visibility==='hidden'||el.offsetParent===null) return;
+    if (el.closest('#optofill-setup-host')) return;
+    if (!isVisibleField(el)) return;
     if (seen.has(el)) return;
     seen.add(el);
     const id=el.id||'', name=el.name||'', placeholder=el.placeholder||'';
     const type=el.type||el.tagName.toLowerCase();
     let label='';
     if (el.getAttribute('aria-label')) label=el.getAttribute('aria-label');
-    else if (id) { const l=document.querySelector(`label[for="${id}"]`); if(l) label=l.innerText.trim(); }
+    else if (id) { const l=document.querySelector(`label[for="${CSS.escape(id)}"]`); if(l) label=l.innerText.trim(); }
     if (!label) { const p=el.closest('label'); if(p) label=p.innerText.replace(el.value||'','').trim(); }
     if (!label&&el.getAttribute('aria-labelledby')) { const r=document.getElementById(el.getAttribute('aria-labelledby')); if(r) label=r.innerText.trim(); }
     if (!label) { const prev=el.previousElementSibling; if(prev&&['LABEL','SPAN','P','DIV','TH','LEGEND'].includes(prev.tagName)) label=prev.innerText.trim(); }
-    // For radio/checkbox: combine group question + option label
     if (type==='radio'||type==='checkbox') {
-      // Option label from label[for=id] e.g. "Yes", "No", "Allergies"
-      const optionLabel = id ? document.querySelector(`label[for="${id}"]`)?.innerText?.trim() : '';
-      // Group question from gfield_label or similar e.g. "Do you drive?", "Medical History"
+      const optionLabel = id ? document.querySelector(`label[for="${CSS.escape(id)}"]`)?.innerText?.trim() : '';
       const question = getRadioQuestionText(el);
-      // Value attribute as fallback
       const val = el.value && !['on','off','true','false','1','0'].includes(el.value.toLowerCase()) ? el.value : '';
       const option = optionLabel || val;
-      if (question && option && question.toLowerCase() !== option.toLowerCase()) {
-        label = question + ' — ' + option;
-      } else if (option) {
-        label = option;
-      } else if (question) {
-        label = question;
-      }
+      if (question && option && question.toLowerCase() !== option.toLowerCase()) label = question + ' — ' + option;
+      else if (option) label = option;
+      else if (question) label = question;
     }
-    if (!label) label=name||id||placeholder||`field_${rawIndex}`;
+    if (!label) label=placeholder||name||id||`field_${rawIndex}`;
     const options=el.tagName==='SELECT'?Array.from(el.options).map(o=>({value:o.value,text:o.text.trim()})):[];
     const layout = anchors ? getLayoutContext(el, anchors) : {};
     fields.push({ index:fields.length, label:label.substring(0,80), name:name.substring(0,40), id:id.substring(0,40), type, placeholder:placeholder.substring(0,60), options, selector:buildSelector(el), ...layout });
+    els.push(el);
   });
+  lastScannedEls = els;
   return fields;
 }
 
+// Prefer #id / [name] only when they identify exactly one element — EMRs often reuse them
 function buildSelector(el) {
-  if (el.id) return `#${CSS.escape(el.id)}`;
-  if (el.name) return `${el.tagName.toLowerCase()}[name="${el.name}"]`;
+  const unique = sel => { try { return document.querySelectorAll(sel).length === 1; } catch(e) { return false; } };
+  if (el.id && unique(`#${CSS.escape(el.id)}`)) return `#${CSS.escape(el.id)}`;
+  if (el.name) {
+    const sel = `${el.tagName.toLowerCase()}[name="${CSS.escape(el.name)}"]`;
+    if (unique(sel)) return sel;
+  }
   let path='', node=el;
-  while (node&&node!==document.body) {
+  while (node&&node!==document.body&&node.parentNode) {
     const tag=node.tagName.toLowerCase();
-    const siblings=Array.from(node.parentNode?.children||[]).filter(c=>c.tagName===node.tagName);
+    const siblings=Array.from(node.parentNode.children).filter(c=>c.tagName===node.tagName);
     path=`${tag}:nth-of-type(${siblings.indexOf(node)+1})${path?' > '+path:''}`;
     node=node.parentNode;
   }
-  return path;
+  return 'body > ' + path;
 }
 
-function fillFields(mapping, fields) {
-  const filled=[];
-  Object.entries(mapping).forEach(([idxStr, value]) => {
-    const meta=fields[parseInt(idxStr)]; if(!meta) return;
-    let el=null; try { el=document.querySelector(meta.selector); } catch(e) {}
-    if (!el) return;
+// ─── Setting, checking and undoing values ─────────────────────────────────────
+
+const TRUE_WORDS = ['true','1','yes','checked','positive','present'];
+
+function setElementValue(el, value) {
+  const tag=el.tagName.toLowerCase(), type=(el.type||'').toLowerCase();
+  if (tag==='select') {
+    const v=String(value).toLowerCase();
+    let found = false;
+    for (const opt of el.options) {
+      if (opt.value.toLowerCase()===v||opt.text.toLowerCase()===v) { el.value=opt.value; found=true; break; }
+    }
+    if (!found) for (const opt of el.options) {
+      const t = opt.text.toLowerCase();
+      if (t && (t.includes(v)||v.includes(t))) { el.value=opt.value; found=true; break; }
+    }
+    if (!found) throw new Error(`No option matching "${value}"`);
+    ['input','change'].forEach(e=>el.dispatchEvent(new Event(e,{bubbles:true})));
+  } else if (type==='radio') {
+    if (TRUE_WORDS.includes(String(value).toLowerCase()) && !el.checked) {
+      el.checked = true;
+      el.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+      el.dispatchEvent(new Event('change', { bubbles: true }));
+    }
+  } else if (type==='checkbox') {
+    const shouldCheck = TRUE_WORDS.includes(String(value).toLowerCase());
+    if (el.checked !== shouldCheck) {
+      const lbl = el.id ? document.querySelector(`label[for="${CSS.escape(el.id)}"]`) : null;
+      (lbl || el).click();
+      if (el.checked !== shouldCheck) {
+        el.checked = shouldCheck;
+        el.dispatchEvent(new Event('change', { bubbles: true }));
+      }
+    }
+  } else {
+    setNativeValue(el, String(value));
+    ['input','change','blur'].forEach(e=>el.dispatchEvent(new Event(e,{bubbles:true})));
+  }
+}
+
+function setNativeValue(el, v) {
+  const proto = el.tagName==='TEXTAREA' ? HTMLTextAreaElement.prototype : HTMLInputElement.prototype;
+  const setter = Object.getOwnPropertyDescriptor(proto, 'value')?.set;
+  setter ? setter.call(el, v) : (el.value = v);
+}
+
+function valueMatches(el, value) {
+  const tag=el.tagName.toLowerCase(), type=(el.type||'').toLowerCase();
+  if (type==='checkbox') return el.checked === TRUE_WORDS.includes(String(value).toLowerCase());
+  if (type==='radio') return !TRUE_WORDS.includes(String(value).toLowerCase()) || el.checked;
+  if (tag==='select') {
+    const opt = el.selectedOptions[0];
+    const v = String(value).toLowerCase();
+    return !!opt && (opt.value.toLowerCase()===v || opt.text.toLowerCase().includes(v) || v.includes(opt.text.toLowerCase()));
+  }
+  return el.value.trim() === String(value).trim();
+}
+
+function snapshot(el) { return { value: el.value, checked: el.checked, selectedIndex: el.selectedIndex }; }
+
+function restore(el, s) {
+  if (!el.isConnected) return;
+  const tag=el.tagName.toLowerCase(), type=(el.type||'').toLowerCase();
+  if (type==='checkbox'||type==='radio') {
+    if (el.checked !== s.checked) { el.checked = s.checked; el.dispatchEvent(new Event('change', { bubbles: true })); }
+    return;
+  }
+  if (tag==='select') el.selectedIndex = s.selectedIndex;
+  else setNativeValue(el, s.value);
+  ['input','change','blur'].forEach(e=>el.dispatchEvent(new Event(e,{bubbles:true})));
+}
+
+function flash(el) {
+  el.style.transition='outline 0.3s, background 0.3s';
+  el.style.outline='2px solid #2dd4bf';
+  el.style.background='rgba(45,212,191,0.08)';
+  setTimeout(()=>{ el.style.outline=''; el.style.background=''; },1800);
+}
+
+const undoStack = [];   // each entry: [{ el, snap }] for one Fill Fields click
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+
+// items: [{ el, value, info }] → results [{ ...info, value, ok, reason }]
+async function applyFills(items, { mergeIntoLast = false } = {}) {
+  const snaps = [];
+  const results = items.map(({ el, value, info }) => {
+    snaps.push({ el, snap: snapshot(el) });
     try {
-      const tag=el.tagName.toLowerCase(), type=(el.type||'').toLowerCase();
-      if (tag==='select') {
-        const v=String(value).toLowerCase();
-        for (const opt of el.options) {
-          if (opt.value.toLowerCase()===v||opt.text.toLowerCase().includes(v)||v.includes(opt.text.toLowerCase())) { el.value=opt.value; break; }
-        }
-      } else if (type==='radio') {
-        const shouldCheck = ['true','1','yes','checked'].includes(String(value).toLowerCase());
-        if (shouldCheck && !el.checked) {
-          el.checked = true;
-          el.dispatchEvent(new MouseEvent('click', { bubbles: true }));
-          el.dispatchEvent(new Event('change', { bubbles: true }));
-        }
-      } else if (type==='checkbox') {
-        const shouldCheck = ['true','1','yes','checked'].includes(String(value).toLowerCase());
-        if (el.checked !== shouldCheck) {
-          // Gravity Forms requires clicking the label, not the input directly
-          const lbl = el.id ? document.querySelector(`label[for="${el.id}"]`) : null;
-          if (lbl) {
-            lbl.click();
-          } else {
-            el.click();
-          }
-          // Verify it worked, force if not
-          if (el.checked !== shouldCheck) {
-            el.checked = shouldCheck;
-            el.dispatchEvent(new Event('change', { bubbles: true }));
-            el.dispatchEvent(new Event('input', { bubbles: true }));
-          }
-        }
-      } else {
-        const proto = el.tagName==='TEXTAREA' ? window.HTMLTextAreaElement.prototype : window.HTMLInputElement.prototype;
-        const setter = Object.getOwnPropertyDescriptor(proto, 'value')?.set;
-        setter ? setter.call(el, String(value)) : (el.value = String(value));
-      }
-      // Fire input events for text fields (radio/checkbox already handled above)
-      if (type!=='radio'&&type!=='checkbox') {
-        ['input','change','blur'].forEach(e=>el.dispatchEvent(new Event(e,{bubbles:true})));
-      }
-      el.style.transition='outline 0.3s, background 0.3s';
-      el.style.outline='2px solid #2dd4bf';
-      el.style.background='rgba(45,212,191,0.08)';
-      setTimeout(()=>{ el.style.outline=''; el.style.background=''; },1800);
-      filled.push({ idx: idxStr, label: meta.label, selector: meta.selector, value: String(value) });
+      setElementValue(el, value);
+      flash(el);
+      const ok = valueMatches(el, value);
+      return { ...info, value, ok, reason: ok ? '' : 'The page did not accept the value' };
     } catch(e) {
-      console.warn('OptoFill fill error:', meta.label, e);
-      filled.push({ idx: idxStr, label: meta.label, selector: meta.selector, value: String(value), error: e.message });
+      return { ...info, value, ok: false, reason: e.message };
     }
   });
-  return filled;
+  // Re-check after the page has had a chance to react — some EMRs re-render and wipe script-set values
+  await sleep(400);
+  results.forEach((r, i) => {
+    if (!r.ok) return;
+    const el = items[i].el;
+    if (!el.isConnected || !isVisibleField(el)) { r.ok = false; r.reason = 'The box disappeared after filling'; }
+    else if (!valueMatches(el, items[i].value)) { r.ok = false; r.reason = 'The page reverted the value'; }
+  });
+  if (snaps.length) {
+    if (mergeIntoLast && undoStack.length) undoStack[undoStack.length - 1].push(...snaps);
+    else undoStack.push(snaps);
+  }
+  return results;
+}
+
+function undoLastFill() {
+  const entry = undoStack.pop();
+  pendingSchema = {};
+  if (!entry) return 0;
+  for (let i = entry.length - 1; i >= 0; i--) restore(entry[i].el, entry[i].snap);
+  return entry.length;
+}
+
+// ─── Per-EMR mapping (schema key → box) ──────────────────────────────────────
+
+const MAPS_KEY = 'optofillMaps';
+const SCHEMA = self.OPTOFILL_SCHEMA || [];
+const SCHEMA_BY_KEY = Object.fromEntries(SCHEMA.map(s => [s.key, s]));
+
+async function loadMap() {
+  const data = await chrome.storage.local.get(MAPS_KEY);
+  return (data[MAPS_KEY] || {})[location.origin] || {};
+}
+
+async function saveMap(map) {
+  const data = await chrome.storage.local.get(MAPS_KEY);
+  const all = data[MAPS_KEY] || {};
+  all[location.origin] = map;
+  await chrome.storage.local.set({ [MAPS_KEY]: all });
+}
+
+function mappingEntry(el, f) {
+  return {
+    selector: f.selector, name: f.name, id: f.id, label: f.label, row: f.row || '', col: f.col || '', context: f.context || '',
+    stripPrefix: /20\/$/.test(f.row || '') ? '20/' : ''
+  };
+}
+
+// Find the box for a saved mapping among the currently visible fields
+function locateMapped(entry, fields) {
+  try {
+    const hits = Array.from(document.querySelectorAll(entry.selector)).filter(isVisibleField);
+    if (hits.length === 1 && lastScannedEls.includes(hits[0])) return hits[0];
+  } catch(e) {}
+  const cands = fields.filter(f => f.row === entry.row && f.col === entry.col && f.label === entry.label &&
+                                   (!entry.name || f.name === entry.name));
+  if (cands.length === 1) return lastScannedEls[cands[0].index];
+  if (cands.length > 1) {
+    const exact = cands.filter(f => f.context === entry.context);
+    if (exact.length === 1) return lastScannedEls[exact[0].index];
+  }
+  return null;
+}
+
+function formatForBox(entry, value) {
+  return entry.stripPrefix && String(value).startsWith(entry.stripPrefix) ? String(value).slice(entry.stripPrefix.length) : value;
+}
+
+let pendingSchema = {};   // mapped values whose box isn't on screen yet (e.g. another EMR tab)
+
+// values: { schemaKey: value } → [{ key, label, value, status, reason }]
+async function fillSchema(values, { mergeIntoLast = false } = {}) {
+  const map = await loadMap();
+  const fields = getAllFields(true);
+  const items = [], out = [], usedEls = new Set();
+  for (const [key, value] of Object.entries(values)) {
+    const label = SCHEMA_BY_KEY[key]?.label || key;
+    const entry = map[key];
+    if (!entry) { out.push({ key, label, value, status: 'unmapped', reason: 'Not set up on this EMR yet' }); continue; }
+    const el = locateMapped(entry, fields);
+    if (!el || usedEls.has(el)) { pendingSchema[key] = value; out.push({ key, label, value, status: 'pending', reason: 'Box is not on screen — it will fill when you open its tab' }); continue; }
+    usedEls.add(el);
+    items.push({ el, value: formatForBox(entry, value), info: { key, label } });
+  }
+  const filled = await applyFills(items, { mergeIntoLast });
+  for (const r of filled) {
+    delete pendingSchema[r.key];
+    out.push({ key: r.key, label: r.label, value: r.value, status: r.ok ? 'filled' : 'failed', reason: r.reason });
+  }
+  return out;
+}
+
+async function fillPending() {
+  if (!Object.keys(pendingSchema).length) return [];
+  const map = await loadMap();
+  const fields = getAllFields(true);
+  const ready = {};
+  for (const [key, value] of Object.entries(pendingSchema)) {
+    if (map[key] && locateMapped(map[key], fields)) ready[key] = value;
+  }
+  if (!Object.keys(ready).length) return [];
+  return fillSchema(ready, { mergeIntoLast: true });
+}
+
+// Quick fill (EMR not set up): mapping is { fieldIndex: value } from the last scan
+async function fillByIndex(mapping) {
+  const items = [];
+  for (const [idx, value] of Object.entries(mapping)) {
+    const el = lastScannedEls[parseInt(idx)];
+    if (el && el.isConnected) items.push({ el, value, info: { idx } });
+  }
+  const results = await applyFills(items);
+  const missing = Object.keys(mapping).filter(idx => !results.some(r => r.idx === idx))
+    .map(idx => ({ idx, value: mapping[idx], ok: false, reason: 'The box is no longer on the page' }));
+  return [...results, ...missing];
+}
+
+// ─── Auto-suggest: score how well a schema key fits a box ─────────────────────
+
+const EYE_WORDS = { od: ['od', 'right', 're', 'r'], os: ['os', 'left', 'le', 'l'], ou: ['ou', 'both'] };
+
+function normText(t) {
+  const s = String(t || '').toLowerCase();
+  const a = s.replace(/[^a-z0-9+\-\/.]+/g, ' ').trim();
+  const b = s.replace(/[^a-z0-9+\-.]+/g, ' ').trim();
+  return ` ${a} | ${b} `;
+}
+const hasToken = (text, token) => text.includes(` ${token} `);
+
+function scoreKey(entry, f) {
+  if (!entry.must || !entry.must.length) return 0;
+  const own = normText([f.label, f.row, f.col, f.placeholder].join(' | '));
+  const sources = [own, ...String(f.context || '').split(' / ').filter(Boolean).map(normText)];
+  if (entry.not && entry.not.some(t => hasToken(own, t))) return 0;
+  let score = 0;
+  if (entry.eye) {
+    if (!EYE_WORDS[entry.eye].some(t => hasToken(own, t))) return 0;
+    for (const [eye, words] of Object.entries(EYE_WORDS)) if (eye !== entry.eye && words.some(t => hasToken(own, t))) return 0;
+    score += 10;
+  }
+  for (const group of entry.must) {
+    const pos = sources.findIndex(s => group.some(t => hasToken(s, t)));
+    if (pos < 0) return 0;
+    score += 10 - Math.min(pos, 9);
+  }
+  return score;
+}
+
+// Suggest keys for every visible, unmapped box; each key and each box used once
+function autoMapVisible(map) {
+  const fields = getAllFields(true);
+  const taken = new Set(Object.values(map).map(e => locateMapped(e, fields)).filter(Boolean));
+  const cands = [];
+  fields.forEach(f => {
+    const el = lastScannedEls[f.index];
+    if (taken.has(el)) return;
+    const r = el.getBoundingClientRect();
+    for (const s of SCHEMA) {
+      if (map[s.key]) continue;
+      const score = scoreKey(s, f);
+      if (score > 0) cands.push({ score, f, el, key: s.key, top: r.top, left: r.left });
+    }
+  });
+  cands.sort((a, b) => b.score - a.score || a.top - b.top || a.left - b.left);
+  let added = 0;
+  const usedEls = new Set(taken);
+  for (const c of cands) {
+    if (map[c.key] || usedEls.has(c.el)) continue;
+    map[c.key] = mappingEntry(c.el, c.f);
+    usedEls.add(c.el);
+    added++;
+  }
+  return added;
+}
+
+// ─── Setup mode (in-page) ─────────────────────────────────────────────────────
+
+let setup = null;
+
+const SETUP_CSS = `
+  :host { all: initial; }
+  * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+  .bar { position: fixed; top: 10px; left: 50%; transform: translateX(-50%); pointer-events: auto; z-index: 3;
+         background: #fff; border: 1.5px solid #2563eb; border-radius: 10px; box-shadow: 0 6px 24px rgba(15,23,42,.18);
+         padding: 8px 10px 8px 14px; display: flex; align-items: center; gap: 10px; font-size: 13px; color: #0f172a; max-width: calc(100vw - 32px); }
+  .bar b { color: #2563eb; }
+  .msg { color: #475569; font-size: 12px; }
+  button { font: inherit; font-size: 12px; font-weight: 600; border-radius: 6px; padding: 6px 10px; cursor: pointer; border: 1.5px solid #e2e8f0; background: #fff; color: #334155; }
+  button.primary { background: #2563eb; border-color: #2563eb; color: #fff; }
+  .box { position: fixed; pointer-events: none; border: 2px dashed #2563eb; border-radius: 3px; z-index: 1; }
+  .box.mapped { border: 2px solid #059669; background: rgba(5,150,105,.06); }
+  .tag { position: absolute; left: -2px; bottom: 100%; background: #059669; color: #fff; font-size: 10px; font-weight: 600;
+         padding: 1px 5px; border-radius: 3px 3px 0 0; white-space: nowrap; max-width: 260px; overflow: hidden; text-overflow: ellipsis; }
+  .picker { position: fixed; pointer-events: auto; z-index: 4; width: 320px; max-height: 380px; display: flex; flex-direction: column;
+            background: #fff; border: 1.5px solid #cbd5e1; border-radius: 10px; box-shadow: 0 10px 30px rgba(15,23,42,.25); }
+  .picker[hidden] { display: none; }
+  .ph { padding: 10px 10px 6px; font-size: 12px; color: #475569; border-bottom: 1px solid #e2e8f0; }
+  .ph .where { color: #0f172a; font-weight: 600; margin-bottom: 6px; }
+  .ph input { width: 100%; padding: 7px 9px; border: 1.5px solid #cbd5e1; border-radius: 6px; font-size: 13px; outline: none; }
+  .ph input:focus { border-color: #2563eb; }
+  .list { overflow-y: auto; padding: 4px 0; }
+  .sec { font-size: 10px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: #94a3b8; padding: 8px 12px 3px; }
+  .opt { display: block; width: 100%; text-align: left; border: 0; border-radius: 0; padding: 6px 12px; font-weight: 400; font-size: 13px; color: #0f172a; }
+  .opt:hover, .opt:focus { background: #eff6ff; outline: none; }
+  .opt.suggested { color: #1d4ed8; font-weight: 600; }
+  .pf { display: flex; gap: 6px; padding: 8px 10px; border-top: 1px solid #e2e8f0; }
+  .pf button { flex: 1; }
+`;
+
+async function startSetup() {
+  if (setup) return;
+  const host = document.createElement('div');
+  host.id = 'optofill-setup-host';
+  host.style.cssText = 'position:fixed;inset:0;pointer-events:none;z-index:2147483646;';
+  const root = host.attachShadow({ mode: 'open' });
+  root.innerHTML = `<style>${SETUP_CSS}</style>
+    <div class="bar">
+      <span><b>OptoFill setup</b> — click any box to tell OptoFill what it is.</span>
+      <span class="msg"></span>
+      <button class="auto">Auto-map this screen</button>
+      <button class="primary done">Done</button>
+    </div>
+    <div class="layer"></div>
+    <div class="picker" hidden>
+      <div class="ph"><div class="where"></div><input type="text" placeholder="Search, e.g. amplitude OD"></div>
+      <div class="list"></div>
+      <div class="pf"><button class="unmap">Remove mapping</button><button class="cancel">Cancel</button></div>
+    </div>`;
+  document.documentElement.appendChild(host);
+  setup = { host, root, map: await loadMap(), fields: [], current: null };
+
+  root.querySelector('.done').addEventListener('click', stopSetup);
+  root.querySelector('.auto').addEventListener('click', async () => {
+    const n = autoMapVisible(setup.map);
+    await saveMap(setup.map);
+    renderSetup(`Auto-mapped ${n} box${n === 1 ? '' : 'es'} — check the green labels and click any box to fix it.`);
+  });
+  root.querySelector('.cancel').addEventListener('click', closePicker);
+  root.querySelector('.unmap').addEventListener('click', async () => {
+    const key = setup.current && keyForEl(setup.current.el);
+    if (key) { delete setup.map[key]; await saveMap(setup.map); }
+    closePicker(); renderSetup();
+  });
+  root.querySelector('.ph input').addEventListener('input', renderPickerList);
+
+  document.addEventListener('mousedown', onSetupPointer, true);
+  document.addEventListener('click', onSetupPointer, true);
+  document.addEventListener('keydown', onSetupKey, true);
+  window.addEventListener('scroll', onSetupMove, true);
+  window.addEventListener('resize', onSetupMove);
+  setup.timer = setInterval(() => { if (!setup.current) renderSetup(); }, 1000);
+  renderSetup();
+}
+
+function stopSetup() {
+  if (!setup) return;
+  clearInterval(setup.timer);
+  document.removeEventListener('mousedown', onSetupPointer, true);
+  document.removeEventListener('click', onSetupPointer, true);
+  document.removeEventListener('keydown', onSetupKey, true);
+  window.removeEventListener('scroll', onSetupMove, true);
+  window.removeEventListener('resize', onSetupMove);
+  setup.host.remove();
+  setup = null;
+}
+
+let moveTimer = null;
+function onSetupMove() { clearTimeout(moveTimer); moveTimer = setTimeout(() => setup && renderSetup(), 60); }
+
+function onSetupKey(e) {
+  if (!setup) return;
+  if (e.key === 'Escape') { e.stopPropagation(); setup.current ? closePicker() : stopSetup(); }
+}
+
+function onSetupPointer(e) {
+  if (!setup || e.composedPath().includes(setup.host)) return;
+  const el = e.target.closest?.('input, select, textarea');
+  if (!el) return;   // let tab/accordion clicks through so other EMR screens can be set up too
+  let idx = lastScannedEls.indexOf(el);
+  if (idx < 0) { renderSetup(); idx = lastScannedEls.indexOf(el); }
+  if (idx < 0) return;
+  e.preventDefault();
+  e.stopPropagation();
+  if (e.type === 'click') openPicker(el, setup.fields[idx]);
+}
+
+function keyForEl(el) {
+  return Object.keys(setup.map).find(k => locateMapped(setup.map[k], setup.fields) === el);
+}
+
+function renderSetup(message) {
+  if (!setup) return;
+  setup.fields = getAllFields(true);
+  const layer = setup.root.querySelector('.layer');
+  layer.textContent = '';
+  const elToKey = new Map();
+  for (const [key, entry] of Object.entries(setup.map)) {
+    const el = locateMapped(entry, setup.fields);
+    if (el) elToKey.set(el, key);
+  }
+  let unmapped = 0;
+  setup.fields.forEach(f => {
+    const el = lastScannedEls[f.index];
+    const r = el.getBoundingClientRect();
+    if (r.bottom < 0 || r.top > innerHeight) return;
+    const key = elToKey.get(el);
+    const box = document.createElement('div');
+    box.className = 'box' + (key ? ' mapped' : '');
+    box.style.cssText = `left:${r.left - 2}px;top:${r.top - 2}px;width:${r.width + 4}px;height:${r.height + 4}px;`;
+    if (key) {
+      const tag = document.createElement('div');
+      tag.className = 'tag';
+      tag.textContent = (SCHEMA_BY_KEY[key]?.label || key).replace(/\s*\([^)]*\)/g, '').replace(/^Visual acuity /, 'VA ');
+      box.appendChild(tag);
+    } else unmapped++;
+    layer.appendChild(box);
+  });
+  const msg = setup.root.querySelector('.msg');
+  if (message) { msg.textContent = message; setup.message = message; }
+  else msg.textContent = setup.message || `${Object.keys(setup.map).length} mapped on this EMR · ${unmapped} unmapped on screen`;
+}
+
+function openPicker(el, f) {
+  setup.current = { el, f };
+  const p = setup.root.querySelector('.picker');
+  const where = [f.row, f.col].filter(Boolean).join(' · ') || f.label;
+  const key = keyForEl(el);
+  p.querySelector('.where').textContent = key ? `${where} — currently: ${SCHEMA_BY_KEY[key]?.label}` : `What is this box? (${where})`;
+  p.querySelector('.unmap').style.display = key ? '' : 'none';
+  const input = p.querySelector('input');
+  input.value = '';
+  setup.suggested = SCHEMA.map(s => ({ s, score: scoreKey(s, f) })).filter(x => x.score > 0)
+    .sort((a, b) => b.score - a.score).slice(0, 6).map(x => x.s.key);
+  renderPickerList();
+  p.hidden = false;
+  const r = el.getBoundingClientRect();
+  const left = Math.min(Math.max(8, r.left), innerWidth - 330);
+  const top = r.bottom + 390 < innerHeight ? r.bottom + 6 : Math.max(8, r.top - 386);
+  p.style.left = left + 'px';
+  p.style.top = top + 'px';
+  input.focus();
+}
+
+function renderPickerList() {
+  const list = setup.root.querySelector('.list');
+  const q = setup.root.querySelector('.ph input').value.toLowerCase().trim();
+  const words = q.split(/\s+/).filter(Boolean);
+  const match = s => words.every(w => (s.label + ' ' + s.key + ' ' + (s.group || '')).toLowerCase().includes(w));
+  list.textContent = '';
+  const currentKey = keyForEl(setup.current.el);
+  const addSection = (title, items, cls) => {
+    if (!items.length) return;
+    const h = document.createElement('div'); h.className = 'sec'; h.textContent = title; list.appendChild(h);
+    for (const s of items) {
+      const b = document.createElement('button');
+      b.className = 'opt' + (cls ? ' ' + cls : '');
+      b.textContent = s.key === currentKey ? `✓ ${s.label} (current)`
+        : s.label + (setup.map[s.key] ? '  (mapped elsewhere — will move here)' : '');
+      b.addEventListener('click', () => assignKey(s.key));
+      list.appendChild(b);
+    }
+  };
+  const suggested = setup.suggested.map(k => SCHEMA_BY_KEY[k]).filter(match);
+  addSection('Suggested', suggested, 'suggested');
+  const groups = {};
+  for (const s of SCHEMA) if (match(s) && !suggested.includes(s)) (groups[s.group || 'Other'] ||= []).push(s);
+  for (const [g, items] of Object.entries(groups)) addSection(g, items);
+}
+
+async function assignKey(key) {
+  const { el, f } = setup.current;
+  const prev = keyForEl(el);
+  if (prev) delete setup.map[prev];
+  setup.map[key] = mappingEntry(el, f);
+  await saveMap(setup.map);
+  closePicker();
+  setup.message = '';
+  renderSetup();
+}
+
+function closePicker() {
+  if (!setup) return;
+  setup.current = null;
+  setup.root.querySelector('.picker').hidden = true;
+}
+
+// ─── Messages ─────────────────────────────────────────────────────────────────
+
+function highlight(el) {
+  el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  el.style.transition = 'outline 0.2s, background 0.2s';
+  el.style.outline = '3px solid #f87171';
+  el.style.background = 'rgba(248,113,113,0.15)';
+  setTimeout(() => { el.style.outline = '2px solid #2dd4bf'; el.style.background = 'rgba(45,212,191,0.08)'; }, 1200);
+  setTimeout(() => { el.style.outline = ''; el.style.background = ''; }, 3000);
 }
 
 chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
-  if (msg.action==='getFields')       { sendResponse({fields:getAllFields(true)}); return true; }
-  if (msg.action==='fillFields')      { sendResponse({filled:fillFields(msg.mapping,getAllFields())}); return true; }
-  if (msg.action==='injectHighlights'){ injectFieldHighlights(msg.fields); sendResponse({done:true}); return true; }
-  if (msg.action==='removeHighlights'){ removeFieldHighlights(); sendResponse({done:true}); return true; }
-  if (msg.action==='highlightField') {
-    try {
-      const el = document.querySelector(msg.selector);
-      if (el) {
-        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        el.style.transition = 'outline 0.2s, background 0.2s';
-        el.style.outline = '3px solid #f87171';
-        el.style.background = 'rgba(248,113,113,0.15)';
-        setTimeout(() => { el.style.outline = '2px solid #2dd4bf'; el.style.background = 'rgba(45,212,191,0.08)'; }, 1200);
-        setTimeout(() => { el.style.outline = ''; el.style.background = ''; }, 3000);
-      }
-    } catch(e) {}
-    sendResponse({ ok: true });
-    return true;
-  }
-  if (msg.action==='startRecording'){ startRecording(msg.existingTranscript); sendResponse({ok:true}); return true; }
-  if (msg.action==='stopRecording') { stopRecording(); sendResponse({ok:true}); return true; }
-  if (msg.action==='clearRecording'){ stopRecording(); finalTranscript=''; sendResponse({ok:true}); return true; }
-  if (msg.action==='requestMicPermission') {
-    // Triggered by setup bar click — requests mic permission on this page
-    // Chrome will show prompt, user clicks Allow, permission cached for this site forever
-    navigator.mediaDevices.getUserMedia({ audio: true })
-      .then(stream => { stream.getTracks().forEach(t => t.stop()); })
-      .catch(() => {});
-    sendResponse({ ok: true });
-    return true;
-  }
-});
-
-// ─── Multi-tab form support ───────────────────────────────────────────────────
-// When a form has tabs, fields in hidden tabs aren't in the DOM yet.
-// We watch for tab clicks and re-fill any pending mappings automatically.
-
-let pendingMapping = null;
-
-// Store the last mapping so we can re-apply it when tabs switch
-chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
-  if (msg.action === 'storeMappingForRetry') {
-    pendingMapping = msg.mapping;
-    sendResponse({ ok: true });
-    return true;
-  }
-  if (msg.action === 'refillCurrentTab') {
-    if (pendingMapping) {
-      const fields = getAllFields();
-      fillFields(pendingMapping, fields);
-      sendResponse({ ok: true });
-    } else {
-      sendResponse({ ok: false, error: 'No mapping stored yet' });
+  const reply = p => p.then(sendResponse, e => sendResponse({ error: e.message }));
+  switch (msg.action) {
+    case 'getFields':      sendResponse({ fields: getAllFields(true) }); return true;
+    case 'fillFields':     reply(fillByIndex(msg.mapping).then(filled => ({ filled }))); return true;
+    case 'fillSchema':     reply(fillSchema(msg.values).then(results => ({ results }))); return true;
+    case 'refillPending':  reply(fillPending().then(results => ({ results }))); return true;
+    case 'undoFill':       sendResponse({ restored: undoLastFill(), undoDepth: undoStack.length }); return true;
+    case 'getStatus':      reply(loadMap().then(map => ({ mappedCount: Object.keys(map).length, undoDepth: undoStack.length, origin: location.origin }))); return true;
+    case 'startSetup':     startSetup(); sendResponse({ ok: true }); return true;
+    case 'highlightField': {
+      try { const el = document.querySelector(msg.selector); if (el) highlight(el); } catch(e) {}
+      sendResponse({ ok: true }); return true;
     }
-    return true;
+    case 'highlightKey':
+      reply(loadMap().then(map => {
+        const el = map[msg.key] && locateMapped(map[msg.key], getAllFields(true));
+        if (el) highlight(el);
+        return { ok: !!el };
+      }));
+      return true;
+    case 'startRecording': startRecording(msg.existingTranscript); sendResponse({ ok: true }); return true;
+    case 'stopRecording':  stopRecording(); sendResponse({ ok: true }); return true;
+    case 'clearRecording': stopRecording(); finalTranscript = ''; sendResponse({ ok: true }); return true;
+    case 'requestMicPermission':
+      navigator.mediaDevices.getUserMedia({ audio: true })
+        .then(stream => { stream.getTracks().forEach(t => t.stop()); })
+        .catch(() => {});
+      sendResponse({ ok: true }); return true;
   }
 });
 
-// Watch for tab/accordion clicks that reveal new form sections
+// ─── Multi-tab EMRs: fill mapped values when their tab opens ─────────────────
+
 function watchForTabSwitches() {
-  document.addEventListener('click', async (e) => {
-    if (!pendingMapping) return;
-
-    // Check if the click target looks like a tab, step, or accordion trigger
-    const el = e.target.closest('[role="tab"], [role="button"], .tab, .nav-link, .nav-item, .step, button');
-    if (!el) return;
-
-    // Wait for new tab content to render, then re-fill
-    setTimeout(() => {
-      if (!pendingMapping) return;
-      const fields = getAllFields();
-      if (fields.length > 0) {
-        fillFields(pendingMapping, fields);
-      }
-    }, 400); // 400ms for tab animation to complete
+  let timer = null;
+  const later = (ms) => { clearTimeout(timer); timer = setTimeout(() => { fillPending().catch(() => {}); }, ms); };
+  document.addEventListener('click', (e) => {
+    if (!Object.keys(pendingSchema).length || setup) return;
+    if (e.target.closest('[role="tab"], [role="button"], .tab, .nav-link, .nav-item, .step, button, a')) later(400);
   }, true);
-
-  // Watch for DOM mutations that add new form fields (lazy-rendered tabs)
-  // Throttled so we don't hammer fill on every tiny DOM change
-  let mutationTimer = null;
-  const observer = new MutationObserver((mutations) => {
-    if (!pendingMapping) return;
-    // Only care about mutations that add input/select/textarea elements
-    const hasNewFields = mutations.some(m =>
-      Array.from(m.addedNodes).some(n =>
-        n.nodeType === 1 && (
-          n.matches?.('input,select,textarea') ||
-          n.querySelector?.('input,select,textarea')
-        )
-      )
-    );
-    if (!hasNewFields) return;
-    clearTimeout(mutationTimer);
-    mutationTimer = setTimeout(() => {
-      const fields = getAllFields();
-      if (fields.length > 0) fillFields(pendingMapping, fields);
-    }, 300);
-  });
-
-  observer.observe(document.body, {
-    childList: true,
-    subtree: true,
-    attributes: false
-  });
+  new MutationObserver((mutations) => {
+    if (!Object.keys(pendingSchema).length || setup) return;
+    const hasNewFields = mutations.some(m => Array.from(m.addedNodes).some(n =>
+      n.nodeType === 1 && (n.matches?.('input,select,textarea') || n.querySelector?.('input,select,textarea'))));
+    if (hasNewFields) later(300);
+  }).observe(document.body, { childList: true, subtree: true });
 }
 
 watchForTabSwitches();

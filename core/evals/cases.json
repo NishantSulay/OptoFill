@@ -1,0 +1,63 @@
+[
+  {
+    "id": "amplitude-npc",
+    "dictation": "Amplitude OD 5 centimeters, OS 6 centimeters. NPC 8 cm.",
+    "expect": { "bv_amplitude_od": { "equals": "5 cm" }, "bv_amplitude_os": { "equals": "6 cm" }, "bv_npc": { "equals": "8 cm" } }
+  },
+  {
+    "id": "va-distance",
+    "dictation": "Distance vision uncorrected OD 20/40, OS 20/200. With correction OD 20/20, OS 20/25.",
+    "expect": {
+      "va_dist_sc_od": { "equals": "20/40" }, "va_dist_sc_os": { "equals": "20/200" },
+      "va_dist_cc_od": { "equals": "20/20" }, "va_dist_cc_os": { "equals": "20/25" },
+      "va_near_sc_od": { "absent": true }
+    }
+  },
+  {
+    "id": "manifest-spoken",
+    "dictation": "Manifest, right eye minus one twenty-five minus fifty axis one eighty. Left eye minus one, minus seventy-five axis one seventy-five. Add plus two OU.",
+    "expect": {
+      "rx_sph_od": { "equals": "-1.25" }, "rx_cyl_od": { "equals": "-0.50" }, "rx_axis_od": { "equals": "180" },
+      "rx_sph_os": { "equals": "-1.00" }, "rx_cyl_os": { "equals": "-0.75" }, "rx_axis_os": { "equals": "175" },
+      "rx_add_od": { "equals": "+2.00" }, "rx_add_os": { "equals": "+2.00" }
+    }
+  },
+  {
+    "id": "iop",
+    "dictation": "Pressures 16 right and 18 left by NCT.",
+    "expect": { "iop_od": { "equals": "16" }, "iop_os": { "equals": "18" }, "iop_method": { "contains": "nct" } }
+  },
+  {
+    "id": "pupils",
+    "dictation": "Pupils PERRLA, no APD.",
+    "expect": { "pupils_notes": { "contains": "perrl" } },
+    "allowExtra": ["pupils_apd_od", "pupils_apd_os", "notes_general"]
+  },
+  {
+    "id": "pd",
+    "dictation": "PD 64 distance, 61 near.",
+    "expect": { "pd_dist_ou": { "equals": "64" }, "pd_near_ou": { "equals": "61" } }
+  },
+  {
+    "id": "color-stereo",
+    "dictation": "Color vision normal both eyes with Ishihara. Stereo 40 seconds with Randot.",
+    "expect": {
+      "color_od": { "contains": "normal" }, "color_os": { "contains": "normal" }, "color_method": { "contains": "ishihara" },
+      "stereo": { "contains": "40" }, "stereo_method": { "contains": "randot" }
+    }
+  },
+  {
+    "id": "eye-attribution",
+    "dictation": "Cornea clear OU. Lens trace nuclear sclerosis right eye only, left lens clear.",
+    "expect": {
+      "sle_cornea_od": { "contains": "clear" }, "sle_cornea_os": { "contains": "clear" },
+      "sle_lens_od": { "containsAny": ["ns", "nuclear"] }, "sle_lens_os": { "contains": "clear" }
+    }
+  },
+  {
+    "id": "no-invention",
+    "dictation": "Patient reports occasional flashes of light in the right eye over the past week.",
+    "expect": {},
+    "allowExtra": ["chief_complaint", "notes_general"]
+  }
+]
