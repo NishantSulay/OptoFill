@@ -26,7 +26,7 @@ Two steps, kept separate:
 - `core/tests/content.test.js` — Playwright tests of content.js against the mock EMR
 - `core/evals/` — extraction eval (`cases.json` mock dictations, `run.js`) and Quick fill eval (`quickfill.js`, same cases, graded by box on the mock EMR)
 - `index.html` / `privacy.html` — GitHub Pages landing site
-- `core/demo/` — records the website demo (`node core/demo/record.js` → `assets/optofill-demo.gif` + `.mp4`): the real popup and content script on the mock EMR, with Claude's reply canned
+- `core/demo/` — website video (`node core/demo/record.js` → `assets/optofill-demo.mp4`, `.gif`, `-poster.jpg`) and store screenshots (`node core/demo/screenshots.js` → `store-assets/`): the real side panel and content script on the mock EMR (`stage.html`, `lib.js`), with Claude's reply canned
 - `store-assets/` — Chrome Web Store submission screenshots and notes
 
 ## Testing

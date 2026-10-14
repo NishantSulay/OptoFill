@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>OptoFill privacy — store screenshot</title>
+<!-- Chrome Web Store screenshot (1280×800), rendered by screenshots.js. Keep in step with privacy.html. -->
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { width: 1280px; height: 800px; overflow: hidden; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         background: linear-gradient(160deg, #0f172a 0%, #13213f 60%, #0f2f3a 100%); color: #e2e8f0; padding: 58px 72px; }
+  h1 { font-size: 40px; font-weight: 800; color: #fff; text-align: center; letter-spacing: -.01em; }
+  .sub { text-align: center; color: #94a3b8; font-size: 18px; margin: 12px 0 40px; }
+  .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+  .card { background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.1); border-radius: 16px; padding: 24px 24px 26px; }
+  .tag { display: inline-block; font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; padding: 3px 9px; border-radius: 999px; margin-bottom: 12px; }
+  .local { background: rgba(34,197,94,.15); color: #86efac; }
+  .out { background: rgba(59,130,246,.18); color: #93c5fd; }
+  .warn { background: rgba(245,158,11,.16); color: #fcd34d; }
+  .card h3 { font-size: 19px; color: #fff; margin-bottom: 8px; }
+  .card p { font-size: 14.5px; line-height: 1.55; color: #cbd5e1; }
+  .foot { margin-top: 32px; text-align: center; color: #94a3b8; font-size: 14px; }
+</style>
+</head>
+<body>
+  <h1>Clear about where your data goes</h1>
+  <p class="sub">No OptoFill servers. Here is everything that leaves your computer, and where it goes.</p>
+  <div class="grid">
+    <div class="card"><span class="tag local">Stays on your computer</span><h3>🔑 Key, settings &amp; setup</h3>
+      <p>Your Anthropic API key, custom instructions and EMR setup are stored only in Chrome on your computer.</p></div>
+    <div class="card"><span class="tag out">Sent to Google</span><h3>🎙 Your voice</h3>
+      <p>Chrome's built-in speech recognition sends your audio to Google to turn it into text.</p></div>
+    <div class="card"><span class="tag out">Sent to Anthropic</span><h3>🧠 Your dictation text</h3>
+      <p>When you click Fill, the text goes to Anthropic's Claude to read out the exam values. It never sees your EMR page once it's set up.</p></div>
+    <div class="card"><span class="tag local">Before sending</span><h3>🕶 Identifiers removed</h3>
+      <p>Names after cues like "Mr." or "patient", dates, ID and phone numbers, emails and addresses are stripped from the text. Still, don't dictate names.</p></div>
+    <div class="card"><span class="tag local">Never</span><h3>🚫 No tracking</h3>
+      <p>No accounts, no analytics, no telemetry. OptoFill stores nothing about you or your patients.</p></div>
+    <div class="card"><span class="tag warn">Your call</span><h3>⚖️ Your obligations</h3>
+      <p>You're responsible for meeting the health privacy laws that apply to you, such as HIPAA or PHIPA. Use test patients until you've checked.</p></div>
+  </div>
+  <p class="foot">Full details: nishantsulay.github.io/OptoFill/privacy.html</p>
+</body>
+</html>
