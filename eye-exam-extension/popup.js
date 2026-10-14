@@ -104,7 +104,7 @@ chrome.storage.session.get(['isRecording', 'transcript'], (data) => {
         // Tell content script to call getUserMedia on the page
         // This will trigger Chrome's permission prompt, closing this popup — that's intentional
         // After allowing, user reopens popup and mic works instantly
-        await chrome.tabs.sendMessage(tab.id, { action: 'requestMicPermission' });
+        await chrome.tabs.sendMessage(tab.id, { action: 'requestMicPermission' }, { frameId: 0 });
         window.close();
       });
     }
@@ -161,13 +161,33 @@ async function getExamTab() {
   return tabs.find(t => t.url && !t.url.startsWith('chrome-extension://') && !t.url.startsWith('chrome://'));
 }
 
-async function sendToPage(tabId, msg) {
+// Some EMRs put the exam form inside an iframe. Every frame runs content.js; the form frame is the one
+// showing the most boxes (the top page on a tie, or when there's nothing to compare).
+async function findFormFrame(tabId) {
+  const count = () => (typeof countVisibleFields === 'function' ? countVisibleFields() : null);
   try {
-    return await chrome.tabs.sendMessage(tabId, msg);
+    let res = await chrome.scripting.executeScript({ target: { tabId, allFrames: true }, func: count });
+    const missing = res.filter(r => r.result == null).map(r => r.frameId);
+    if (missing.length) {
+      // Frames loaded before the extension was installed or reloaded have no content script yet
+      await chrome.scripting.executeScript({ target: { tabId, frameIds: missing }, files: ['schema.js', 'content.js'] }).catch(() => {});
+      res = await chrome.scripting.executeScript({ target: { tabId, allFrames: true }, func: count });
+    }
+    let best = { frameId: 0, n: 0 };
+    for (const r of res) if ((r.result || 0) > best.n) best = { frameId: r.frameId, n: r.result };
+    return best.frameId;
+  } catch(e) { return 0; }
+}
+
+// frameId: pass the frame from an earlier call to keep talking to the same frame (Quick fill scan → fill)
+async function sendToPage(tabId, msg, frameId) {
+  if (frameId == null) frameId = await findFormFrame(tabId);
+  try {
+    return await chrome.tabs.sendMessage(tabId, msg, { frameId });
   } catch(e) {
-    await chrome.scripting.executeScript({ target: { tabId }, files: ['schema.js', 'content.js'] });
+    await chrome.scripting.executeScript({ target: { tabId, frameIds: [frameId] }, files: ['schema.js', 'content.js'] });
     await new Promise(r => setTimeout(r, 300));
-    return chrome.tabs.sendMessage(tabId, msg);
+    return chrome.tabs.sendMessage(tabId, msg, { frameId });
   }
 }
 
@@ -218,6 +238,7 @@ undoBtn.addEventListener('click', async () => {
 // ─── Fill Fields ──────────────────────────────────────────────────────────────
 let pendingTabId = null;
 let pendingQuickFields = null;
+let pendingQuickFrameId = 0;   // the frame Quick fill scanned, so the fill goes to the same boxes
 
 fillBtn.addEventListener('click', async () => {
   const { apiKey, customInstructions: ci } = await getSettings();
@@ -242,7 +263,8 @@ fillBtn.addEventListener('click', async () => {
   fillBtnContent.innerHTML = '<span class="spinner"></span> Scanning…';
   let fields;
   try {
-    fields = (await sendToPage(tab.id, { action: 'getFields' }))?.fields;
+    pendingQuickFrameId = await findFormFrame(tab.id);
+    fields = (await sendToPage(tab.id, { action: 'getFields' }, pendingQuickFrameId))?.fields;
   } catch(e) {
     showToast('Could not reach page. Make sure you are on your exam form and try again.', 'error');
     resetFillBtn(); return;
@@ -285,7 +307,7 @@ async function handleClaudeResult(msg) {
   setStatus('processing', 'Filling and checking boxes…');
   fillBtnContent.innerHTML = '<span class="spinner"></span> Filling…';
   let res;
-  try { res = await sendToPage(tabId, { action: 'fillFields', mapping }); }
+  try { res = await sendToPage(tabId, { action: 'fillFields', mapping }, pendingQuickFrameId); }
   catch(e) { showToast('Could not fill fields on the page.', 'error'); resetFillBtn(); return; }
   showResults((res?.filled || []).map(r => {
     const f = fields[parseInt(r.idx)];
@@ -323,7 +345,7 @@ function showResults(items) {
       if (ok) {
         const tab = await getExamTab();
         if (!tab) return;
-        chrome.tabs.sendMessage(tab.id, it.key ? { action: 'highlightKey', key: it.key } : { action: 'highlightField', selector: it.selector });
+        sendToPage(tab.id, it.key ? { action: 'highlightKey', key: it.key } : { action: 'highlightField', selector: it.selector }).catch(() => {});
         return;
       }
       const existing = item.querySelector('.fill-error');

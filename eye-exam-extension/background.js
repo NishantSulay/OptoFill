@@ -13,14 +13,15 @@ chrome.runtime.onConnect.addListener((port) => {
     if (['startRecording','stopRecording','clearRecording'].includes(msg.action)) {
       const tabId = await getExamTabId();
       if (!tabId) { toPopup({ action:'micError', error:'No active tab. Navigate to your exam page first.' }); return; }
+      // Dictation always runs in the top page, even when the exam form is in an iframe
       try {
-        await chrome.tabs.sendMessage(tabId, msg);
+        await chrome.tabs.sendMessage(tabId, msg, { frameId: 0 });
       } catch(e) {
         // Content script not loaded — inject and retry
         try {
           await chrome.scripting.executeScript({ target: { tabId }, files: ['content.js'] });
           await new Promise(r => setTimeout(r, 300));
-          await chrome.tabs.sendMessage(tabId, msg);
+          await chrome.tabs.sendMessage(tabId, msg, { frameId: 0 });
         } catch(e2) {
           toPopup({ action:'micError', error:'Could not reach page. Make sure you are on your exam form.' });
         }

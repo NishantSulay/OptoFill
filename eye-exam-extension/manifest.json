@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "OptoFill \u2013 Eye Exam Autofill",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "Dictate your eye exam and let AI automatically fill every field on your EHR form. Saves 5+ minutes per patient.",
   "permissions": [
     "activeTab",
@@ -32,6 +32,8 @@
         "schema.js",
         "content.js"
       ],
+      "all_frames": true,
+      "match_about_blank": true,
       "run_at": "document_idle"
     }
   ],

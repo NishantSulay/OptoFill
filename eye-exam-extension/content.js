@@ -198,14 +198,23 @@ function isVisibleField(el) {
 // Elements from the most recent scan, by index — fills target these exact elements
 let lastScannedEls = [];
 
+const FIELD_SELECTOR = [
+  'input:not([type="hidden"]):not([type="submit"]):not([type="button"]):not([type="reset"]):not([type="image"])',
+  'textarea', 'select'
+].join(', ');
+
+// How many fillable boxes this frame shows. The popup asks every frame and uses the one with the most,
+// so an exam form inside an iframe is found. No side effects: a Quick fill scan may be in progress.
+function countVisibleFields() {
+  if (!innerWidth || !innerHeight) return 0;
+  return Array.from(document.querySelectorAll(FIELD_SELECTOR))
+    .filter(el => !el.closest('#optofill-setup-host') && isVisibleField(el)).length;
+}
+
 function getAllFields(withLayout) {
   const anchors = withLayout ? getTextAnchors() : null;
   const fields = [], els = [], seen = new Set();
-  const selectors = [
-    'input:not([type="hidden"]):not([type="submit"]):not([type="button"]):not([type="reset"]):not([type="image"])',
-    'textarea', 'select'
-  ];
-  document.querySelectorAll(selectors.join(', ')).forEach((el, rawIndex) => {
+  document.querySelectorAll(FIELD_SELECTOR).forEach((el, rawIndex) => {
     if (el.closest('#optofill-setup-host')) return;
     if (!isVisibleField(el)) return;
     if (seen.has(el)) return;

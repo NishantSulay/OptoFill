@@ -120,6 +120,39 @@ const val = (page, name) => page.$eval(`[name="${name}"]`, el => el.value);
   });
   check('verify: value wiped by the page is reported as failed', revert[0].status === 'failed' && /reverted/.test(revert[0].reason), JSON.stringify(revert[0]));
 
+  // 8. Exam form inside an iframe: the form frame shows the most boxes, and mapping/filling work inside it
+  const page3 = await browser.newPage({ viewport: { width: 1500, height: 1000 } });
+  await page3.addInitScript(() => {
+    const store = {};
+    window.chrome = { runtime: { onMessage: { addListener() {} }, sendMessage() {} }, storage: { local: {
+      get: async k => (typeof k === 'string' ? { [k]: store[k] } : { ...store }),
+      set: async o => { Object.assign(store, JSON.parse(JSON.stringify(o))); }
+    } } };
+  });
+  await page3.goto('file://' + path.join(ROOT, 'core/mock-emr/framed.html'));
+  const frame = page3.frames().find(f => f !== page3.mainFrame());
+  await frame.waitForSelector('[name=b5]');
+  for (const target of [page3, frame]) {
+    await target.addScriptTag({ path: path.join(EXT, 'schema.js') });
+    await target.addScriptTag({ path: path.join(EXT, 'content.js') });
+  }
+  const topCount = await page3.evaluate(() => countVisibleFields());
+  const frameCount = await frame.evaluate(() => countVisibleFields());
+  check(`iframe: form frame shows the most boxes (top ${topCount}, iframe ${frameCount})`, topCount === 1 && frameCount > 50);
+  const noSideEffect = await frame.evaluate(() => {
+    getAllFields(true); const before = lastScannedEls.slice();
+    countVisibleFields();
+    return before.length === lastScannedEls.length && before.every((el, i) => el === lastScannedEls[i]);
+  });
+  check('iframe: counting boxes does not disturb a Quick fill scan in progress', noSideEffect);
+  const framed = await frame.evaluate(async () => {
+    const map = {}; autoMapVisible(map); await saveMap(map);
+    return fillSchema({ bv_amplitude_od: '5 cm', va_dist_sc_os: '20/200' });
+  });
+  check('iframe: mapped values fill the boxes inside the frame',
+        framed.every(r => r.status === 'filled') && (await frame.$eval('[name=b5]', el => el.value)) === '5 cm' &&
+        (await frame.$eval('[name=v3]', el => el.value)) === '200', JSON.stringify(framed));
+
   await browser.close();
   console.log(failures ? `\n${failures} check(s) failed` : '\nAll checks passed');
   process.exit(failures ? 1 : 0);

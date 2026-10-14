@@ -1,0 +1,17 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Mock EMR (framed) — OptoFill test page</title>
+<!-- Synthetic test page. The exam form lives in an iframe, as in some EMRs; the top page only has a search box. -->
+<style>
+  body { margin: 0; font: 14px Arial, sans-serif; }
+  .bar { background: #1f2937; color: #fff; padding: 8px 18px; display: flex; gap: 10px; align-items: center; }
+  iframe { border: 0; width: 100%; height: 900px; display: block; }
+</style>
+</head>
+<body>
+<div class="bar">Practice portal <input type="text" name="search" placeholder="Search patients"></div>
+<iframe id="exam" src="index.html"></iframe>
+</body>
+</html>

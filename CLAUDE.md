@@ -19,9 +19,9 @@ Two steps, kept separate:
   - `schema.js` — clinical schema + auto-map hints (shared by content script, background, evals)
   - `extract.js` — extraction prompt/request/parse (shared by background and `core/evals`)
   - `quickfill.js` — Quick fill prompt/request/parse (shared by background and `core/evals/quickfill.js`)
-  - `content.js` — page scan, layout labels, fill + verify + undo, per-EMR mapping, in-page setup mode
+  - `content.js` — page scan, layout labels, fill + verify + undo, per-EMR mapping, in-page setup mode (runs in every frame; the popup talks to the frame with the most boxes)
   - `background.js` — API calls; `popup.*` — UI
-- `core/mock-emr/` — fake EMR page for testing (synthetic data only)
+- `core/mock-emr/` — fake EMR pages for testing (synthetic data only); `framed.html` puts the form in an iframe
 - `core/tests/content.test.js` — Playwright tests of content.js against the mock EMR
 - `core/evals/` — extraction eval (`cases.json` mock dictations, `run.js`) and Quick fill eval (`quickfill.js`, same cases, graded by box on the mock EMR)
 - `index.html` / `privacy.html` — GitHub Pages landing site
