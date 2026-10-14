@@ -114,6 +114,30 @@ function getRadioQuestionText(el) {
   return '';
 }
 
+function injectFieldHighlights(fields) {
+  removeFieldHighlights();
+  fields.forEach((f, i) => {
+    try {
+      const el = document.querySelector(f.selector);
+      if (!el) return;
+      const rect = el.getBoundingClientRect();
+      if (rect.width === 0 || rect.height === 0) return;
+      const overlay = document.createElement('div');
+      overlay.className = 'optofill-hl';
+      overlay.style.cssText = `position:fixed;left:${rect.left}px;top:${rect.top}px;width:${rect.width}px;height:${rect.height}px;border:2px solid #2563eb;background:rgba(37,99,235,0.08);z-index:2147483647;pointer-events:none;box-sizing:border-box`;
+      const badge = document.createElement('span');
+      badge.textContent = i;
+      badge.style.cssText = `position:absolute;top:-1px;left:-1px;background:#2563eb;color:#fff;font-size:10px;font-family:monospace;font-weight:bold;padding:1px 4px;border-radius:0 0 4px 0;line-height:14px`;
+      overlay.appendChild(badge);
+      document.body.appendChild(overlay);
+    } catch(e) {}
+  });
+}
+
+function removeFieldHighlights() {
+  document.querySelectorAll('.optofill-hl').forEach(el => el.remove());
+}
+
 function getAllFields() {
   const fields = [], seen = new Set();
   const selectors = [
@@ -230,8 +254,10 @@ function fillFields(mapping, fields) {
 }
 
 chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
-  if (msg.action==='getFields')     { sendResponse({fields:getAllFields()}); return true; }
-  if (msg.action==='fillFields')    { sendResponse({filled:fillFields(msg.mapping,getAllFields())}); return true; }
+  if (msg.action==='getFields')       { sendResponse({fields:getAllFields()}); return true; }
+  if (msg.action==='fillFields')      { sendResponse({filled:fillFields(msg.mapping,getAllFields())}); return true; }
+  if (msg.action==='injectHighlights'){ injectFieldHighlights(msg.fields); sendResponse({done:true}); return true; }
+  if (msg.action==='removeHighlights'){ removeFieldHighlights(); sendResponse({done:true}); return true; }
   if (msg.action==='highlightField') {
     try {
       const el = document.querySelector(msg.selector);

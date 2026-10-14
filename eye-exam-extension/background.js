@@ -29,7 +29,8 @@ chrome.runtime.onConnect.addListener((port) => {
 
     if (msg.action === 'callClaude') {
       try {
-        const mapping = await callClaudeAPI(msg.apiKey, msg.transcript, msg.fields, msg.customInstructions);
+        const tabId = await getExamTabId();
+        const mapping = await callClaudeAPI(msg.apiKey, msg.transcript, msg.fields, msg.customInstructions, tabId);
         toPopup({ action:'claudeResult', ok:true, mapping });
       } catch(err) {
         toPopup({ action:'claudeResult', ok:false, error:err.message });
@@ -55,11 +56,25 @@ async function getExamTabId() {
   return tab ? tab.id : null;
 }
 
-async function callClaudeAPI(apiKey, dictation, fields, customInstructions) {
+async function callClaudeAPI(apiKey, dictation, fields, customInstructions, tabId) {
   const fieldList = fields.map((f,i) =>
     `[${i}] label="${f.label}" | name="${f.name}" | id="${f.id}" | type="${f.type}" | placeholder="${f.placeholder}"${
       f.options?.length ? ` | options=${f.options.map(o=>o.text).join(', ')}` : ''}`
   ).join('\n');
+
+  // Capture screenshot with numbered highlight overlays so Claude can see field positions
+  let base64Image = null;
+  if (tabId) {
+    try {
+      await chrome.tabs.sendMessage(tabId, { action: 'injectHighlights', fields });
+      await new Promise(r => setTimeout(r, 80)); // let browser paint overlays
+      const dataUrl = await chrome.tabs.captureVisibleTab(null, { format: 'png' });
+      base64Image = dataUrl.split(',')[1];
+      await chrome.tabs.sendMessage(tabId, { action: 'removeHighlights' });
+    } catch(e) {
+      console.warn('OptoFill screenshot failed:', e.message);
+    }
+  }
 
   const systemPrompt = `You are an expert optometry medical assistant. Extract clinical data from eye exam dictations and map them to form fields.
 
@@ -73,9 +88,17 @@ RULES:
 - Use standard optometric notation (-1.25, +2.00, 20/20, 0.75 x 180).
 - For checkboxes use "true" or "false".
 - For radio buttons: labels show "Question — Option" (e.g. "Do you drive? — Yes"). Set "true" ONLY for the matching option. Never guess by position.
+- A screenshot is attached showing the form with numbered blue boxes [0][1][2]… over each detected field. Use the visual layout and column context to disambiguate duplicate labels (e.g. two "Sphere" fields in separate OD and OS columns).
 ${customInstructions ? `\nDOCTOR INSTRUCTIONS:\n${customInstructions}` : ''}
 
 EXAMPLE: {"2":"20/40","5":"-1.25","6":"-0.50","7":"90","12":"Mild myopia OU"}`;
+
+  const userContent = base64Image
+    ? [
+        { type: 'image', source: { type: 'base64', media_type: 'image/png', data: base64Image } },
+        { type: 'text', text: `DICTATION:\n${dictation}\n\nFORM FIELDS (numbered boxes match screenshot):\n${fieldList}\n\nReturn JSON mapping:` }
+      ]
+    : `DICTATION:\n${dictation}\n\nFORM FIELDS:\n${fieldList}\n\nReturn JSON mapping:`;
 
   const response = await fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST',
@@ -89,7 +112,7 @@ EXAMPLE: {"2":"20/40","5":"-1.25","6":"-0.50","7":"90","12":"Mild myopia OU"}`;
       model: 'claude-sonnet-4-6',
       max_tokens: 1000,
       system: systemPrompt,
-      messages: [{ role:'user', content:`DICTATION:\n${dictation}\n\nFORM FIELDS:\n${fieldList}\n\nReturn JSON mapping:` }]
+      messages: [{ role:'user', content: userContent }]
     })
   });
 
