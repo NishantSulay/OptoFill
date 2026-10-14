@@ -515,7 +515,10 @@
         "contains": "6"
       },
       "cover_near_intermittent": {
-        "contains": "intermittent"
+        "containsAny": [
+          "intermittent",
+          "yes"
+        ]
       },
       "bv_npc": {
         "contains": "12"

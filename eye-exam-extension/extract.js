@@ -38,6 +38,7 @@ RULES:
 - Visual acuity in Snellen form, e.g. "20/40", "20/20-2". Write "CF", "HM", "LP", "NLP" as dictated.
 - Sphere/cylinder with sign and two decimals ("-1.25", "+0.50"); "plano" as "plano". Axis as a whole number ("180"). Add as "+2.00".
 - IOP as a number only ("16"). Pupillary distance and NPC with units only if spoken ("5 cm").
+- Cover test: "ortho"/"orthophoria" goes in the direction key (e.g. cover_dist_direction), not the amount key.
 - Keep text findings short and clinical (e.g. "clear", "trace NS", "0.3").
 - Anything clinically relevant that has no matching key goes into notes_general.
 ${customInstructions ? `\nDOCTOR INSTRUCTIONS:\n${customInstructions}\n` : ''}
