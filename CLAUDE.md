@@ -68,5 +68,5 @@ git config user.name Claude
 The stop hook enforces this. If a push is rejected for authorship, amend and re-push.
 
 ### Branch
-Active dev branch: `claude/new-repo-setup-xp1pq3`
-Mirror to main with: `git push origin claude/new-repo-setup-xp1pq3:main --force-with-lease`
+`main` is the release branch, and GitHub Pages publishes the site (`index.html`, `privacy.html`, `assets/`) from it.
+Bump `version` in `eye-exam-extension/manifest.json` for each release so the version on chrome://extensions shows what's loaded.
