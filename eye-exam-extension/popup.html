@@ -626,26 +626,5 @@
   <div class="toast" id="toast"></div>
 
   <script src="popup.js"></script>
-  <script>
-    // Patch setListeningState to toggle the landing-page-style overlay
-    const _orig = setListeningState;
-    setListeningState = function(listening) {
-      _orig(listening);
-      document.getElementById('listening-panel').style.display = listening ? 'flex' : 'none';
-      document.getElementById('mic-idle').style.display        = listening ? 'none' : 'block';
-    };
-
-    // Mirror transcript into the AI Detected card in real time
-    document.getElementById('transcript').addEventListener('input', function() {
-      const t = this.value.trim();
-      document.getElementById('live-transcript-text').textContent =
-        t ? '“' + t.slice(-160) + '…”' : 'Speak and your dictation will appear here…';
-    });
-
-    // Stop button inside the overlay calls the same mic-btn click handler
-    document.getElementById('stop-btn').addEventListener('click', function() {
-      document.getElementById('mic-btn').click();
-    });
-  </script>
 </body>
 </html>

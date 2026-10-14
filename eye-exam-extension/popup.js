@@ -29,6 +29,7 @@ function connectPort() {
       transcript = msg.finalTranscript;
       transcriptEl.value = (msg.finalTranscript + (msg.interimTranscript || '')).trim();
       transcriptEl.classList.remove('empty');
+      updateLiveTranscript();
       updateFillBtn();
       chrome.storage.session.set({ transcript: msg.finalTranscript });
     }
@@ -128,6 +129,9 @@ function setListeningState(listening) {
     ? '⏹ <span style="font-size:11px;font-weight:600;letter-spacing:0.5px">RECORDING</span>'
     : '🎙';
   micHint.textContent = listening ? 'Click to stop' : 'Click to start recording';
+  // Listening overlay replaces the idle mic area while recording
+  document.getElementById('listening-panel').style.display = listening ? 'flex' : 'none';
+  document.getElementById('mic-idle').style.display        = listening ? 'none' : 'block';
   if (listening) setStatus('listening', 'Listening — speak your exam findings…');
   else if (transcript.trim()) setStatus('ready', 'Transcript ready — click Fill Fields');
   else setStatus('', 'Ready — click mic to dictate your exam');
@@ -138,7 +142,18 @@ transcriptEl.addEventListener('input', () => {
   transcript = transcriptEl.value;
   transcriptEl.classList.toggle('empty', !transcript.trim());
   updateFillBtn();
+  updateLiveTranscript();
 });
+
+// Mirror the transcript into the listening overlay's card
+function updateLiveTranscript() {
+  const t = transcriptEl.value.trim();
+  document.getElementById('live-transcript-text').textContent =
+    t ? '“' + t.slice(-160) + '…”' : 'Speak and your dictation will appear here…';
+}
+
+// Stop button inside the listening overlay does the same as the mic button
+document.getElementById('stop-btn').addEventListener('click', () => micBtn.click());
 
 function updateFillBtn() { fillBtn.disabled = !transcript.trim(); }
 
