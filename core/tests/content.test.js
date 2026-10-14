@@ -110,6 +110,12 @@ const val = (page, name) => page.$eval(`[name="${name}"]`, el => el.value);
   check('setup: clicking a box opens the picker (and does not type into the EMR)', pick.open && pick.focusedPage !== 'b5', JSON.stringify(pick));
   check('setup: top suggestion for Amplitude/OD box', /accommodation amplitude OD/i.test(pick.first || ''), pick.first);
   await page.screenshot({ path: path.join(OUT, 'setup-mode.png') });
+  await page.keyboard.press('Escape');
+  page.once('dialog', d => d.accept());
+  await page.click('.reset');
+  await page.waitForTimeout(200);
+  const afterReset = await page.evaluate(async () => Object.keys(await loadMap()).length);
+  check('setup: Clear all removes every saved mapping for the site', afterReset === 0, String(afterReset));
   await page.evaluate(() => stopSetup());
 
   // 7. A page that wipes script-set values is reported, not counted as filled

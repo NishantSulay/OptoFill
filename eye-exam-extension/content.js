@@ -580,6 +580,7 @@ async function startSetup() {
       <span><b>OptoFill setup</b> — click any box to tell OptoFill what it is.</span>
       <span class="msg"></span>
       <button class="auto">Auto-map this screen</button>
+      <button class="reset">Clear all</button>
       <button class="primary done">Done</button>
     </div>
     <div class="layer"></div>
@@ -596,6 +597,14 @@ async function startSetup() {
     const n = autoMapVisible(setup.map);
     await saveMap(setup.map);
     renderSetup(`Auto-mapped ${n} box${n === 1 ? '' : 'es'} — check the green labels and click any box to fix it.`);
+  });
+  root.querySelector('.reset').addEventListener('click', async () => {
+    const n = Object.keys(setup.map).length;
+    if (!n) { renderSetup('Nothing is mapped on this site yet.'); return; }
+    if (!confirm(`Remove all ${n} box mapping${n === 1 ? '' : 's'} OptoFill saved for ${location.host}?`)) return;
+    setup.map = {};
+    await saveMap(setup.map);
+    renderSetup('Cleared — click boxes or use Auto-map to start again.');
   });
   root.querySelector('.cancel').addEventListener('click', closePicker);
   root.querySelector('.unmap').addEventListener('click', async () => {
