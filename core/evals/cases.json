@@ -59,5 +59,478 @@
     "dictation": "Patient reports occasional flashes of light in the right eye over the past week.",
     "expect": {},
     "allowExtra": ["chief_complaint", "notes_general"]
+  },
+  {
+    "id": "full-exam-long",
+    "dictation": "Chief complaint blurry vision at near for about six months, worse when reading. Distance vision without correction right 20/30, left 20/25. Near uncorrected right 20/50, left 20/40. Manifest, OD plus 0.75 minus 0.25 axis 90, OS plus 1.00 sphere, add plus 1.75 both eyes. Best corrected through the manifest 20/20 OD and OS. Pupils PERRLA, no APD. EOMs full and smooth both eyes. Confrontation fields full to finger count OU. Cover test ortho at distance, 2 prism diopters exophoria at near. NPC to the nose. Color 14 of 14 plates each eye on Ishihara. Stereo 25 seconds with Randot. Pressures by Goldmann 14 right and 15 left at 10:20 a.m. Slit lamp, both eyes: lids and lashes clear, conjunctiva white and quiet, cornea clear, AC deep and quiet, iris flat, lens clear. Dilated with one percent tropicamide. C/D 0.3 right, 0.35 left. Nerves pink with distinct margins, maculas flat with good foveal reflex, vessels 2/3 both eyes, periphery flat with no holes or tears 360 both eyes, vitreous clear OU. Assessment presbyopia and mild hyperopia. Plan new progressive lenses, return in one year.",
+    "expect": {
+      "chief_complaint": {
+        "containsAny": [
+          "blur",
+          "near"
+        ]
+      },
+      "va_dist_sc_od": {
+        "equals": "20/30"
+      },
+      "va_dist_sc_os": {
+        "equals": "20/25"
+      },
+      "va_near_sc_od": {
+        "equals": "20/50"
+      },
+      "va_near_sc_os": {
+        "equals": "20/40"
+      },
+      "rx_sph_od": {
+        "equals": "+0.75"
+      },
+      "rx_cyl_od": {
+        "equals": "-0.25"
+      },
+      "rx_axis_od": {
+        "equals": "90"
+      },
+      "rx_sph_os": {
+        "equals": "+1.00"
+      },
+      "rx_add_od": {
+        "equals": "+1.75"
+      },
+      "rx_add_os": {
+        "equals": "+1.75"
+      },
+      "rx_va_od": {
+        "equals": "20/20"
+      },
+      "rx_va_os": {
+        "equals": "20/20"
+      },
+      "pupils_notes": {
+        "contains": "perrl"
+      },
+      "bv_eoms_od": {
+        "contains": "full"
+      },
+      "bv_eoms_os": {
+        "contains": "full"
+      },
+      "bv_cfields_od": {
+        "containsAny": [
+          "full",
+          "ftfc"
+        ]
+      },
+      "bv_cfields_os": {
+        "containsAny": [
+          "full",
+          "ftfc"
+        ]
+      },
+      "cover_dist_direction": {
+        "contains": "ortho"
+      },
+      "cover_near_direction": {
+        "contains": "exo"
+      },
+      "cover_near_amount": {
+        "contains": "2"
+      },
+      "bv_npc": {
+        "containsAny": [
+          "nose",
+          "ttn"
+        ]
+      },
+      "color_od": {
+        "contains": "14"
+      },
+      "color_os": {
+        "contains": "14"
+      },
+      "color_method": {
+        "contains": "ishihara"
+      },
+      "stereo": {
+        "contains": "25"
+      },
+      "stereo_method": {
+        "contains": "randot"
+      },
+      "iop_od": {
+        "equals": "14"
+      },
+      "iop_os": {
+        "equals": "15"
+      },
+      "iop_method": {
+        "containsAny": [
+          "goldmann",
+          "gat"
+        ]
+      },
+      "iop_time": {
+        "contains": "10:20"
+      },
+      "sle_lids_od": {
+        "contains": "clear"
+      },
+      "sle_lids_os": {
+        "contains": "clear"
+      },
+      "sle_conj_od": {
+        "containsAny": [
+          "white",
+          "quiet"
+        ]
+      },
+      "sle_conj_os": {
+        "containsAny": [
+          "white",
+          "quiet"
+        ]
+      },
+      "sle_cornea_od": {
+        "contains": "clear"
+      },
+      "sle_cornea_os": {
+        "contains": "clear"
+      },
+      "sle_ac_od": {
+        "containsAny": [
+          "deep",
+          "quiet",
+          "d&q"
+        ]
+      },
+      "sle_ac_os": {
+        "containsAny": [
+          "deep",
+          "quiet",
+          "d&q"
+        ]
+      },
+      "sle_iris_od": {
+        "contains": "flat"
+      },
+      "sle_iris_os": {
+        "contains": "flat"
+      },
+      "sle_lens_od": {
+        "contains": "clear"
+      },
+      "sle_lens_os": {
+        "contains": "clear"
+      },
+      "fundus_cd_od": {
+        "equals": "0.3"
+      },
+      "fundus_cd_os": {
+        "equals": "0.35"
+      },
+      "fundus_nerve_od": {
+        "containsAny": [
+          "pink",
+          "distinct"
+        ]
+      },
+      "fundus_nerve_os": {
+        "containsAny": [
+          "pink",
+          "distinct"
+        ]
+      },
+      "fundus_macula_od": {
+        "containsAny": [
+          "flat",
+          "reflex"
+        ]
+      },
+      "fundus_macula_os": {
+        "containsAny": [
+          "flat",
+          "reflex"
+        ]
+      },
+      "fundus_vessels_od": {
+        "contains": "2/3"
+      },
+      "fundus_vessels_os": {
+        "contains": "2/3"
+      },
+      "fundus_periphery_od": {
+        "containsAny": [
+          "flat",
+          "noholes",
+          "intact"
+        ]
+      },
+      "fundus_periphery_os": {
+        "containsAny": [
+          "flat",
+          "noholes",
+          "intact"
+        ]
+      },
+      "fundus_vitreous_od": {
+        "contains": "clear"
+      },
+      "fundus_vitreous_os": {
+        "contains": "clear"
+      },
+      "assessment": {
+        "contains": "presbyopia"
+      },
+      "plan": {
+        "containsAny": [
+          "progressive",
+          "pal"
+        ]
+      },
+      "va_dist_cc_od": {
+        "absent": true
+      },
+      "va_dist_cc_os": {
+        "absent": true
+      }
+    },
+    "allowExtra": [
+      "rx_cyl_os",
+      "pupils_apd_od",
+      "pupils_apd_os",
+      "cover_dist_amount",
+      "cover_near_intermittent",
+      "notes_general"
+    ]
+  },
+  {
+    "id": "mid-sentence-corrections",
+    "dictation": "Pressures right eye eighteen, sorry, nineteen, left seventeen by iCare. Distance VA with glasses right 20/25, left 20/30, wait no, scratch that, left is 20/40. Amplitude OD 6 centimeters, OS, let me redo that, 5 centimeters.",
+    "expect": {
+      "iop_od": {
+        "equals": "19"
+      },
+      "iop_os": {
+        "equals": "17"
+      },
+      "iop_method": {
+        "contains": "icare"
+      },
+      "va_dist_cc_od": {
+        "equals": "20/25"
+      },
+      "va_dist_cc_os": {
+        "equals": "20/40"
+      },
+      "bv_amplitude_od": {
+        "equals": "6 cm"
+      },
+      "bv_amplitude_os": {
+        "equals": "5 cm"
+      }
+    }
+  },
+  {
+    "id": "same-as-other-eye",
+    "dictation": "Fundus right eye: C/D point four, nerve pink and healthy, macula flat, periphery intact. Left eye same as right except C/D point five. Lens 1+ nuclear sclerosis OU.",
+    "expect": {
+      "fundus_cd_od": {
+        "equals": "0.4"
+      },
+      "fundus_cd_os": {
+        "equals": "0.5"
+      },
+      "fundus_nerve_od": {
+        "contains": "pink"
+      },
+      "fundus_nerve_os": {
+        "contains": "pink"
+      },
+      "fundus_macula_od": {
+        "contains": "flat"
+      },
+      "fundus_macula_os": {
+        "contains": "flat"
+      },
+      "fundus_periphery_od": {
+        "contains": "intact"
+      },
+      "fundus_periphery_os": {
+        "contains": "intact"
+      },
+      "sle_lens_od": {
+        "contains": "1+"
+      },
+      "sle_lens_os": {
+        "contains": "1+"
+      }
+    }
+  },
+  {
+    "id": "filler-spoken-numbers",
+    "dictation": "Okay so, um, distance vision without glasses, right eye was, uh, twenty seventy, left eye twenty fifty minus two. And then, uh, PD sixty-two, near fifty-nine. Pressures, let's see, fifteen and, uh, sixteen, right then left, by NCT.",
+    "expect": {
+      "va_dist_sc_od": {
+        "equals": "20/70"
+      },
+      "va_dist_sc_os": {
+        "equals": "20/50-2"
+      },
+      "pd_dist_ou": {
+        "equals": "62"
+      },
+      "pd_near_ou": {
+        "equals": "59"
+      },
+      "iop_od": {
+        "equals": "15"
+      },
+      "iop_os": {
+        "equals": "16"
+      },
+      "iop_method": {
+        "contains": "nct"
+      }
+    }
+  },
+  {
+    "id": "history-and-plan-numbers",
+    "dictation": "History of glaucoma suspect, pressures were 24 and 25 at last year's visit. Today pressures 17 OD, 18 OS by Goldmann. Plan recheck IOP and OCT in 4 months. Patient asked about LASIK, discussed.",
+    "expect": {
+      "iop_od": {
+        "equals": "17"
+      },
+      "iop_os": {
+        "equals": "18"
+      },
+      "iop_method": {
+        "containsAny": [
+          "goldmann",
+          "gat"
+        ]
+      },
+      "plan": {
+        "containsAny": [
+          "oct",
+          "4months",
+          "recheck"
+        ]
+      }
+    },
+    "allowExtra": [
+      "chief_complaint",
+      "assessment",
+      "notes_general"
+    ]
+  },
+  {
+    "id": "low-vision-and-near",
+    "dictation": "Uncorrected distance, right eye count fingers at three feet, left 20/400. Pinhole no improvement right eye. Near with correction OD 20/30, OS 20/25.",
+    "expect": {
+      "va_dist_sc_od": {
+        "containsAny": [
+          "cf",
+          "count"
+        ]
+      },
+      "va_dist_sc_os": {
+        "equals": "20/400"
+      },
+      "va_near_cc_od": {
+        "equals": "20/30"
+      },
+      "va_near_cc_os": {
+        "equals": "20/25"
+      },
+      "va_dist_cc_od": {
+        "absent": true
+      }
+    },
+    "allowExtra": [
+      "notes_general"
+    ]
+  },
+  {
+    "id": "plano-and-sphere-only",
+    "dictation": "Manifest OD plano minus 0.75 times 90. OS minus 2 DS. No add.",
+    "expect": {
+      "rx_sph_od": {
+        "equals": "plano"
+      },
+      "rx_cyl_od": {
+        "equals": "-0.75"
+      },
+      "rx_axis_od": {
+        "equals": "90"
+      },
+      "rx_sph_os": {
+        "equals": "-2.00"
+      },
+      "rx_axis_os": {
+        "absent": true
+      }
+    },
+    "allowExtra": [
+      "rx_cyl_os",
+      "rx_add_od",
+      "rx_add_os",
+      "notes_general"
+    ]
+  },
+  {
+    "id": "left-eye-first",
+    "dictation": "Left eye: cornea with trace SPK inferiorly, conj 1+ injection. Right eye: cornea clear, conj white.",
+    "expect": {
+      "sle_cornea_os": {
+        "contains": "spk"
+      },
+      "sle_conj_os": {
+        "containsAny": [
+          "1+",
+          "inject"
+        ]
+      },
+      "sle_cornea_od": {
+        "contains": "clear"
+      },
+      "sle_conj_od": {
+        "contains": "white"
+      }
+    }
+  },
+  {
+    "id": "cover-and-vergences",
+    "dictation": "Cover test distance ortho, near 6 prism diopters intermittent exotropia. NPC 12 centimeters break, 15 recovery. Near base out break 10 recovery 4, base in 14 over 10.",
+    "expect": {
+      "cover_dist_direction": {
+        "contains": "ortho"
+      },
+      "cover_near_direction": {
+        "containsAny": [
+          "exo",
+          "xt"
+        ]
+      },
+      "cover_near_amount": {
+        "contains": "6"
+      },
+      "cover_near_intermittent": {
+        "contains": "intermittent"
+      },
+      "bv_npc": {
+        "contains": "12"
+      },
+      "bv_pfv_near": {
+        "contains": "10"
+      },
+      "bv_nfv_near": {
+        "contains": "14"
+      }
+    },
+    "allowExtra": [
+      "cover_dist_amount",
+      "cover_near_eye",
+      "notes_general"
+    ]
   }
 ]
