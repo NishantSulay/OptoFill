@@ -378,6 +378,7 @@ async function applyFills(items, { mergeIntoLast = false } = {}) {
 function undoLastFill() {
   const entry = undoStack.pop();
   pendingSchema = {};
+  lastFill = null;
   if (!entry) return 0;
   for (let i = entry.length - 1; i >= 0; i--) restore(entry[i].el, entry[i].snap);
   return entry.length;
@@ -429,6 +430,7 @@ function formatForBox(entry, value) {
 }
 
 let pendingSchema = {};   // mapped values whose box isn't on screen yet (e.g. another EMR tab)
+let lastFill = null;      // results of the last fill, kept up to date as waiting values fill — the popup shows them on reopen
 
 // values: { schemaKey: value } → [{ key, label, value, status, reason }]
 async function fillSchema(values, { mergeIntoLast = false } = {}) {
@@ -449,6 +451,7 @@ async function fillSchema(values, { mergeIntoLast = false } = {}) {
     delete pendingSchema[r.key];
     out.push({ key: r.key, label: r.label, value: r.value, status: r.ok ? 'filled' : 'failed', reason: r.reason });
   }
+  if (!mergeIntoLast) lastFill = out;
   return out;
 }
 
@@ -461,7 +464,13 @@ async function fillPending() {
     if (map[key] && locateMapped(map[key], fields)) ready[key] = value;
   }
   if (!Object.keys(ready).length) return [];
-  return fillSchema(ready, { mergeIntoLast: true });
+  const results = await fillSchema(ready, { mergeIntoLast: true });
+  if (lastFill) {
+    for (const r of results) { const i = lastFill.findIndex(x => x.key === r.key); if (i >= 0) lastFill[i] = r; }
+    // Let an open popup swap its ⏳ for ✓; nobody may be listening, which is fine
+    try { chrome.runtime.sendMessage({ action: 'fillUpdated', results: lastFill })?.catch?.(() => {}); } catch(e) {}
+  }
+  return results;
 }
 
 // Quick fill (EMR not set up): mapping is { fieldIndex: value } from the last scan
@@ -774,7 +783,8 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
     case 'fillSchema':     reply(fillSchema(msg.values).then(results => ({ results }))); return true;
     case 'refillPending':  reply(fillPending().then(results => ({ results }))); return true;
     case 'undoFill':       sendResponse({ restored: undoLastFill(), undoDepth: undoStack.length }); return true;
-    case 'getStatus':      reply(loadMap().then(map => ({ mappedCount: Object.keys(map).length, undoDepth: undoStack.length, origin: location.origin }))); return true;
+    case 'getStatus':      reply(loadMap().then(map => ({ mappedCount: Object.keys(map).length, undoDepth: undoStack.length, origin: location.origin, lastFill }))); return true;
+    case 'forgetLastFill': lastFill = null; sendResponse({ ok: true }); return true;
     case 'startSetup':     startSetup(); sendResponse({ ok: true }); return true;
     case 'highlightField': {
       try { const el = document.querySelector(msg.selector); if (el) highlight(el); } catch(e) {}

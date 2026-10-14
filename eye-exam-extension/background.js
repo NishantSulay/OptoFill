@@ -1,5 +1,5 @@
 // background.js
-importScripts('schema.js', 'extract.js', 'quickfill.js');
+importScripts('schema.js', 'redact.js', 'extract.js', 'quickfill.js');
 
 let popupPort = null;
 
@@ -31,10 +31,11 @@ chrome.runtime.onConnect.addListener((port) => {
 
     if (msg.action === 'extract') {
       try {
+        const meta = {};
         const values = await OptoFillExtract.extractFindings({
-          apiKey: msg.apiKey, dictation: msg.transcript, customInstructions: msg.customInstructions, browser: true
+          apiKey: msg.apiKey, dictation: msg.transcript, customInstructions: msg.customInstructions, browser: true, meta
         });
-        toPopup({ action:'extractResult', ok:true, values });
+        toPopup({ action:'extractResult', ok:true, values, redacted: meta.redacted || 0 });
       } catch(err) {
         toPopup({ action:'extractResult', ok:false, error:err.message });
       }
@@ -42,10 +43,11 @@ chrome.runtime.onConnect.addListener((port) => {
 
     if (msg.action === 'callClaude') {
       try {
+        const meta = {};
         const mapping = await OptoFillQuickFill.quickFill({
-          apiKey: msg.apiKey, dictation: msg.transcript, fields: msg.fields, customInstructions: msg.customInstructions, browser: true
+          apiKey: msg.apiKey, dictation: msg.transcript, fields: msg.fields, customInstructions: msg.customInstructions, browser: true, meta
         });
-        toPopup({ action:'claudeResult', ok:true, mapping });
+        toPopup({ action:'claudeResult', ok:true, mapping, redacted: meta.redacted || 0 });
       } catch(err) {
         toPopup({ action:'claudeResult', ok:false, error:err.message });
       }
@@ -55,7 +57,7 @@ chrome.runtime.onConnect.addListener((port) => {
 
 // Relay messages from content script → popup
 chrome.runtime.onMessage.addListener((msg) => {
-  if (['transcriptUpdate','micError','micStopped','micStarted','micReady'].includes(msg.action)) {
+  if (['transcriptUpdate','micError','micStopped','micStarted','micReady','fillUpdated'].includes(msg.action)) {
     toPopup(msg);
   }
 });

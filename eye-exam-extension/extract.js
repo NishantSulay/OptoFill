@@ -1,6 +1,7 @@
 // Turns a dictation into schema values. Shared by background.js (importScripts) and core/evals (require).
 (function (root) {
   const SCHEMA = root.OPTOFILL_SCHEMA || require('./schema.js');
+  const { redact } = root.OptoFillRedact || require('./redact.js');
   const KEYS = SCHEMA.map(f => f.key);
   const MODEL = 'claude-haiku-5-5';
   const TOOL = 'record_exam_findings';
@@ -41,6 +42,7 @@ RULES:
 - Cover test: "ortho"/"orthophoria" goes in the direction key (e.g. cover_dist_direction), not the amount key.
 - Keep text findings short and clinical (e.g. "clear", "trace NS", "0.3").
 - Anything clinically relevant that has no matching key goes into notes_general.
+- Text like [name], [date] or [id] marks a patient identifier that was removed. Never record it in any key.
 ${customInstructions ? `\nDOCTOR INSTRUCTIONS:\n${customInstructions}\n` : ''}
 SCHEMA KEYS:
 ${fieldList}`;
@@ -50,7 +52,7 @@ ${fieldList}`;
     const base = {
       model,
       system: buildSystemPrompt(customInstructions, model),
-      messages: [{ role: 'user', content: `DICTATION:\n${dictation}` }]
+      messages: [{ role: 'user', content: `DICTATION:\n${redact(dictation).text}` }]
     };
     if (usesTool(model)) {
       return {
@@ -105,7 +107,7 @@ ${fieldList}`;
       throw new Error(m);
     }
     const body = JSON.parse(text);
-    if (meta) meta.usage = body.usage;
+    if (meta) { meta.usage = body.usage; meta.redacted = redact(dictation).removed.length; }
     return parseResponse(body);
   }
 

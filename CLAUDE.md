@@ -17,6 +17,7 @@ Two steps, kept separate:
 ## Architecture
 - `eye-exam-extension/` — Chrome MV3 extension
   - `schema.js` — clinical schema + auto-map hints (shared by content script, background, evals)
+  - `redact.js` — removes patient identifiers (names after cues, dates, ID/phone numbers, emails, addresses) from text before it goes to Anthropic
   - `extract.js` — extraction prompt/request/parse (shared by background and `core/evals`)
   - `quickfill.js` — Quick fill prompt/request/parse (shared by background and `core/evals/quickfill.js`)
   - `content.js` — page scan, layout labels, fill + verify + undo, per-EMR mapping, in-page setup mode (runs in every frame; the popup talks to the frame with the most boxes)
@@ -30,6 +31,7 @@ Two steps, kept separate:
 
 ## Testing
 - Content script: `node core/tests/content.test.js` (needs `playwright`; set `CHROME_PATH` if no bundled browser)
+- Redaction: `node core/tests/redact.test.js` (no browser; must keep every eval dictation unchanged)
 - Extraction eval: `ANTHROPIC_API_KEY=... node core/evals/run.js` (real API calls; `--dry-run` prints the request)
 - Quick fill eval: `ANTHROPIC_API_KEY=... node core/evals/quickfill.js` (real API calls; needs `playwright`)
 - Any change to `schema.js` hints or layout detection must keep the content tests passing; any change to

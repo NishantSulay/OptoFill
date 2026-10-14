@@ -54,6 +54,7 @@ function connectPort() {
     }
     if (msg.action === 'claudeResult') handleClaudeResult(msg);
     if (msg.action === 'extractResult') handleExtractResult(msg);
+    if (msg.action === 'fillUpdated') showResults(schemaItems(msg.results), { quiet: true });
   });
   port.onDisconnect.addListener(() => setTimeout(connectPort, 100));
 }
@@ -166,6 +167,7 @@ clearBtn.addEventListener('click', () => {
   transcriptEl.classList.add('empty');
   resultsArea.classList.remove('visible');
   resultList.innerHTML = '';
+  getExamTab().then(tab => tab && sendToPage(tab.id, { action: 'forgetLastFill' })).catch(() => {});
   updateFillBtn();
   setStatus('', 'Ready — click mic to dictate your exam');
 });
@@ -224,6 +226,9 @@ async function refreshPageStatus() {
       : 'This EMR isn’t set up yet — fills are a best guess. Set it up once for reliable filling.';
     document.getElementById('setup-btn').textContent = mappedCount ? 'Edit setup' : 'Set up EMR';
     undoBtn.style.display = s?.undoDepth ? '' : 'none';
+    // Reopened after a fill (e.g. the popup closed when you clicked an EMR tab): show its results, with
+    // values that have since filled on their tab now ticked
+    if (s?.lastFill?.length && !resultsArea.classList.contains('visible')) showResults(schemaItems(s.lastFill), { quiet: true });
   } catch(e) {
     emrSetupText.textContent = 'OptoFill can’t reach this page.';
   }
@@ -303,11 +308,16 @@ async function handleExtractResult(msg) {
   let res;
   try { res = await sendToPage(tabId, { action: 'fillSchema', values: msg.values }); }
   catch(e) { showToast('Could not fill fields on the page.', 'error'); resetFillBtn(); return; }
-  showResults((res?.results || []).map(r => ({
-    label: r.label.replace(/\s*\([^)]*\)/g, '').replace(/^Visual acuity /, 'VA '), value: r.value, status: r.status, reason: r.reason, key: r.key
-  })));
+  showResults(schemaItems(res?.results), { redacted: msg.redacted });
   resetFillBtn();
   refreshPageStatus();
+}
+
+// Fill results for schema values (from fillSchema or the page's lastFill) → result list items
+function schemaItems(results) {
+  return (results || []).map(r => ({
+    label: r.label.replace(/\s*\([^)]*\)/g, '').replace(/^Visual acuity /, 'VA '), value: r.value, status: r.status, reason: r.reason, key: r.key
+  }));
 }
 
 async function handleClaudeResult(msg) {
@@ -328,7 +338,7 @@ async function handleClaudeResult(msg) {
     const f = fields[parseInt(r.idx)];
     return { label: f?.row ? [f.row, f.col].filter(Boolean).join(' · ') : (f?.label || `Field ${r.idx}`),
              value: r.value, status: r.ok ? 'filled' : 'failed', reason: r.reason, selector: f?.selector };
-  }));
+  }), { redacted: msg.redacted });
   resetFillBtn();
   refreshPageStatus();
 }
@@ -336,7 +346,8 @@ async function handleClaudeResult(msg) {
 // ─── Results ──────────────────────────────────────────────────────────────────
 const STATUS_ICON = { filled: '✓', failed: '⚠', pending: '⏳', unmapped: '○' };
 
-function showResults(items) {
+// quiet: re-showing results (popup reopened, or waiting values filled) — update the list without a toast
+function showResults(items, { quiet = false, redacted = 0 } = {}) {
   resultList.innerHTML = '';
   const order = { failed: 0, unmapped: 1, pending: 2, filled: 3 };
   items.sort((a, b) => order[a.status] - order[b.status]);
@@ -377,10 +388,14 @@ function showResults(items) {
 
   const n = s => items.filter(i => i.status === s).length;
   const filled = n('filled'), failed = n('failed'), unmapped = n('unmapped'), pending = n('pending');
-  setStatus('ready', `Done — ${filled}/${items.length} filled and checked`);
-  const extra = [failed && `${failed} didn’t stick`, unmapped && `${unmapped} not set up`, pending && `${pending} on another tab`].filter(Boolean);
-  if (extra.length) showToast(`⚠ ${extra.join(' · ')}`, 'error');
-  else showToast(`✓ Filled ${filled} box${filled === 1 ? '' : 'es'}`, 'success');
+  // Waiting for another EMR tab is expected, not an error: it fills when that tab opens
+  setStatus('ready', `Done — ${filled}/${items.length} filled and checked` + (pending ? ` · ${pending} waiting for their tab` : ''));
+  if (quiet) return;
+  const problems = [failed && `${failed} didn’t stick`, unmapped && `${unmapped} not set up`].filter(Boolean);
+  const removed = redacted ? ` · ${redacted} identifier${redacted === 1 ? '' : 's'} removed before sending` : '';
+  if (problems.length) showToast(`⚠ ${problems.join(' · ')}`, 'error');
+  else if (pending) showToast(`✓ Filled ${filled} · ${pending} more will fill when you open their tab${removed}`, '');
+  else showToast(`✓ Filled ${filled} box${filled === 1 ? '' : 'es'}${removed}`, 'success');
 }
 
 function setStatus(type, message) {

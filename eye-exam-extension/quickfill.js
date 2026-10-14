@@ -1,6 +1,7 @@
 // Quick fill: Claude maps the dictation straight onto the page's boxes. Used only for EMRs not set up yet.
 // Shared by background.js (importScripts) and core/evals/quickfill.js (require).
 (function (root) {
+  const { redact } = root.OptoFillRedact || require('./redact.js');
   const MODEL = 'claude-sonnet-5-5';
   // Sonnet/Opus 4.6 answer in plain JSON; newer models think by default (low effort keeps latency down)
   // and use structured outputs, so the reply is always valid JSON with numeric box indices.
@@ -27,7 +28,8 @@
 
   // One line per box: page text can contain line breaks, which would split a box across lines.
   function buildFieldList(fields) {
-    const t = v => String(v ?? '').replace(/\s+/g, ' ').trim();
+    // Page text can show patient details (e.g. a name banner above the form); identifiers are removed like the dictation's
+    const t = v => redact(String(v ?? '').replace(/\s+/g, ' ').trim()).text;
     return fields.map((f,i) =>
       `[${i}] row="${t(f.row)}" | col="${t(f.col)}" | context="${t(f.context)}" | label="${t(f.label)}" | name="${t(f.name)}" | id="${t(f.id)}" | type="${t(f.type)}" | placeholder="${t(f.placeholder)}"${
         f.options?.length ? ` | options=${f.options.map(o=>t(o.text)).join(', ')}` : ''}`
@@ -56,6 +58,7 @@ ${legacy ? `- Return ONLY valid JSON. No explanation, no markdown, no backticks.
 - For radio buttons: labels show "Question — Option" (e.g. "Do you drive? — Yes"). Set "true" ONLY for the matching option. Never guess by position.
 - Each field has layout hints from the screen: "row" = text immediately to its left, "col" = column header directly above it, "context" = nearby section headings above. Many EMR grids have no HTML labels, so these are usually the most reliable way to identify a field. Example: "amplitude OD 5" goes to the field with row="Amplitude" and col="OD".
 - Never put a specific measurement into a generic Notes/Note field when a matching row/col field exists.
+- Text like [name], [date] or [id] marks a patient identifier that was removed. Never enter it into any field.
 ${customInstructions ? `\nDOCTOR INSTRUCTIONS:\n${customInstructions}` : ''}
 ${legacy ? '\nEXAMPLE: {"2":"20/40","5":"-1.25","6":"-0.50","7":"90","12":"Mild myopia OU"}' : ''}`;
   }
@@ -65,7 +68,7 @@ ${legacy ? '\nEXAMPLE: {"2":"20/40","5":"-1.25","6":"-0.50","7":"90","12":"Mild 
       model,
       max_tokens: 4000,
       system: buildSystemPrompt(customInstructions, model),
-      messages: [{ role:'user', content: `DICTATION:\n${dictation}\n\nFORM FIELDS:\n${buildFieldList(fields)}\n\n${isLegacy(model) ? 'Return JSON mapping:' : 'Return the fields to fill.'}` }]
+      messages: [{ role:'user', content: `DICTATION:\n${redact(dictation).text}\n\nFORM FIELDS:\n${buildFieldList(fields)}\n\n${isLegacy(model) ? 'Return JSON mapping:' : 'Return the fields to fill.'}` }]
     };
     if (!isLegacy(model)) req.output_config = { effort: 'low', format: { type: 'json_schema', schema: FILLS_SCHEMA } };
     if (usesFallback(model)) req.fallbacks = 'default';
@@ -103,7 +106,7 @@ ${legacy ? '\nEXAMPLE: {"2":"20/40","5":"-1.25","6":"-0.50","7":"90","12":"Mild 
       throw new Error(m);
     }
     const body = JSON.parse(text);
-    if (meta) meta.usage = body.usage;
+    if (meta) { meta.usage = body.usage; meta.redacted = redact(dictation).removed.length; }
     return parseResponse(body);
   }
 

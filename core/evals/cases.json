@@ -536,5 +536,28 @@
       "cover_near_eye",
       "notes_general"
     ]
+  },
+  {
+    "id": "identifiers-redacted",
+    "dictation": "Patient Test Sample, date of birth 01/01/1900, health card 1234-567-890. Chief complaint itchy eyes for two weeks. Pressures 15 right, 16 left by NCT.",
+    "expect": {
+      "chief_complaint": {
+        "containsAny": [
+          "itch"
+        ]
+      },
+      "iop_od": {
+        "equals": "15"
+      },
+      "iop_os": {
+        "equals": "16"
+      },
+      "iop_method": {
+        "contains": "nct"
+      }
+    },
+    "allowExtra": [
+      "notes_general"
+    ]
   }
 ]

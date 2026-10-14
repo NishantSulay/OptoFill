@@ -19,7 +19,7 @@ async function openMock(browser, query = '') {
   await page.addInitScript(() => {
     const store = {};
     window.chrome = {
-      runtime: { onMessage: { addListener() {} }, sendMessage() {} },
+      runtime: { onMessage: { addListener() {} }, sendMessage(m) { (window.__sent = window.__sent || []).push(m); } },
       storage: { local: {
         get: async k => (typeof k === 'string' ? { [k]: store[k] } : { ...store }),
         set: async o => { Object.assign(store, JSON.parse(JSON.stringify(o))); }
@@ -79,10 +79,16 @@ const val = (page, name) => page.$eval(`[name="${name}"]`, el => el.value);
   await page.click('[data-tab=refraction]');
   await page.waitForTimeout(1200);
   check('tab switch: pending sphere fills when Refraction tab opens', (await val(page, 'r1')) === '-1.25');
+  const after = await page.evaluate(() => ({
+    sph: lastFill.find(r => r.key === 'rx_sph_od')?.status,
+    sent: (window.__sent || []).filter(m => m.action === 'fillUpdated').pop()?.results.find(r => r.key === 'rx_sph_od')?.status,
+  }));
+  check('tab switch: last fill results now show the sphere as filled, and an open popup is told', after.sph === 'filled' && after.sent === 'filled', JSON.stringify(after));
 
   // 4. Undo restores everything from that fill, including the tab-switch part
   const restored = await page.evaluate(() => undoLastFill());
   check(`undo: restored ${restored} boxes`, restored === 3 && (await val(page, 'b5')) === '' && (await val(page, 'v3')) === '' && (await val(page, 'r1')) === '');
+  check('undo: last fill results are cleared', await page.evaluate(() => lastFill === null));
 
   // 5. Duplicate ids: two textareas share id="notes"; only the visible one may be filled
   await page.click('[data-tab=pretest]');

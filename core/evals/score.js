@@ -32,7 +32,8 @@ function score(expect, got, allowed) {
     else if (rule.containsAny) ok = rule.containsAny.some(x => norm(v).includes(norm(x)));
     checks.push({ key, ok, got: v, want: rule });
   }
-  const unexpected = Object.keys(got).filter(k => !allowed.has(k));
+  // A redaction placeholder ("[name]") copied into any box is always a mistake
+  const unexpected = Object.keys(got).filter(k => !allowed.has(k) || /\[(name|date|id|phone|email|address|postal)\]/.test(got[k]));
   return { checks, unexpected };
 }
 
