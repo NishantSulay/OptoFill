@@ -2,7 +2,7 @@
 (function (root) {
   const SCHEMA = root.OPTOFILL_SCHEMA || require('./schema.js');
   const KEYS = SCHEMA.map(f => f.key);
-  const MODEL = 'claude-sonnet-4-6';
+  const MODEL = 'claude-haiku-5-5';
   const TOOL = 'record_exam_findings';
 
   // Sonnet/Opus 4.6 don't take output_config.format, so they get a forced tool call instead;
