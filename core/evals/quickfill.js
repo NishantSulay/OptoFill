@@ -73,21 +73,27 @@ function toKeys(fields, mapping) {
     if (VA_SECOND[name]) continue;
     if (BOX_KEY[name] && BOX_KEY[name].startsWith('va_')) {
       const extra = byName[VA_SECOND_OF[name]] || '';
-      got[BOX_KEY[name]] = '20/' + v.replace(/^20\//, '') + extra;
+      got[BOX_KEY[name]] = '20/' + v.replace(/^20\//, '') + (isModifier(extra) ? extra : '');
     } else if (BOX_KEY[name]) got[BOX_KEY[name]] = v;
     else if (NOTE_BOXES.has(name)) notes[name] = v;
     else stray.push(`${name}="${v}"`);
   }
-  for (const [second, first] of Object.entries(VA_SECOND)) {
-    if (byName[second] && !byName[first]) got[BOX_KEY[first]] = '20/' + byName[second];
+  // The second VA box only takes a modifier like "-2"; anything else there is in the wrong box.
+  for (const second of Object.keys(VA_SECOND)) {
+    if (byName[second] && !isModifier(byName[second])) stray.push(`${second}="${byName[second]}" (second VA box)`);
   }
   return { got, notes, stray };
 }
 const VA_SECOND_OF = Object.fromEntries(Object.entries(VA_SECOND).map(([s, f]) => [f, s]));
+const isModifier = v => /^[+-]\s*\d/.test(v);
 
 function grade(c, fields, mapping) {
   const { got, notes, stray } = toKeys(fields, mapping);
-  const expect = Object.fromEntries(Object.entries(c.expect).filter(([k]) => ON_PAGE.has(k)));
+  // Quick fill has no units rule, so "5 cm" may be entered as "5".
+  const expect = Object.fromEntries(Object.entries(c.expect).filter(([k]) => ON_PAGE.has(k)).map(([k, r]) => {
+    const n = typeof r.equals === 'string' && r.equals.match(/^(\S+) cm$/);
+    return [k, n ? { equalsAny: [r.equals, n[1]] } : r];
+  }));
   const allowed = new Set([...Object.keys(c.expect), ...(c.allowExtra || []), ...Object.values(BOX_KEY).filter(k => NOTE_BOXES.has(boxOf(k)))]);
   const { checks, unexpected } = score(expect, got, allowed);
   return { got, notes, checks, unexpected: [...unexpected.map(k => `${k}="${got[k]}"`), ...stray] };

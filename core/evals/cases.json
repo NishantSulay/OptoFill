@@ -517,7 +517,8 @@
       "cover_near_intermittent": {
         "containsAny": [
           "intermittent",
-          "yes"
+          "yes",
+          "true"
         ]
       },
       "bv_npc": {

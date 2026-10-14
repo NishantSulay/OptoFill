@@ -217,7 +217,7 @@ function getAllFields(withLayout) {
     else if (id) { const l=document.querySelector(`label[for="${CSS.escape(id)}"]`); if(l) label=l.innerText.trim(); }
     if (!label) { const p=el.closest('label'); if(p) label=p.innerText.replace(el.value||'','').trim(); }
     if (!label&&el.getAttribute('aria-labelledby')) { const r=document.getElementById(el.getAttribute('aria-labelledby')); if(r) label=r.innerText.trim(); }
-    if (!label) { const prev=el.previousElementSibling; if(prev&&['LABEL','SPAN','P','DIV','TH','LEGEND'].includes(prev.tagName)) label=prev.innerText.trim(); }
+    if (!label) { const prev=el.previousElementSibling; if(prev&&['LABEL','SPAN','P','DIV','TH','LEGEND'].includes(prev.tagName)&&!prev.querySelector('input,select,textarea')) label=prev.innerText.trim(); }
     if (type==='radio'||type==='checkbox') {
       const optionLabel = id ? document.querySelector(`label[for="${CSS.escape(id)}"]`)?.innerText?.trim() : '';
       const question = getRadioQuestionText(el);
