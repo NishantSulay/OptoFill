@@ -1,10 +1,12 @@
 // Quick fill: Claude maps the dictation straight onto the page's boxes. Used only for EMRs not set up yet.
 // Shared by background.js (importScripts) and core/evals/quickfill.js (require).
 (function (root) {
-  const MODEL = 'claude-sonnet-4-6';
+  const MODEL = 'claude-sonnet-5-5';
   // Sonnet/Opus 4.6 answer in plain JSON; newer models think by default (low effort keeps latency down)
   // and use structured outputs, so the reply is always valid JSON with numeric box indices.
   const isLegacy = model => /^claude-(sonnet|opus)-4-6$/.test(model);
+  // If a newer model declines (a rare safety false positive), the API retries on a fallback model it picks.
+  const usesFallback = model => /^claude-(sonnet-5-5|opus-5-5|opus-5|fable-5-1)$/.test(model);
 
   const FILLS_SCHEMA = {
     type: 'object',
@@ -47,6 +49,7 @@ ${legacy ? `- Return ONLY valid JSON. No explanation, no markdown, no backticks.
 - For selects, match option text as closely as possible.
 - Use standard optometric notation (-1.25, +2.00, 20/20, 0.75 x 180).
 - If a field's label or row already shows "20/", enter only the rest ("40", "20-2").
+- Best-corrected VA from a refraction goes only in that refraction's VA field, not in the corrected (cc) acuity fields.
 - A single pupillary distance (PD) value is binocular: use the OU field.
 - Cover test: ortho, eso, exo, phoria and tropia go in the Direction field. The Eye field only takes OD/OS/OU when the doctor names an eye.
 - For checkboxes use "true" or "false".
@@ -65,6 +68,7 @@ ${legacy ? '\nEXAMPLE: {"2":"20/40","5":"-1.25","6":"-0.50","7":"90","12":"Mild 
       messages: [{ role:'user', content: `DICTATION:\n${dictation}\n\nFORM FIELDS:\n${buildFieldList(fields)}\n\n${isLegacy(model) ? 'Return JSON mapping:' : 'Return the fields to fill.'}` }]
     };
     if (!isLegacy(model)) req.output_config = { effort: 'low', format: { type: 'json_schema', schema: FILLS_SCHEMA } };
+    if (usesFallback(model)) req.fallbacks = 'default';
     return req;
   }
 
@@ -88,6 +92,7 @@ ${legacy ? '\nEXAMPLE: {"2":"20/40","5":"-1.25","6":"-0.50","7":"90","12":"Mild 
   async function quickFill({ apiKey, dictation, fields, customInstructions, model = MODEL, fetchImpl = fetch, browser = false, meta }) {
     const headers = { 'Content-Type': 'application/json', 'x-api-key': apiKey, 'anthropic-version': '2023-06-01' };
     if (browser) headers['anthropic-dangerous-direct-browser-access'] = 'true';
+    if (usesFallback(model)) headers['anthropic-beta'] = 'server-side-fallback-2026-07-01';
     const res = await fetchImpl('https://api.anthropic.com/v1/messages', {
       method: 'POST', headers, body: JSON.stringify(buildRequest(dictation, fields, customInstructions, model))
     });

@@ -53,7 +53,7 @@ export ANTHROPIC_API_KEY=sk-ant-...
 The key is never committed to the repo. The extension stores it in `chrome.storage.local`.
 
 ### Claude model
-Dictation extraction (`extract.js`) uses `claude-haiku-5-5`; Quick fill (`background.js`) still uses `claude-sonnet-4-6`.
+Dictation extraction (`extract.js`) uses `claude-haiku-5-5`; Quick fill (`quickfill.js`) uses `claude-sonnet-5-5`.
 Do not change either model without explicit instruction.
 
 ### Commit author
