@@ -3,7 +3,13 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>OptoFill — AI-Powered Eye Exam Documentation</title>
+  <title>OptoFill — Dictate Eye Exams Into Your EMR</title>
+  <meta name="description" content="Dictate your eye exam findings and OptoFill fills your web-based EMR's exam form, checks every box, and lets you undo. A Chrome extension powered by Claude." />
+  <meta property="og:title" content="OptoFill — Dictate eye exams into your EMR" />
+  <meta property="og:description" content="Speak your findings; OptoFill fills the exam form, checks every box, and lets you undo." />
+  <meta property="og:type" content="website" />
+  <meta property="og:image" content="https://nishantsulay.github.io/OptoFill/assets/optofill-demo-poster.jpg" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>👁</text></svg>" />
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -145,8 +151,8 @@
     .hero-cta { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
 
     .hero-visual {
-      margin-top: 64px;
-      max-width: 860px;
+      margin-top: 56px;
+      max-width: 1000px;
       margin-left: auto;
       margin-right: auto;
       background: #fff;
@@ -156,122 +162,8 @@
       border: 1px solid var(--gray-200);
     }
 
-    .browser-bar {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      padding: 12px 16px;
-      background: var(--gray-100);
-      border-bottom: 1px solid var(--gray-200);
-    }
-    .browser-dot { width: 12px; height: 12px; border-radius: 50%; }
-    .browser-dot:nth-child(1) { background: #ef4444; }
-    .browser-dot:nth-child(2) { background: #f59e0b; }
-    .browser-dot:nth-child(3) { background: #22c55e; }
-    .browser-url {
-      margin-left: 10px;
-      flex: 1;
-      background: #fff;
-      border-radius: 6px;
-      padding: 5px 12px;
-      font-size: 0.8rem;
-      color: var(--gray-600);
-      border: 1px solid var(--gray-200);
-    }
-
-    .demo-screen {
-      padding: 28px;
-      background: var(--gray-50);
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 16px;
-    }
-
-    .demo-form-card {
-      background: #fff;
-      border-radius: var(--radius);
-      padding: 20px;
-      border: 1px solid var(--gray-200);
-    }
-
-    .demo-form-card h3 {
-      font-size: 0.85rem;
-      font-weight: 700;
-      color: var(--gray-900);
-      margin-bottom: 14px;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .field-row { margin-bottom: 10px; }
-    .field-label { font-size: 0.72rem; color: var(--gray-600); margin-bottom: 3px; }
-    .field-value {
-      background: var(--gray-50);
-      border: 1px solid var(--gray-200);
-      border-radius: 6px;
-      padding: 7px 10px;
-      font-size: 0.8rem;
-      color: var(--gray-900);
-      width: 100%;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-    .field-value.filled {
-      border-color: #86efac;
-      background: #f0fdf4;
-      color: #15803d;
-    }
-    .field-value .check { color: #22c55e; font-weight: 700; }
-
-    .ai-overlay {
-      background: linear-gradient(135deg, var(--blue), var(--teal));
-      border-radius: var(--radius);
-      padding: 20px;
-      color: #fff;
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
-    .ai-overlay h3 { font-size: 0.85rem; font-weight: 700; opacity: 0.9; }
-
-    .voice-wave {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 4px;
-      padding: 14px 0;
-    }
-    .wave-bar {
-      width: 4px;
-      border-radius: 2px;
-      background: rgba(255,255,255,0.7);
-      animation: wave 1.2s ease-in-out infinite;
-    }
-    .wave-bar:nth-child(1) { height: 12px; animation-delay: 0s; }
-    .wave-bar:nth-child(2) { height: 28px; animation-delay: .1s; }
-    .wave-bar:nth-child(3) { height: 20px; animation-delay: .2s; }
-    .wave-bar:nth-child(4) { height: 36px; animation-delay: .3s; }
-    .wave-bar:nth-child(5) { height: 24px; animation-delay: .4s; }
-    .wave-bar:nth-child(6) { height: 16px; animation-delay: .5s; }
-    .wave-bar:nth-child(7) { height: 30px; animation-delay: .4s; }
-    .wave-bar:nth-child(8) { height: 22px; animation-delay: .3s; }
-    .wave-bar:nth-child(9) { height: 14px; animation-delay: .2s; }
-
-    @keyframes wave {
-      0%, 100% { transform: scaleY(1); opacity: 0.7; }
-      50%       { transform: scaleY(1.6); opacity: 1; }
-    }
-
-    .ai-suggestion {
-      background: rgba(255,255,255,0.15);
-      border-radius: 8px;
-      padding: 10px 12px;
-      font-size: 0.78rem;
-      line-height: 1.5;
-    }
-    .ai-suggestion .label { font-weight: 700; font-size: 0.7rem; opacity: 0.8; margin-bottom: 4px; }
+    .hero-visual video { display: block; width: 100%; height: auto; background: #e2e8f0; }
+    .hero-caption { margin-top: 12px; font-size: 0.8rem; color: var(--gray-600); }
 
     /* ── SECTIONS ── */
     section { padding: 80px 5%; }
@@ -303,8 +195,8 @@
 
     .steps-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap: 24px;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 20px;
       margin-top: 52px;
     }
 
@@ -548,7 +440,6 @@
     /* ── RESPONSIVE ── */
     @media (max-width: 700px) {
       .nav-links { display: none; }
-      .demo-screen { grid-template-columns: 1fr; }
       .fields-layout { grid-template-columns: 1fr; }
       .exam-row { grid-template-columns: 1fr; }
     }
@@ -589,66 +480,14 @@
     <a href="#how-it-works" class="btn btn-outline">See How It Works</a>
   </div>
 
-  <!-- DEMO VISUAL (synthetic example) -->
+  <!-- DEMO: recorded with core/demo/record.js (real popup + fill on the mock EMR, synthetic data) -->
   <div class="hero-visual">
-    <div class="browser-bar">
-      <div class="browser-dot"></div>
-      <div class="browser-dot"></div>
-      <div class="browser-dot"></div>
-      <div class="browser-url">🔒 your-emr.example.com/exam</div>
-    </div>
-    <div class="demo-screen">
-      <div class="demo-form-card">
-        <h3>
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2.5"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
-          Exam — Pretest &amp; Refraction
-        </h3>
-        <div class="field-row">
-          <div class="field-label">Chief Complaint</div>
-          <div class="field-value filled">Blurry distance vision <span class="check">✓</span></div>
-        </div>
-        <div class="field-row">
-          <div class="field-label">VA sc OD</div>
-          <div class="field-value filled">20/40 <span class="check">✓</span></div>
-        </div>
-        <div class="field-row">
-          <div class="field-label">Sphere OD</div>
-          <div class="field-value filled">−2.25 <span class="check">✓</span></div>
-        </div>
-        <div class="field-row">
-          <div class="field-label">Sphere OS</div>
-          <div class="field-value filled">−1.75 <span class="check">✓</span></div>
-        </div>
-        <div class="field-row">
-          <div class="field-label">IOP OD / OS</div>
-          <div class="field-value filled">14 / 15 <span class="check">✓</span></div>
-        </div>
-      </div>
-
-      <div class="ai-overlay">
-        <h3>🎙 OptoFill is listening…</h3>
-        <div class="voice-wave">
-          <div class="wave-bar"></div>
-          <div class="wave-bar"></div>
-          <div class="wave-bar"></div>
-          <div class="wave-bar"></div>
-          <div class="wave-bar"></div>
-          <div class="wave-bar"></div>
-          <div class="wave-bar"></div>
-          <div class="wave-bar"></div>
-          <div class="wave-bar"></div>
-        </div>
-        <div class="ai-suggestion">
-          <div class="label">DICTATION</div>
-          "Blurry at distance. VA right 20/40. Right eye minus two twenty-five, left eye minus one seventy-five. Pressures 14 and 15…"
-        </div>
-        <div class="ai-suggestion">
-          <div class="label">FILLED &amp; CHECKED</div>
-          6 boxes filled · each one read back · Undo available
-        </div>
-      </div>
-    </div>
+    <video src="assets/optofill-demo.mp4" poster="assets/optofill-demo-poster.jpg" autoplay muted loop playsinline preload="metadata"
+           aria-label="Demo: a dictation is filled into an EMR exam form and every box is checked">
+      <img src="assets/optofill-demo.gif" alt="Demo: a dictation is filled into an EMR exam form and every box is checked" />
+    </video>
   </div>
+  <p class="hero-caption">A real fill on a demo EMR · synthetic data</p>
 </section>
 
 <!-- HOW IT WORKS -->

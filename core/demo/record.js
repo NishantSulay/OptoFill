@@ -1,7 +1,7 @@
 // Records the website demo GIF: the real popup (popup.html/popup.js) and content script (content.js) filling the
 // mock EMR (synthetic data). Chrome extension APIs are stubbed so both run in ordinary frames; the only canned
 // step is Claude's reply, which is replaced by the values the extraction eval expects for this dictation.
-// Usage: node core/demo/record.js   (needs `playwright` and `ffmpeg`; writes assets/optofill-demo.gif and .mp4)
+// Usage: node core/demo/record.js   (needs `playwright` and `ffmpeg`; writes assets/optofill-demo.gif, .mp4 and -poster.jpg)
 const fs = require('fs');
 const os = require('os');
 const path = require('path');
@@ -171,5 +171,9 @@ function serve() {
   const MP4 = OUT.replace(/\.gif$/, '.mp4');
   execFileSync('ffmpeg', ['-y', '-loglevel', 'error', '-ss', start, '-i', video, '-vf', 'scale=1080:-2', '-c:v', 'libx264',
     '-crf', '26', '-preset', 'slow', '-pix_fmt', 'yuv420p', '-movflags', '+faststart', '-an', MP4]);
-  for (const f of [OUT, MP4]) console.log(`Wrote ${path.relative(ROOT, f)} (${(fs.statSync(f).size / 1e6).toFixed(1)} MB)`);
+  // Poster for the website video: the finished fill
+  const POSTER = OUT.replace(/\.gif$/, '-poster.jpg');
+  const dur = parseFloat(execFileSync('ffprobe', ['-v', 'error', '-show_entries', 'format=duration', '-of', 'csv=p=0', MP4]).toString());
+  execFileSync('ffmpeg', ['-y', '-loglevel', 'error', '-ss', String(Math.max(0, dur - 3.5)), '-i', MP4, '-frames:v', '1', '-q:v', '4', POSTER]);
+  for (const f of [OUT, MP4, POSTER]) console.log(`Wrote ${path.relative(ROOT, f)} (${(fs.statSync(f).size / 1e6).toFixed(1)} MB)`);
 })().catch(e => { console.error(e); process.exit(1); });
