@@ -1,3 +1,4 @@
 core/evals/last-run.json
 core/tests/*.png
 node_modules/
+core/evals/last-quickfill-run.json

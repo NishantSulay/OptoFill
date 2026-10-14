@@ -1,5 +1,5 @@
 // background.js
-importScripts('schema.js', 'extract.js');
+importScripts('schema.js', 'extract.js', 'quickfill.js');
 
 let popupPort = null;
 
@@ -41,7 +41,9 @@ chrome.runtime.onConnect.addListener((port) => {
 
     if (msg.action === 'callClaude') {
       try {
-        const mapping = await callClaudeAPI(msg.apiKey, msg.transcript, msg.fields, msg.customInstructions);
+        const mapping = await OptoFillQuickFill.quickFill({
+          apiKey: msg.apiKey, dictation: msg.transcript, fields: msg.fields, customInstructions: msg.customInstructions, browser: true
+        });
         toPopup({ action:'claudeResult', ok:true, mapping });
       } catch(err) {
         toPopup({ action:'claudeResult', ok:false, error:err.message });
@@ -65,58 +67,4 @@ async function getExamTabId() {
   const tabs = await chrome.tabs.query({ active:true, lastFocusedWindow:true });
   const tab = tabs.find(t => t.url && !t.url.startsWith('chrome-extension://') && !t.url.startsWith('chrome://'));
   return tab ? tab.id : null;
-}
-
-// Quick fill: Claude maps the dictation straight onto the page's boxes. Used only for EMRs not set up yet.
-async function callClaudeAPI(apiKey, dictation, fields, customInstructions) {
-  const fieldList = fields.map((f,i) =>
-    `[${i}] row="${f.row||''}" | col="${f.col||''}" | context="${f.context||''}" | label="${f.label}" | name="${f.name}" | id="${f.id}" | type="${f.type}" | placeholder="${f.placeholder}"${
-      f.options?.length ? ` | options=${f.options.map(o=>o.text).join(', ')}` : ''}`
-  ).join('\n');
-
-  const systemPrompt = `You are an expert optometry medical assistant. Extract clinical data from eye exam dictations and map them to form fields.
-
-TASK: Return a JSON object mapping field indices to fill values.
-
-RULES:
-- Return ONLY valid JSON. No explanation, no markdown, no backticks.
-- Keys are field indices as strings ("0", "3", "12").
-- Only include fields you have data for.
-- For selects, match option text as closely as possible.
-- Use standard optometric notation (-1.25, +2.00, 20/20, 0.75 x 180).
-- For checkboxes use "true" or "false".
-- For radio buttons: labels show "Question — Option" (e.g. "Do you drive? — Yes"). Set "true" ONLY for the matching option. Never guess by position.
-- Each field has layout hints from the screen: "row" = text immediately to its left, "col" = column header directly above it, "context" = nearby section headings above. Many EMR grids have no HTML labels, so these are usually the most reliable way to identify a field. Example: "amplitude OD 5" goes to the field with row="Amplitude" and col="OD".
-- Never put a specific measurement into a generic Notes/Note field when a matching row/col field exists.
-${customInstructions ? `\nDOCTOR INSTRUCTIONS:\n${customInstructions}` : ''}
-
-EXAMPLE: {"2":"20/40","5":"-1.25","6":"-0.50","7":"90","12":"Mild myopia OU"}`;
-
-  const userContent = `DICTATION:\n${dictation}\n\nFORM FIELDS:\n${fieldList}\n\nReturn JSON mapping:`;
-
-  const response = await fetch('https://api.anthropic.com/v1/messages', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'x-api-key': apiKey,
-      'anthropic-version': '2023-06-01',
-      'anthropic-dangerous-direct-browser-access': 'true'
-    },
-    body: JSON.stringify({
-      model: 'claude-sonnet-4-6',
-      max_tokens: 1000,
-      system: systemPrompt,
-      messages: [{ role:'user', content: userContent }]
-    })
-  });
-
-  const text = await response.text();
-  if (!response.ok) {
-    let m = `HTTP ${response.status}`;
-    try { m = JSON.parse(text).error?.message || m; } catch(_) {}
-    throw new Error(m);
-  }
-  const raw = (JSON.parse(text).content?.[0]?.text||'').replace(/```json|```/g,'').trim();
-  try { return JSON.parse(raw); }
-  catch(e) { throw new Error('Invalid JSON from Claude: ' + raw.substring(0,80)); }
 }

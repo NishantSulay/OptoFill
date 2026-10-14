@@ -18,19 +18,21 @@ Two steps, kept separate:
 - `eye-exam-extension/` — Chrome MV3 extension
   - `schema.js` — clinical schema + auto-map hints (shared by content script, background, evals)
   - `extract.js` — extraction prompt/request/parse (shared by background and `core/evals`)
+  - `quickfill.js` — Quick fill prompt/request/parse (shared by background and `core/evals/quickfill.js`)
   - `content.js` — page scan, layout labels, fill + verify + undo, per-EMR mapping, in-page setup mode
   - `background.js` — API calls; `popup.*` — UI
 - `core/mock-emr/` — fake EMR page for testing (synthetic data only)
 - `core/tests/content.test.js` — Playwright tests of content.js against the mock EMR
-- `core/evals/` — extraction eval (`cases.json` mock dictations, `run.js`)
+- `core/evals/` — extraction eval (`cases.json` mock dictations, `run.js`) and Quick fill eval (`quickfill.js`, same cases, graded by box on the mock EMR)
 - `index.html` / `privacy.html` — GitHub Pages landing site
 - `store-assets/` — Chrome Web Store submission screenshots and notes
 
 ## Testing
 - Content script: `node core/tests/content.test.js` (needs `playwright`; set `CHROME_PATH` if no bundled browser)
 - Extraction eval: `ANTHROPIC_API_KEY=... node core/evals/run.js` (real API calls; `--dry-run` prints the request)
+- Quick fill eval: `ANTHROPIC_API_KEY=... node core/evals/quickfill.js` (real API calls; needs `playwright`)
 - Any change to `schema.js` hints or layout detection must keep the content tests passing; any change to
-  the extraction prompt must be checked with the eval.
+  the extraction or Quick fill prompt must be checked with its eval.
 
 ## Rules for Claude Code sessions
 
