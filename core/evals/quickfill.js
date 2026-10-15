@@ -32,6 +32,7 @@ const BOX_KEY = {
   r1: 'rx_sph_od', r2: 'rx_cyl_od', r3: 'rx_axis_od', r4: 'rx_add_od', r5: 'rx_va_od',
   r6: 'rx_sph_os', r7: 'rx_cyl_os', r8: 'rx_axis_os', r9: 'rx_add_os', r10: 'rx_va_os',
   t1: 'iop_od', t2: 'iop_os', n1: 'notes_general',
+  g1: 'va_dist_glasses', g2: 'va_dist_contacts', g3: 'va_near_glasses', g4: 'va_near_contacts',
 };
 const VA_SECOND = { v2: 'v1', v4: 'v3', v6: 'v5', v8: 'v7', v10: 'v9', v12: 'v11', v14: 'v13', v16: 'v15' };
 // Free-text boxes: anything may go here without counting as misplaced (they're still graded when a case expects them).

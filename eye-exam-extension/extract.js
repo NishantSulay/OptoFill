@@ -42,6 +42,7 @@ RULES:
 - Cover test: "ortho"/"orthophoria" goes in the direction key (e.g. cover_dist_direction), not the amount key.
 - Keep text findings short and clinical (e.g. "clear", "trace NS", "0.3").
 - Anything clinically relevant that has no matching key goes into notes_general.
+- va_dist_glasses / va_dist_contacts / va_near_glasses / va_near_contacts are checkboxes: "true" only when the doctor says that acuity was measured with glasses or contact lenses. Never "false".
 - Text like [name], [date] or [id] marks a patient identifier that was removed. Never record it in any key.
 ${customInstructions ? `\nDOCTOR INSTRUCTIONS:\n${customInstructions}\n` : ''}
 SCHEMA KEYS:

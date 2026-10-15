@@ -57,6 +57,7 @@ const val = (page, name) => page.$eval(`[name="${name}"]`, el => el.value);
     pd_dist_od: 'd1', pd_dist_ou: 'd3', pd_near_os: 'd5', color_od: 'cv1', color_os: 'cv2', color_method: 'cv3', stereo: 's1', stereo_method: 's2',
     pupils_notes: 'pn', va_dist_cc_ou: 'v11', cover_near_amount: 'c8',
     va_dist_sc_od_mod: 'v2', va_dist_sc_os_mod: 'v4', va_dist_cc_od_mod: 'v8', va_near_sc_os_mod: 'v16',
+    va_dist_glasses: 'g1', va_dist_contacts: 'g2', va_near_glasses: 'g3', va_near_contacts: 'g4',
     rx_sph_od: 'r1', rx_cyl_os: 'r7', rx_axis_os: 'r8', rx_add_od: 'r4', iop_od: 't1', iop_os: 't2',
   };
   const wrong = Object.entries(expect).filter(([k, n]) => mapped[k] !== n).map(([k, n]) => `${k}: got ${mapped[k] || 'none'}, want ${n}`);
@@ -69,6 +70,20 @@ const val = (page, name) => page.$eval(`[name="${name}"]`, el => el.value);
   check('auto-map: no near-corrected keys on a page that only has near uncorrected boxes', !nearCc.length, nearCc.map(k => `${k}→${mapped[k]}`).join(', '));
   const cover_vertical = Object.entries(mapped).filter(([, n]) => ['c9', 'c10', 'c11', 'c12'].includes(n));
   check('auto-map: Vertical Dx row is not mistaken for distance cover test', !cover_vertical.length, JSON.stringify(cover_vertical));
+
+  // 1a. Checkbox labels come from the text after each box, so "Contacts" isn't read as the "Glasses" before it
+  const cb = await page.evaluate(async () => {
+    const f = getAllFields(true);
+    const labels = ['g1', 'g2'].map(n => f.find(x => x.name === n).label);
+    const r = await fillSchema({ va_dist_glasses: 'true' });
+    const out = { labels, g1: document.querySelector('[name=g1]').checked, g2: document.querySelector('[name=g2]').checked, status: r[0].status };
+    undoLastFill();
+    out.afterUndo = document.querySelector('[name=g1]').checked;
+    return out;
+  });
+  check('checkbox: labels read from the text after each box', cb.labels[0] === 'Glasses' && cb.labels[1] === 'Contacts', JSON.stringify(cb.labels));
+  check('checkbox: "with glasses" ticks the Glasses box only, and undo unticks it',
+        cb.g1 && !cb.g2 && cb.status === 'filled' && cb.afterUndo === false, JSON.stringify(cb));
 
   // 1b. "20/50-2" splits between the VA box and its modifier box; a value with no modifier leaves that box alone
   const split = await page.evaluate(async () => {

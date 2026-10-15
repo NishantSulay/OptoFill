@@ -130,7 +130,10 @@ function getTextAnchors() {
     const r = range.getBoundingClientRect();
     if (!r.width || !r.height) continue;
     if (getComputedStyle(p).visibility === 'hidden') continue;
-    anchors.push({ text, r, node: p });
+    // A checkbox/radio's own label ("☐ Glasses") names that box, not a section of the form
+    const option = !!(p.previousElementSibling?.matches?.('input[type=checkbox],input[type=radio]') ||
+                      p.closest('label')?.querySelector('input[type=checkbox],input[type=radio]'));
+    anchors.push({ text, r, node: p, option });
   }
   return anchors;
 }
@@ -191,8 +194,8 @@ function getLayoutContext(el, anchors) {
                                           .map(a => a.text) : []);
   // Nearby headings above, nearest first (e.g. "Near Vision", "BV Vergences")
   const above = anchors
-    .filter(a => a.r.bottom <= f.top + 2 && f.top - a.r.bottom < 300 &&
-                 a.r.right >= f.left - 250 && a.r.left <= f.right + 50 && !skip.has(a.text) && !siblingRows.has(a.text))
+    .filter(a => a.r.bottom <= f.top + 2 && f.top - a.r.bottom < 300 && !a.option &&
+                 a.r.right >= f.left - 400 && a.r.left <= f.right + 50 && !skip.has(a.text) && !siblingRows.has(a.text))
     // Nearest first: distance above, plus half the sideways gap (a heading right over the box beats one off to the side)
     .sort((a, b) => headingDist(a) - headingDist(b))
     .filter((a, i, arr) => arr.findIndex(x => x.text === a.text) === i)   // de-duplicate before taking the nearest 4
@@ -205,7 +208,12 @@ function getLayoutContext(el, anchors) {
     .filter((t, i, arr) => !skip.has(t) && arr.indexOf(t) === i)
     .join(' / ');
 
-  return { row: row?.text || '', col: col?.text || '', context };
+  // Text straight after the box on the same line: a checkbox's own label ("☐ Glasses ☐ Contacts")
+  const after = anchors
+    .filter(a => a.r.left >= f.right - 2 && a.r.left - f.right < 60 && Math.abs(cy(a) - (f.top + f.bottom) / 2) < Math.max(6, f.height))
+    .sort((a, b) => a.r.left - b.r.left)[0];
+
+  return { row: row?.text || '', col: col?.text || '', context, after: after?.text || '' };
 }
 
 function isVisibleField(el) {
@@ -246,8 +254,12 @@ function getAllFields(withLayout) {
     if (!label) { const p=el.closest('label'); if(p) label=p.innerText.replace(el.value||'','').trim(); }
     if (!label&&el.getAttribute('aria-labelledby')) { const r=document.getElementById(el.getAttribute('aria-labelledby')); if(r) label=r.innerText.trim(); }
     if (!label) { const prev=el.previousElementSibling; if(prev&&['LABEL','SPAN','P','DIV','TH','LEGEND'].includes(prev.tagName)&&!prev.querySelector('input,select,textarea')) label=prev.innerText.trim(); }
+    const layout = anchors ? getLayoutContext(el, anchors) : {};
     if (type==='radio'||type==='checkbox') {
-      const optionLabel = id ? document.querySelector(`label[for="${CSS.escape(id)}"]`)?.innerText?.trim() : '';
+      // No label[for]: the text right after the box is its own label ("☐ Glasses"); the element before it is
+      // often the previous option's label, so it must not name this one
+      const optionLabel = (id ? document.querySelector(`label[for="${CSS.escape(id)}"]`)?.innerText?.trim() : '') ||
+                          el.closest('label')?.innerText?.trim() || layout.after || '';
       const question = getRadioQuestionText(el);
       const val = el.value && !['on','off','true','false','1','0'].includes(el.value.toLowerCase()) ? el.value : '';
       const option = optionLabel || val;
@@ -257,7 +269,6 @@ function getAllFields(withLayout) {
     }
     if (!label) label=placeholder||name||id||`field_${rawIndex}`;
     const options=el.tagName==='SELECT'?Array.from(el.options).map(o=>({value:o.value,text:o.text.trim()})):[];
-    const layout = anchors ? getLayoutContext(el, anchors) : {};
     fields.push({ index:fields.length, label:label.substring(0,80), name:name.substring(0,40), id:id.substring(0,40), type, placeholder:placeholder.substring(0,60), options, selector:buildSelector(el), ...layout });
     els.push(el);
   });

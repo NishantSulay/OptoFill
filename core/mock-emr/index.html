@@ -18,7 +18,7 @@
   .card { border: 1px solid #d1d5db; border-radius: 6px; padding: 10px; }
   .h { color: #2563eb; margin-bottom: 8px; }
   .lbl { background: #555; color: #fff; padding: 3px 6px; display: inline-block; min-width: 54px; text-align: center; }
-  .grid { display: grid; gap: 5px; align-items: center; }
+  .grid { display: grid; gap: 5px; align-items: center; justify-content: start; }   /* label columns stay snug, as in real EMRs */
   input[type=text], textarea, select { border: 1px solid #9ca3af; border-radius: 3px; padding: 4px; font: inherit; }
   .grid input[type=text], .grid select, .grid textarea { width: 100%; min-width: 0; box-sizing: border-box; }
   .grid input.sm { width: 38px; }
@@ -41,7 +41,8 @@
       <div class="h">Visual Acuity</div>
       <div style="display:flex;gap:40px">
         <div>
-          <div class="h">Distance Vision</div><b>Uncorrected</b>
+          <!-- Checkbox labels are plain text after each box (no <label>), as in some EMRs -->
+          <div class="h">Distance Vision <input type="checkbox" name="g1"><span>Glasses</span> <input type="checkbox" name="g2"><span>Contacts</span></div><b>Uncorrected</b>
           <div class="grid" style="grid-template-columns:auto 44px 44px">
             <span class="lbl">OD:20/</span><input type="text" class="sm" name="v1"><input type="text" class="sm" name="v2">
             <span class="lbl">OS:20/</span><input type="text" class="sm" name="v3"><input type="text" class="sm" name="v4">
@@ -59,7 +60,7 @@
       </div>
       <div style="display:flex;gap:40px;margin-top:14px">
         <div>
-          <div class="h">Near Vision</div><b>Uncorrected</b>
+          <div class="h">Near Vision <input type="checkbox" name="g3"><span>Glasses</span> <input type="checkbox" name="g4"><span>Contacts</span></div><b>Uncorrected</b>
           <div class="grid" style="grid-template-columns:auto 44px 44px">
             <span class="lbl">OD:20/</span><input type="text" class="sm" name="v13"><input type="text" class="sm" name="v14">
             <span class="lbl">OS:20/</span><input type="text" class="sm" name="v15"><input type="text" class="sm" name="v16">

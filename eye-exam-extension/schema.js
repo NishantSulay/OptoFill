@@ -26,6 +26,12 @@
     }
   }
 
+  // How VA was measured: Glasses / Contacts checkboxes next to the Distance / Near Vision headings
+  for (const [d, dl] of [['dist', 'distance'], ['near', 'near']]) {
+    add(`va_${d}_glasses`, `Visual acuity ${dl} measured with glasses (checkbox)`, { must: [W[d], ['glasses', 'spectacles', 'specs', 'spec']], not: ['contacts', 'contact'] }, 'Visual acuity');
+    add(`va_${d}_contacts`, `Visual acuity ${dl} measured with contact lenses (checkbox)`, { must: [W[d], ['contacts', 'contact', 'cl', 'cls']] }, 'Visual acuity');
+  }
+
   // Manifest refraction
   const RX = [['sph', 'sphere', ['sphere', 'sph']], ['cyl', 'cylinder', ['cylinder', 'cyl']], ['axis', 'axis', ['axis', 'ax']],
               ['add', 'add power', ['add']], ['prism', 'prism', ['prism']], ['va', 'best corrected VA', ['va', 'bcva', 'acuity']]];

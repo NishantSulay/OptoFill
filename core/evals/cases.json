@@ -322,6 +322,9 @@
       "va_dist_cc_os": {
         "equals": "20/40"
       },
+      "va_dist_glasses": {
+        "equals": "true"
+      },
       "bv_amplitude_od": {
         "equals": "6 cm"
       },
@@ -559,5 +562,35 @@
     "allowExtra": [
       "notes_general"
     ]
+  },
+  {
+    "id": "glasses-and-contacts",
+    "dictation": "Distance vision with glasses 20/20 right, 20/25 left. Near vision with contacts 20/20 right and 20/30 left.",
+    "expect": {
+      "va_dist_glasses": {
+        "equals": "true"
+      },
+      "va_near_contacts": {
+        "equals": "true"
+      },
+      "va_dist_cc_od": {
+        "equals": "20/20"
+      },
+      "va_dist_cc_os": {
+        "equals": "20/25"
+      },
+      "va_near_cc_od": {
+        "equals": "20/20"
+      },
+      "va_near_cc_os": {
+        "equals": "20/30"
+      },
+      "va_dist_contacts": {
+        "absent": true
+      },
+      "va_near_glasses": {
+        "absent": true
+      }
+    }
   }
 ]
