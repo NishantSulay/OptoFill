@@ -592,5 +592,33 @@
         "absent": true
       }
     }
+  },
+  {
+    "id": "custom-fields",
+    "customFields": [
+      { "key": "custom_habitual_rx", "label": "Habitual Rx", "type": "text" },
+      { "key": "custom_dilated", "label": "Dilated", "type": "checkbox" }
+    ],
+    "dictation": "Habitual Rx right minus 1.00, left minus 1.25. Dilated with one percent tropicamide. Pressures 15 right, 16 left.",
+    "expect": {
+      "custom_habitual_rx": {
+        "contains": "1.25"
+      },
+      "custom_dilated": {
+        "equals": "true"
+      },
+      "iop_od": {
+        "equals": "15"
+      },
+      "iop_os": {
+        "equals": "16"
+      },
+      "rx_sph_od": {
+        "absent": true
+      }
+    },
+    "allowExtra": [
+      "notes_general"
+    ]
   }
 ]

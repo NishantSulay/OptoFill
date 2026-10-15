@@ -45,7 +45,9 @@ Do not generate realistic patient names, dates of birth, SSNs, or any PHI.
 
 ### AI fills the schema, not EMR fields directly
 The AI returns values for schema keys only. Which box a key goes into is decided by the
-saved per-EMR mapping, never by the AI. Do not have the AI emit DOM selectors, CSS classes, or HTML,
+saved per-EMR mapping, never by the AI. Custom fields (a box the doctor labels in setup, e.g. "Habitual Rx",
+stored as a `custom_*` key in that EMR's mapping) are added to the keys for that EMR — the AI sees only their
+names, never the page. Do not have the AI emit DOM selectors, CSS classes, or HTML,
 and do not send screenshots or page content to the AI in the schema path.
 
 ### API key

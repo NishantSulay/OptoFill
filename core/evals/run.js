@@ -20,7 +20,7 @@ async function runCase(apiKey, model, c) {
   const meta = {};
   const t0 = Date.now();
   let got = {}, error;
-  try { got = await extractFindings({ apiKey, dictation: c.dictation, model, meta }); }
+  try { got = await extractFindings({ apiKey, dictation: c.dictation, customFields: c.customFields || [], model, meta }); }
   catch (e) { error = e.message; }
   const ms = Date.now() - t0;
   return { id: c.id, got, error, ms, usage: meta.usage || {}, ...scoreCase(c, got) };

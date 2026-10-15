@@ -156,8 +156,32 @@ const val = (page, name) => page.$eval(`[name="${name}"]`, el => el.value);
   await page.waitForTimeout(200);
   const modPick = await page.evaluate(() => setup.root.querySelector('.opt')?.textContent);
   check('setup: the box after a VA box suggests its modifier first', /VA distance uncorrected.*OS.*modifier|Visual acuity distance uncorrected.*OS.*modifier/i.test(modPick || ''), modPick);
-  await page.screenshot({ path: path.join(OUT, 'setup-mode.png') });
+  // Your own label: an unmapped box (the top note box) is named by typing in the picker, then fills like any field
   await page.keyboard.press('Escape');
+  await page.click('[name=n1]');
+  await page.waitForTimeout(200);
+  await page.fill('.ph input', 'Visit reason');
+  await page.click('text=Use “Visit reason” as this box');
+  await page.waitForTimeout(200);
+  const custom = await page.evaluate(async () => {
+    const map = await loadMap();
+    const fields = customFieldsOf(map);
+    const tag = [...setup.root.querySelectorAll('.layer *')].some(n => n.textContent === 'Visit reason');
+    return { fields, tag };
+  });
+  check('your own label: typing a name in the picker labels the box and shows it in setup',
+        custom.fields.length === 1 && custom.fields[0].label === 'Visit reason' && custom.fields[0].key === 'custom_visit_reason' && custom.tag, JSON.stringify(custom));
+  await page.screenshot({ path: path.join(OUT, 'setup-mode.png') });
+  // A field with your own label fills from the dictation's values like a built-in one
+  const customFill = await page.evaluate(async () => {
+    const r = await fillSchema({ custom_visit_reason: 'routine follow-up' });
+    const out = { v: document.querySelector('[name=n1]').value, label: r[0].label, status: r[0].status };
+    undoLastFill();
+    return out;
+  });
+  check('your own label: fills its box, labelled with your name for it',
+        customFill.v === 'routine follow-up' && customFill.label === 'Visit reason' && customFill.status === 'filled', JSON.stringify(customFill));
+
   page.once('dialog', d => d.accept());
   await page.click('.reset');
   await page.waitForTimeout(200);

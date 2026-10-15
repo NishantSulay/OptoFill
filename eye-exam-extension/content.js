@@ -434,6 +434,16 @@ async function saveMap(map) {
   await chrome.storage.local.set({ [MAPS_KEY]: all });
 }
 
+// A key's display label: built-in fields from the schema, the doctor's own labels from the EMR's setup
+function keyLabel(key, map) {
+  return SCHEMA_BY_KEY[key]?.label || map?.[key]?.customLabel || key;
+}
+
+// The doctor's own fields on this EMR (boxes they labelled in setup), for the AI to fill like schema keys
+function customFieldsOf(map) {
+  return Object.entries(map).filter(([, e]) => e.custom).map(([key, e]) => ({ key, label: e.customLabel, type: e.type || 'text' }));
+}
+
 function mappingEntry(el, f) {
   return {
     selector: f.selector, name: f.name, id: f.id, label: f.label, row: f.row || '', col: f.col || '', context: f.context || '',
@@ -482,7 +492,7 @@ async function fillSchema(input, { mergeIntoLast = false } = {}) {
   const fields = getAllFields(true);
   const items = [], out = [], usedEls = new Set();
   for (const [key, value] of Object.entries(values)) {
-    const label = SCHEMA_BY_KEY[key]?.label || key;
+    const label = keyLabel(key, map);
     const entry = map[key];
     if (!entry) { out.push({ key, label, value, status: 'unmapped', reason: 'Not set up on this EMR yet' }); continue; }
     const el = locateMapped(entry, fields);
@@ -769,7 +779,7 @@ function renderSetup(message) {
     if (key) {
       const tag = document.createElement('div');
       tag.className = 'tag';
-      tag.textContent = (SCHEMA_BY_KEY[key]?.label || key).replace(/\s*\([^)]*\)/g, '').replace(/^Visual acuity /, 'VA ');
+      tag.textContent = keyLabel(key, setup.map).replace(/\s*\([^)]*\)/g, '').replace(/^Visual acuity /, 'VA ');
       box.appendChild(tag);
     } else unmapped++;
     layer.appendChild(box);
@@ -784,7 +794,7 @@ function openPicker(el, f) {
   const p = setup.root.querySelector('.picker');
   const where = [f.row, f.col].filter(Boolean).join(' · ') || f.label;
   const key = keyForEl(el);
-  p.querySelector('.where').textContent = key ? `${where} — currently: ${SCHEMA_BY_KEY[key]?.label}` : `What is this box? (${where})`;
+  p.querySelector('.where').textContent = key ? `${where} — currently: ${keyLabel(key, setup.map)}` : `What is this box? (${where}) — pick a field, or type your own label`;
   p.querySelector('.unmap').style.display = key ? '' : 'none';
   const input = p.querySelector('input');
   input.value = '';
@@ -822,18 +832,43 @@ function renderPickerList() {
       list.appendChild(b);
     }
   };
+  // Typed text that isn't one of OptoFill's fields becomes the box's own label
+  const typed = setup.root.querySelector('.ph input').value.trim();
+  if (typed) {
+    const h = document.createElement('div'); h.className = 'sec'; h.textContent = 'Your own label'; list.appendChild(h);
+    const b = document.createElement('button');
+    b.className = 'opt suggested';
+    b.textContent = `➕ Use “${typed}” as this box's label`;
+    b.addEventListener('click', () => assignCustom(typed));
+    list.appendChild(b);
+  }
+  const mine = customFieldsOf(setup.map).map(c => ({ key: c.key, label: `${c.label} (your label)` })).filter(match);
   const suggested = setup.suggested.map(k => SCHEMA_BY_KEY[k]).filter(match);
   addSection('Suggested', suggested, 'suggested');
+  addSection('Your labels on this EMR', mine);
   const groups = {};
   for (const s of ALL_KEYS) if (match(s) && !suggested.includes(s)) (groups[s.group || 'Other'] ||= []).push(s);
   for (const [g, items] of Object.entries(groups)) addSection(g, items);
 }
 
-async function assignKey(key) {
+// Labels the box with the doctor's own name for it (e.g. "Habitual Rx"): a custom field on this EMR that the AI
+// fills from the dictation like any other field
+async function assignCustom(text) {
+  const label = text.replace(/\s+/g, ' ').trim().slice(0, 60);
+  const base = 'custom_' + (label.toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, '').slice(0, 40) || 'field');
+  const existing = Object.keys(setup.map).find(k => setup.map[k].custom && setup.map[k].customLabel.toLowerCase() === label.toLowerCase());
+  let key = existing || base;
+  for (let i = 2; !existing && setup.map[key]; i++) key = `${base}_${i}`;
+  await assignKey(key, { custom: true, customLabel: label, type: setup.current.f.type });
+}
+
+async function assignKey(key, extra) {
   const { el, f } = setup.current;
   const prev = keyForEl(el);
   if (prev) delete setup.map[prev];
-  setup.map[key] = mappingEntry(el, f);
+  // Moving the doctor's own label to another box keeps its name
+  const keep = setup.map[key]?.custom ? { custom: true, customLabel: setup.map[key].customLabel, type: f.type } : null;
+  setup.map[key] = { ...mappingEntry(el, f), ...(extra || keep || {}) };
   await saveMap(setup.map);
   closePicker();
   setup.message = '';
@@ -865,7 +900,7 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
     case 'fillSchema':     reply(fillSchema(msg.values).then(results => ({ results }))); return true;
     case 'refillPending':  reply(fillPending().then(results => ({ results }))); return true;
     case 'undoFill':       sendResponse({ restored: undoLastFill(), undoDepth: undoStack.length }); return true;
-    case 'getStatus':      reply(loadMap().then(map => ({ mappedCount: Object.keys(map).length, undoDepth: undoStack.length, origin: location.origin, lastFill }))); return true;
+    case 'getStatus':      reply(loadMap().then(map => ({ mappedCount: Object.keys(map).length, undoDepth: undoStack.length, origin: location.origin, lastFill, customFields: customFieldsOf(map) }))); return true;
     case 'forgetLastFill': lastFill = null; sendResponse({ ok: true }); return true;
     case 'startSetup':     startSetup(); sendResponse({ ok: true }); return true;
     case 'highlightField': {

@@ -211,6 +211,7 @@ const emrSetup     = document.getElementById('emr-setup');
 const emrSetupText = document.getElementById('emr-setup-text');
 const undoBtn      = document.getElementById('undo-btn');
 let mappedCount = 0;
+let customFields = [];   // boxes the doctor labelled themselves on this EMR, sent with the dictation
 
 async function refreshPageStatus() {
   const tab = await getExamTab();
@@ -218,6 +219,7 @@ async function refreshPageStatus() {
   try {
     const s = await sendToPage(tab.id, { action: 'getStatus' });
     mappedCount = s?.mappedCount || 0;
+    customFields = s?.customFields || [];
     emrSetup.classList.toggle('warn', mappedCount === 0);
     emrSetupText.textContent = mappedCount
       ? `${mappedCount} exam fields set up for this EMR.`
@@ -281,7 +283,7 @@ fillBtn.addEventListener('click', async () => {
   if (mappedCount > 0) {
     setStatus('processing', 'Reading your dictation…');
     fillBtnContent.innerHTML = '<span class="spinner"></span> Reading…';
-    port.postMessage({ action: 'extract', apiKey, transcript: transcript.trim(), customInstructions: ci });
+    port.postMessage({ action: 'extract', apiKey, transcript: transcript.trim(), customInstructions: ci, customFields });
     return;
   }
 

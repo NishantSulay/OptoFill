@@ -36,7 +36,7 @@ chrome.runtime.onConnect.addListener((port) => {
       try {
         const meta = {};
         const values = await OptoFillExtract.extractFindings({
-          apiKey: msg.apiKey, dictation: msg.transcript, customInstructions: msg.customInstructions, browser: true, meta
+          apiKey: msg.apiKey, dictation: msg.transcript, customInstructions: msg.customInstructions, customFields: msg.customFields || [], browser: true, meta
         });
         toPopup({ action:'extractResult', ok:true, values, redacted: meta.redacted || 0 });
       } catch(err) {

@@ -10,14 +10,15 @@
   // newer models reject forced tool_choice and use structured outputs.
   const usesTool = model => /^claude-(sonnet|opus)-4-6$/.test(model);
 
-  const FINDINGS_SCHEMA = {
+  // customFields: [{ key, label, type }] — boxes the doctor labelled themselves in this EMR's setup
+  const findingsSchema = (customFields = []) => ({
     type: 'object',
     properties: {
       findings: {
         type: 'array',
         items: {
           type: 'object',
-          properties: { key: { type: 'string', enum: KEYS }, value: { type: 'string' } },
+          properties: { key: { type: 'string', enum: [...KEYS, ...customFields.map(c => c.key)] }, value: { type: 'string' } },
           required: ['key', 'value'],
           additionalProperties: false
         }
@@ -25,10 +26,11 @@
     },
     required: ['findings'],
     additionalProperties: false
-  };
+  });
 
-  function buildSystemPrompt(customInstructions, model = MODEL) {
+  function buildSystemPrompt(customInstructions, model = MODEL, customFields = []) {
     const fieldList = SCHEMA.map(f => `${f.key}: ${f.label}`).join('\n');
+    const customList = customFields.map(c => `${c.key}: ${c.label}${c.type === 'checkbox' ? ' (checkbox: "true" only when dictated)' : ''}`).join('\n');
     return `You extract eye exam findings from an optometrist's dictation into a fixed clinical schema.
 
 ${usesTool(model) ? `Call the ${TOOL} tool exactly once with every finding that was dictated.` : 'Return every finding that was dictated as a list of {key, value} entries.'}
@@ -46,13 +48,17 @@ RULES:
 - Text like [name], [date] or [id] marks a patient identifier that was removed. Never record it in any key.
 ${customInstructions ? `\nDOCTOR INSTRUCTIONS:\n${customInstructions}\n` : ''}
 SCHEMA KEYS:
-${fieldList}`;
+${fieldList}${customList ? `
+
+CUSTOM FIELDS ON THIS EMR (named by the doctor; record one only when the dictation clearly refers to that name):
+${customList}` : ''}`;
   }
 
-  function buildRequest(dictation, customInstructions, model = MODEL) {
+  function buildRequest(dictation, customInstructions, model = MODEL, customFields = []) {
+    const FINDINGS_SCHEMA = findingsSchema(customFields);
     const base = {
       model,
-      system: buildSystemPrompt(customInstructions, model),
+      system: buildSystemPrompt(customInstructions, model, customFields),
       messages: [{ role: 'user', content: `DICTATION:\n${redact(dictation).text}` }]
     };
     if (usesTool(model)) {
@@ -76,7 +82,8 @@ ${fieldList}`;
   }
 
   // Returns { key: value } using only known schema keys.
-  function parseResponse(body) {
+  function parseResponse(body, customFields = []) {
+    const keys = new Set([...KEYS, ...customFields.map(c => c.key)]);
     if (body.stop_reason === 'refusal') throw new Error('Claude declined this request' + (body.stop_details?.category ? ` (${body.stop_details.category})` : ''));
     if (body.stop_reason === 'max_tokens') throw new Error('Dictation too long — response was cut off');
     const content = body.content || [];
@@ -89,17 +96,17 @@ ${fieldList}`;
     } else throw new Error('Claude did not return findings');
     const out = {};
     for (const f of input?.findings || []) {
-      if (KEYS.includes(f.key) && f.value != null && String(f.value).trim()) out[f.key] = String(f.value).trim();
+      if (keys.has(f.key) && f.value != null && String(f.value).trim()) out[f.key] = String(f.value).trim();
     }
     return out;
   }
 
   // meta (optional) receives the response's usage, for cost reporting in the eval.
-  async function extractFindings({ apiKey, dictation, customInstructions, model = MODEL, fetchImpl = fetch, browser = false, meta }) {
+  async function extractFindings({ apiKey, dictation, customInstructions, customFields = [], model = MODEL, fetchImpl = fetch, browser = false, meta }) {
     const headers = { 'Content-Type': 'application/json', 'x-api-key': apiKey, 'anthropic-version': '2023-06-01' };
     if (browser) headers['anthropic-dangerous-direct-browser-access'] = 'true';
     const res = await fetchImpl('https://api.anthropic.com/v1/messages', {
-      method: 'POST', headers, body: JSON.stringify(buildRequest(dictation, customInstructions, model))
+      method: 'POST', headers, body: JSON.stringify(buildRequest(dictation, customInstructions, model, customFields))
     });
     const text = await res.text();
     if (!res.ok) {
@@ -109,7 +116,7 @@ ${fieldList}`;
     }
     const body = JSON.parse(text);
     if (meta) { meta.usage = body.usage; meta.redacted = redact(dictation).removed.length; }
-    return parseResponse(body);
+    return parseResponse(body, customFields);
   }
 
   const api = { SCHEMA, KEYS, MODEL, buildRequest, buildSystemPrompt, parseResponse, extractFindings };
