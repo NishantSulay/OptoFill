@@ -71,6 +71,42 @@ const val = (page, name) => page.$eval(`[name="${name}"]`, el => el.value);
   const cover_vertical = Object.entries(mapped).filter(([, n]) => ['c9', 'c10', 'c11', 'c12'].includes(n));
   check('auto-map: Vertical Dx row is not mistaken for distance cover test', !cover_vertical.length, JSON.stringify(cover_vertical));
 
+  // 0. Dictation: Clear throws the session away, so words Chrome delivers after stopping don't come back
+  const dictation = await page.evaluate(async () => {
+    const wait = ms => new Promise(r => setTimeout(r, ms));
+    // Stand-in for Chrome's speech recognition: after stop() it still delivers the last words it heard
+    window.SpeechRecognition = window.webkitSpeechRecognition = class {
+      start() { setTimeout(() => this.onstart && this.onstart(), 0); }
+      stop() { setTimeout(() => { this.onresult && this.onresult(said('late words.')); this.onend && this.onend(); }, 20); }
+      abort() { setTimeout(() => this.onend && this.onend(), 20); }
+    };
+    const said = t => ({ resultIndex: 0, results: [Object.assign([{ transcript: t }], { isFinal: true })] });
+    const last = () => (window.__sent || []).filter(m => m.action === 'transcriptUpdate').pop()?.finalTranscript;
+
+    // Normal stop keeps the last words
+    startRecording(''); await wait(10);
+    recognition.onresult(said('IOP 16.'));
+    stopRecording(); await wait(60);
+    const afterStop = last();
+
+    // Your report: dictate, stop, Clear, record again
+    startRecording(''); await wait(10);
+    recognition.onresult(said('Old dictation.'));
+    stopRecording();
+    discardRecognition(); finalTranscript = '';          // what the Clear button does on the page
+    await wait(60);
+    const sentAfterClear = last();
+    startRecording(''); await wait(10);
+    recognition.onresult(said('VA 20/20.'));
+    await wait(10);
+    const nextRecording = last();
+    discardRecognition();
+    return { afterStop, sentAfterClear, nextRecording };
+  });
+  check('dictation: stopping keeps the last words Chrome delivers', dictation.afterStop === 'IOP 16. late words. ', JSON.stringify(dictation));
+  check('dictation: after Clear, late words are dropped and the next recording starts empty',
+        dictation.sentAfterClear === 'Old dictation. ' && dictation.nextRecording === 'VA 20/20. ', JSON.stringify(dictation));
+
   // 1c. Ocular Health tab (fresh setup): tall grids with OD/OS only at the top, A/C and BVs, a dilation select next
   // to a consent checkbox, test checkboxes labelled by the text after them
   await page.click('[data-tab=health]');

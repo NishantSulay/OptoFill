@@ -1,10 +1,11 @@
 // content.js — field scanning, filling, and speech recognition
 
-let recognition = null;
-let isRecording = false;
+let recognition = null;   // the current dictation session; events from older (stopped or cleared) ones are ignored
+let isRecording = false;   // the current session should keep listening (Chrome ends sessions on silence)
 let finalTranscript = '';
 
 function startRecording(existingTranscript) {
+  discardRecognition();
   finalTranscript = existingTranscript || '';
 
   const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -13,18 +14,22 @@ function startRecording(existingTranscript) {
     return;
   }
 
-  recognition = new SR();
-  recognition.continuous = true;
-  recognition.interimResults = true;
-  recognition.lang = 'en-US';
+  const rec = new SR();
+  recognition = rec;
+  const current = () => recognition === rec;
+  rec.continuous = true;
+  rec.interimResults = true;
+  rec.lang = 'en-US';
 
-  recognition.onstart = () => {
+  rec.onstart = () => {
+    if (!current()) return;
     // Recognition actually started — mic is live
     isRecording = true;
     chrome.runtime.sendMessage({ action: 'micStarted' });
   };
 
-  recognition.onresult = (event) => {
+  rec.onresult = (event) => {
+    if (!current()) return;
     let interim = '';
     for (let i = event.resultIndex; i < event.results.length; i++) {
       const t = event.results[i][0].transcript;
@@ -34,7 +39,8 @@ function startRecording(existingTranscript) {
     chrome.runtime.sendMessage({ action: 'transcriptUpdate', finalTranscript, interimTranscript: interim });
   };
 
-  recognition.onerror = (e) => {
+  rec.onerror = (e) => {
+    if (!current()) return;
     if (e.error === 'not-allowed') {
       isRecording = false;
       // Watch for permission to be granted, then auto-restart
@@ -58,21 +64,31 @@ function startRecording(existingTranscript) {
     }
   };
 
-  recognition.onend = () => {
-    if (isRecording) { try { recognition.start(); } catch(e) {} }
-    else chrome.runtime.sendMessage({ action: 'micStopped' });
+  rec.onend = () => {
+    if (!current()) return;
+    if (isRecording) { try { rec.start(); } catch(e) {} }
+    else { recognition = null; chrome.runtime.sendMessage({ action: 'micStopped' }); }
   };
 
   // Start directly - if mic permission needed Chrome will fire onerror('not-allowed')
   // If granted, onstart fires confirming recording is live
-  try { recognition.start(); } catch(e) {
+  try { rec.start(); } catch(e) {
     chrome.runtime.sendMessage({ action: 'micError', error: e.message });
   }
 }
 
+// Stop listening; Chrome still delivers the last words it heard, which belong to this dictation
 function stopRecording() {
   isRecording = false;
-  if (recognition) { recognition.stop(); recognition = null; }
+  if (recognition) recognition.stop();
+}
+
+// Throw the current session away (Clear, or a new recording): words still in flight must not come back later
+function discardRecognition() {
+  isRecording = false;
+  const rec = recognition;
+  recognition = null;
+  if (rec) { rec.onstart = rec.onresult = rec.onerror = rec.onend = null; try { rec.abort(); } catch(e) {} }
 }
 
 // Find question text for a radio/checkbox by searching wider DOM context
@@ -920,7 +936,7 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
       return true;
     case 'startRecording': startRecording(msg.existingTranscript); sendResponse({ ok: true }); return true;
     case 'stopRecording':  stopRecording(); sendResponse({ ok: true }); return true;
-    case 'clearRecording': stopRecording(); finalTranscript = ''; sendResponse({ ok: true }); return true;
+    case 'clearRecording': discardRecognition(); finalTranscript = ''; sendResponse({ ok: true }); return true;
     case 'requestMicPermission':
       navigator.mediaDevices.getUserMedia({ audio: true })
         .then(stream => { stream.getTracks().forEach(t => t.stop()); })

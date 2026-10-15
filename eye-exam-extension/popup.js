@@ -160,6 +160,7 @@ function updateFillBtn() { fillBtn.disabled = !transcript.trim(); }
 clearBtn.addEventListener('click', () => {
   if (isListening) { port.postMessage({ action: 'stopRecording' }); setListeningState(false); }
   port.postMessage({ action: 'clearRecording' });
+  chrome.storage.session.remove(['transcript', 'isRecording']);
   transcript = '';
   transcriptEl.value = '';
   transcriptEl.classList.add('empty');
