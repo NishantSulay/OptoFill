@@ -28,8 +28,8 @@
 
   // How VA was measured: Glasses / Contacts checkboxes next to the Distance / Near Vision headings
   for (const [d, dl] of [['dist', 'distance'], ['near', 'near']]) {
-    add(`va_${d}_glasses`, `Visual acuity ${dl} measured with glasses (checkbox)`, { must: [W[d], ['glasses', 'spectacles', 'specs', 'spec']], not: ['contacts', 'contact'] }, 'Visual acuity');
-    add(`va_${d}_contacts`, `Visual acuity ${dl} measured with contact lenses (checkbox)`, { must: [W[d], ['contacts', 'contact', 'cl', 'cls']] }, 'Visual acuity');
+    add(`va_${d}_glasses`, `Visual acuity ${dl} measured with glasses (checkbox)`, { must: [W[d], ['glasses', 'spectacles', 'specs', 'spec']], not: ['contacts', 'contact'], kind: 'checkbox' }, 'Visual acuity');
+    add(`va_${d}_contacts`, `Visual acuity ${dl} measured with contact lenses (checkbox)`, { must: [W[d], ['contacts', 'contact', 'cl', 'cls']], kind: 'checkbox' }, 'Visual acuity');
   }
 
   // Manifest refraction
@@ -43,6 +43,7 @@
   perEye(['od', 'os'], (e, el) => add(`iop_${e}`, `IOP (mmHg) ${el}`, { must: [['iop', 'pressure', 'tonometry', 'nct', 'gat']], eye: e }, 'IOP'));
   add('iop_method', 'IOP method (NCT, Goldmann, iCare…)', { must: [['iop', 'pressure', 'tonometry'], ['method', 'type']] }, 'IOP');
   add('iop_time', 'IOP time measured', { must: [['iop', 'pressure', 'tonometry'], ['time']] }, 'IOP');
+  perEye(['od', 'os'], (e, el) => add(`pach_${e}`, `Pachymetry / central corneal thickness (µm) ${el}`, { must: [['pach', 'pachymetry', 'cct', 'thickness']], eye: e }, 'IOP'));
 
   // Pupils
   for (const [k, words] of [['light', ['light']], ['dark', ['dark']], ['direct', ['direct']], ['consensual', ['consensual']], ['apd', ['apd', 'rapd', 'mg']]])
@@ -78,13 +79,22 @@
 
   // Anterior segment (slit lamp)
   for (const [k, l, words] of [['lids', 'lids/lashes', ['lids', 'lid', 'lashes', 'adnexa']], ['conj', 'conjunctiva', ['conj', 'conjunctiva']], ['cornea', 'cornea', ['cornea']],
-                               ['ac', 'anterior chamber', ['ac', 'anterior chamber']], ['iris', 'iris', ['iris']], ['lens', 'lens', ['lens']]])
+                               ['ac', 'anterior chamber', ['ac', 'a/c', 'anterior chamber']], ['iris', 'iris', ['iris']], ['lens', 'lens', ['lens']]])
     perEye(['od', 'os'], (e, el) => add(`sle_${k}_${e}`, `Slit lamp ${l} ${el}`, { must: [words], eye: e }, 'Anterior segment'));
+  add('sle_notes', 'Slit lamp / anterior segment notes', { must: [['biomicroscopy', 'slit lamp', 'sle', 'anterior segment', 'anterior'], ['note', 'notes', 'comments']] }, 'Anterior segment');
 
   // Posterior segment (fundus)
   for (const [k, l, words] of [['cd', 'C/D ratio', ['c/d', 'cd', 'cup']], ['nerve', 'optic nerve', ['nerve', 'disc', 'onh']], ['macula', 'macula', ['macula']],
-                               ['vessels', 'vessels', ['vessels', 'vasculature', 'a/v']], ['periphery', 'periphery', ['periphery', 'peripheral']], ['vitreous', 'vitreous', ['vitreous']]])
+                               ['vessels', 'vessels', ['vessels', 'vasculature', 'a/v', 'bvs', 'blood vessels']], ['periphery', 'periphery', ['periphery', 'peripheral']], ['vitreous', 'vitreous', ['vitreous']]])
     perEye(['od', 'os'], (e, el) => add(`fundus_${k}_${e}`, `Fundus ${l} ${el}`, { must: [words], eye: e }, 'Posterior segment'));
+  add('fundus_notes', 'Fundus / posterior segment notes', { must: [['fundus', 'posterior', 'dfe', 'retina'], ['note', 'notes', 'comments']] }, 'Posterior segment');
+  add('dilation_agent', 'Dilation drops used (e.g. tropicamide 1%)', { must: [['dilation', 'dilated', 'dilate', 'dilating', 'mydriatic', 'mydriasis']], not: ['consent', 'post', 'after'] }, 'Posterior segment');
+  add('dilation_consent', 'Informed consent for dilation obtained (checkbox)', { must: [['consent'], ['dilation', 'dilated', 'dilate', 'dilating']], kind: 'checkbox' }, 'Posterior segment');
+
+  // Tests done
+  add('tests_photos', 'Fundus / retinal photos taken (checkbox)', { must: [['photos', 'photo', 'photography', 'photographs'], ['taken', 'done']], kind: 'checkbox' }, 'Tests done');
+  add('tests_oct', 'OCT done (checkbox)', { must: [['oct']], kind: 'checkbox' }, 'Tests done');
+  add('tests_vf', 'Visual field test done (checkbox)', { must: [['vf', 'vfs', 'visual field', 'visual fields', 'perimetry']], kind: 'checkbox' }, 'Tests done');
 
   // Assessment / plan
   add('assessment', 'Assessment / diagnosis', { must: [['assessment', 'diagnosis', 'impression']] }, 'Assessment & plan');

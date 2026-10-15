@@ -170,10 +170,12 @@ function getLayoutContext(el, anchors) {
     if (!row || a.r.right > row.r.right) row = a;
   }
 
-  // Column header: nearest text directly above, horizontally within the field
+  // Column header: nearest text directly above, horizontally within the field. Within a panel, look further up:
+  // tall grids (slit lamp, fundus) have their OD/OS headers only at the top
+  const colReach = panel ? 600 : 250;
   let col = null;
   for (const a of anchors) {
-    if (a.r.bottom > f.top + 2 || f.top - a.r.bottom > 250) continue;
+    if (a.r.bottom > f.top + 2 || f.top - a.r.bottom > colReach) continue;
     if (cx(a) < f.left - 4 || cx(a) > f.right + 4) continue;
     if (!col || a.r.bottom > col.r.bottom) col = a;
   }
@@ -564,6 +566,8 @@ function scoreKey(entry, f) {
   const own = normText([f.label, f.row, f.col, f.placeholder].join(' | '));
   const sources = [own, ...String(f.context || '').split(' / ').filter(Boolean).map(normText)];
   if (entry.not && entry.not.some(t => hasToken(own, t))) return 0;
+  // Checkbox fields only go to checkboxes, and other fields never do
+  if ((entry.kind === 'checkbox') !== (f.type === 'checkbox')) return 0;
   let score = 0;
   if (entry.eye) {
     if (!EYE_WORDS[entry.eye].some(t => hasToken(own, t))) return 0;

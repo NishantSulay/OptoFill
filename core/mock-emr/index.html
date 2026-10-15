@@ -31,6 +31,7 @@
 <div class="tabs">
   <button class="on" data-tab="pretest">Pretest/BV</button>
   <button data-tab="refraction">Refraction</button>
+  <button data-tab="health">Ocular Health</button>
 </div>
 
 <!-- Pretest / BV -->
@@ -151,6 +152,63 @@
         <span>IOP OD</span><input type="text" name="t1">
         <span>IOP OS</span><input type="text" name="t2">
       </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- Ocular Health (laid out like a real EMR's: OD/OS headers only at the top of tall grids, A/C and BVs abbreviations,
+     a panel with a select and a consent checkbox, test checkboxes labelled by the text after them) -->
+<div class="screen" id="health">
+  <div class="col">
+    <div class="card">
+      <div class="h">BIOMICROSCOPY</div>
+      <div class="grid" style="grid-template-columns:70px 200px 200px">
+        <span></span><span class="center">OD</span><span class="center">OS</span>
+        <span class="lbl">Lids</span><textarea name="sl1" rows="2"></textarea><textarea name="sl2" rows="2"></textarea>
+        <span class="lbl">Conj</span><textarea name="sl3" rows="2"></textarea><textarea name="sl4" rows="2"></textarea>
+        <span class="lbl">Cornea</span><textarea name="sl5" rows="2"></textarea><textarea name="sl6" rows="2"></textarea>
+        <span class="lbl">A/C</span><textarea name="sl7" rows="2"></textarea><textarea name="sl8" rows="2"></textarea>
+        <span class="lbl">Iris</span><textarea name="sl9" rows="2"></textarea><textarea name="sl10" rows="2"></textarea>
+        <span class="lbl">Lens</span><textarea name="sl11" rows="2"></textarea><textarea name="sl12" rows="2"></textarea>
+      </div>
+      <textarea name="sln" rows="2" placeholder="Note here" style="margin-top:8px"></textarea>
+    </div>
+    <div class="card">
+      <div class="h">Tests Done</div>
+      <input type="checkbox" name="td1"><span>Photos Declined</span> <input type="checkbox" name="td2"><span>Photos Taken</span>
+      <input type="checkbox" name="td3"><span>OCT</span> <input type="checkbox" name="td4"><span>VF</span> <input type="checkbox" name="td5"><span>After Dilation</span>
+    </div>
+  </div>
+  <div class="col">
+    <div class="card">
+      <div class="h">IOP/Pach</div>
+      <div class="grid" style="grid-template-columns:60px 90px 90px 140px">
+        <span></span><span>OD</span><span>OS</span><span>Method Used</span>
+        <span class="lbl">IOP 1</span><input type="text" name="h1"><input type="text" name="h2"><select name="h3"><option>Select</option><option>NCT</option><option>Goldmann</option><option>iCare</option></select>
+        <span class="lbl">IOP 2</span><input type="text" name="h4"><input type="text" name="h5"><select name="h6"><option>Select</option><option>NCT</option><option>Goldmann</option><option>iCare</option></select>
+        <span class="lbl">Pach</span><input type="text" name="h7"><input type="text" name="h8">
+      </div>
+    </div>
+    <div class="card">
+      <div class="h">Dilation</div>
+      <select name="dl1"><option>Select</option><option>Mydriacyl 1%</option><option>Tropicamide 1%</option><option>Phenylephrine 2.5%</option></select>
+      <div style="margin-top:8px"><input type="checkbox" name="dl2"><span>Informed Consent for Dilation</span></div>
+    </div>
+  </div>
+  <div class="col">
+    <div class="card">
+      <div class="h">FUNDUS EXAM</div>
+      <div class="grid" style="grid-template-columns:80px 200px 200px">
+        <span></span><span class="center">OD</span><span class="center">OS</span>
+        <span class="lbl">Macula</span><textarea name="fe1" rows="2"></textarea><textarea name="fe2" rows="2"></textarea>
+        <span class="lbl">Fundus</span><textarea name="fe3" rows="2"></textarea><textarea name="fe4" rows="2"></textarea>
+        <span class="lbl">BVs</span><textarea name="fe5" rows="2"></textarea><textarea name="fe6" rows="2"></textarea>
+        <span class="lbl">Crossing</span><textarea name="fe7" rows="2"></textarea><textarea name="fe8" rows="2"></textarea>
+        <span class="lbl">Vitreous</span><textarea name="fe9" rows="2"></textarea><textarea name="fe10" rows="2"></textarea>
+        <span class="lbl">Periphery</span><textarea name="fe11" rows="2"></textarea><textarea name="fe12" rows="2"></textarea>
+      </div>
+      <textarea name="fen" rows="2" placeholder="Note here" style="margin-top:8px"></textarea>
     </div>
   </div>
 </div>

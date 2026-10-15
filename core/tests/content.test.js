@@ -71,6 +71,24 @@ const val = (page, name) => page.$eval(`[name="${name}"]`, el => el.value);
   const cover_vertical = Object.entries(mapped).filter(([, n]) => ['c9', 'c10', 'c11', 'c12'].includes(n));
   check('auto-map: Vertical Dx row is not mistaken for distance cover test', !cover_vertical.length, JSON.stringify(cover_vertical));
 
+  // 1c. Ocular Health tab (fresh setup): tall grids with OD/OS only at the top, A/C and BVs, a dilation select next
+  // to a consent checkbox, test checkboxes labelled by the text after them
+  await page.click('[data-tab=health]');
+  await page.waitForTimeout(50);
+  const health = await page.evaluate(() => { const m = {}; autoMapVisible(m); return Object.fromEntries(Object.entries(m).map(([k, e]) => [k, e.name])); });
+  const healthWant = {
+    sle_lids_od: 'sl1', sle_ac_os: 'sl8', sle_lens_od: 'sl11', sle_lens_os: 'sl12', sle_notes: 'sln',
+    iop_od: 'h1', iop_os: 'h2', iop_method: 'h3', pach_od: 'h7', pach_os: 'h8',
+    fundus_macula_od: 'fe1', fundus_vessels_os: 'fe6', fundus_periphery_od: 'fe11', fundus_periphery_os: 'fe12', fundus_notes: 'fen',
+    dilation_agent: 'dl1', dilation_consent: 'dl2', tests_photos: 'td2', tests_oct: 'td3', tests_vf: 'td4',
+  };
+  const healthWrong = Object.entries(healthWant).filter(([k, n]) => health[k] !== n).map(([k, n]) => `${k}: got ${health[k] || 'none'}, want ${n}`);
+  check(`ocular health: ${Object.keys(healthWant).length - healthWrong.length}/${Object.keys(healthWant).length} boxes auto-mapped`, !healthWrong.length, healthWrong.join('; '));
+  const healthStray = Object.entries(health).filter(([, n]) => ['fe3', 'fe4', 'fe7', 'fe8', 'h4', 'h5', 'h6', 'td1', 'td5'].includes(n));
+  check('ocular health: Fundus/Crossing rows, IOP 2, Photos Declined and After Dilation are left alone', !healthStray.length, JSON.stringify(healthStray));
+  await page.click('[data-tab=pretest]');
+  await page.waitForTimeout(50);
+
   // 1a. Checkbox labels come from the text after each box, so "Contacts" isn't read as the "Glasses" before it
   const cb = await page.evaluate(async () => {
     const f = getAllFields(true);

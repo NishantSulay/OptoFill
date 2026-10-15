@@ -278,6 +278,9 @@
       "fundus_vitreous_os": {
         "contains": "clear"
       },
+      "dilation_agent": {
+        "contains": "tropicamide"
+      },
       "assessment": {
         "contains": "presbyopia"
       },
@@ -418,6 +421,9 @@
           "4months",
           "recheck"
         ]
+      },
+      "tests_oct": {
+        "absent": true
       }
     },
     "allowExtra": [
@@ -618,6 +624,52 @@
       }
     },
     "allowExtra": [
+      "notes_general",
+      "dilation_agent"
+    ]
+  },
+  {
+    "id": "ocular-health",
+    "dictation": "Pachymetry 545 right, 552 left. Dilated with tropicamide 1 percent, consent obtained. OCT and visual field done today. Lids and lashes clear both eyes, A/C deep and quiet OU, blood vessels normal right and left.",
+    "expect": {
+      "pach_od": {
+        "contains": "545"
+      },
+      "pach_os": {
+        "contains": "552"
+      },
+      "dilation_agent": {
+        "contains": "tropicamide"
+      },
+      "dilation_consent": {
+        "equals": "true"
+      },
+      "tests_oct": {
+        "equals": "true"
+      },
+      "tests_vf": {
+        "equals": "true"
+      },
+      "sle_lids_od": {
+        "contains": "clear"
+      },
+      "sle_ac_os": {
+        "containsAny": [
+          "deep",
+          "quiet"
+        ]
+      },
+      "fundus_vessels_od": {
+        "contains": "normal"
+      },
+      "tests_photos": {
+        "absent": true
+      }
+    },
+    "allowExtra": [
+      "sle_lids_os",
+      "sle_ac_od",
+      "fundus_vessels_os",
       "notes_general"
     ]
   }
