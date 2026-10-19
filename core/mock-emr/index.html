@@ -31,7 +31,9 @@
 <div class="tabs">
   <button class="on" data-tab="pretest">Pretest/BV</button>
   <button data-tab="refraction">Refraction</button>
+  <button data-tab="contacts">Contact Lens</button>
   <button data-tab="health">Ocular Health</button>
+  <button data-tab="plan">Assessment/Plan</button>
 </div>
 
 <!-- Pretest / BV -->
@@ -67,6 +69,13 @@
             <span class="lbl">OS:20/</span><input type="text" class="sm" name="v15"><input type="text" class="sm" name="v16">
           </div>
         </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="h">Pinhole</div>
+      <div class="grid" style="grid-template-columns:auto 44px 44px">
+        <span class="lbl">OD:20/</span><input type="text" class="sm" name="ph1"><input type="text" class="sm" name="ph2">
+        <span class="lbl">OS:20/</span><input type="text" class="sm" name="ph3"><input type="text" class="sm" name="ph4">
       </div>
     </div>
     <div class="card">
@@ -147,6 +156,22 @@
       <textarea id="notes" name="rn" rows="2" placeholder="Notes" style="margin-top:8px"></textarea>
     </div>
     <div class="card">
+      <div class="h">Habitual Rx (Lensometry)</div>
+      <div class="grid" style="grid-template-columns:40px repeat(4,80px)">
+        <span></span><span>Sphere</span><span>Cylinder</span><span>Axis</span><span>Add</span>
+        <span>OD</span><input type="text" name="hb1"><input type="text" name="hb2"><input type="text" name="hb3"><input type="text" name="hb4">
+        <span>OS</span><input type="text" name="hb5"><input type="text" name="hb6"><input type="text" name="hb7"><input type="text" name="hb8">
+      </div>
+    </div>
+    <div class="card">
+      <div class="h">Final Rx</div>
+      <div class="grid" style="grid-template-columns:40px repeat(4,80px)">
+        <span></span><span>Sphere</span><span>Cylinder</span><span>Axis</span><span>Add</span>
+        <span>OD</span><input type="text" name="fr1"><input type="text" name="fr2"><input type="text" name="fr3"><input type="text" name="fr4">
+        <span>OS</span><input type="text" name="fr5"><input type="text" name="fr6"><input type="text" name="fr7"><input type="text" name="fr8">
+      </div>
+    </div>
+    <div class="card">
       <div class="h">Tonometry</div>
       <div class="grid" style="grid-template-columns:60px 80px">
         <span>IOP OD</span><input type="text" name="t1">
@@ -154,8 +179,34 @@
       </div>
     </div>
   </div>
+  <!-- More refraction grids beside the manifest: same Sphere/Cylinder/Axis columns, told apart by their titles -->
+  <div class="col">
+    <div class="card">
+      <div class="h">Autorefraction</div>
+      <div class="grid" style="grid-template-columns:40px repeat(3,80px)">
+        <span></span><span>Sphere</span><span>Cylinder</span><span>Axis</span>
+        <span>OD</span><input type="text" name="ar1"><input type="text" name="ar2"><input type="text" name="ar3">
+        <span>OS</span><input type="text" name="ar4"><input type="text" name="ar5"><input type="text" name="ar6">
+      </div>
+    </div>
+    <div class="card">
+      <div class="h">Retinoscopy</div>
+      <div class="grid" style="grid-template-columns:40px repeat(3,80px)">
+        <span></span><span>Sphere</span><span>Cylinder</span><span>Axis</span>
+        <span>OD</span><input type="text" name="rt1"><input type="text" name="rt2"><input type="text" name="rt3">
+        <span>OS</span><input type="text" name="rt4"><input type="text" name="rt5"><input type="text" name="rt6">
+      </div>
+    </div>
+    <div class="card">
+      <div class="h">Keratometry</div>
+      <div class="grid" style="grid-template-columns:40px repeat(4,70px)">
+        <span></span><span>K1</span><span>Axis</span><span>K2</span><span>Axis</span>
+        <span>OD</span><input type="text" name="k1"><input type="text" name="k2"><input type="text" name="k3"><input type="text" name="k4">
+        <span>OS</span><input type="text" name="k5"><input type="text" name="k6"><input type="text" name="k7"><input type="text" name="k8">
+      </div>
+    </div>
+  </div>
 </div>
-
 
 <!-- Ocular Health (laid out like a real EMR's: OD/OS headers only at the top of tall grids, A/C and BVs abbreviations,
      a panel with a select and a consent checkbox, test checkboxes labelled by the text after them) -->
@@ -171,6 +222,9 @@
         <span class="lbl">A/C</span><textarea name="sl7" rows="2"></textarea><textarea name="sl8" rows="2"></textarea>
         <span class="lbl">Iris</span><textarea name="sl9" rows="2"></textarea><textarea name="sl10" rows="2"></textarea>
         <span class="lbl">Lens</span><textarea name="sl11" rows="2"></textarea><textarea name="sl12" rows="2"></textarea>
+        <span class="lbl">Sclera</span><textarea name="sl13" rows="1"></textarea><textarea name="sl14" rows="1"></textarea>
+        <span class="lbl">Tear film</span><textarea name="sl15" rows="1"></textarea><textarea name="sl16" rows="1"></textarea>
+        <span class="lbl">Angles (VH)</span><textarea name="sl17" rows="1"></textarea><textarea name="sl18" rows="1"></textarea>
       </div>
       <textarea name="sln" rows="2" placeholder="Note here" style="margin-top:8px"></textarea>
     </div>
@@ -207,8 +261,39 @@
         <span class="lbl">Crossing</span><textarea name="fe7" rows="2"></textarea><textarea name="fe8" rows="2"></textarea>
         <span class="lbl">Vitreous</span><textarea name="fe9" rows="2"></textarea><textarea name="fe10" rows="2"></textarea>
         <span class="lbl">Periphery</span><textarea name="fe11" rows="2"></textarea><textarea name="fe12" rows="2"></textarea>
+        <span class="lbl">Vertical C/D</span><input type="text" name="fe13"><input type="text" name="fe14">
+        <span class="lbl">A/V Ratio</span><input type="text" name="fe15"><input type="text" name="fe16">
       </div>
+      <div style="margin-top:8px">Method <select name="fm1"><option>Select</option><option>DFE</option><option>BIO</option><option>90D</option><option>Optomap</option></select></div>
       <textarea name="fen" rows="2" placeholder="Note here" style="margin-top:8px"></textarea>
+    </div>
+  </div>
+</div>
+
+<div class="screen" id="contacts">
+  <div class="col">
+    <div class="card">
+      <div class="h">Contact Lens Rx</div>
+      <div class="grid" style="grid-template-columns:40px repeat(8,90px)">
+        <span></span><span>Brand</span><span>BC</span><span>DIA</span><span>Power</span><span>Cyl</span><span>Axis</span><span>Add</span><span>VA</span>
+        <span>OD</span><input type="text" name="cl1"><input type="text" name="cl2"><input type="text" name="cl3"><input type="text" name="cl4"><input type="text" name="cl5"><input type="text" name="cl6"><input type="text" name="cl7"><input type="text" name="cl8">
+        <span>OS</span><input type="text" name="cl9"><input type="text" name="cl10"><input type="text" name="cl11"><input type="text" name="cl12"><input type="text" name="cl13"><input type="text" name="cl14"><input type="text" name="cl15"><input type="text" name="cl16">
+      </div>
+      <textarea name="clf" rows="3" placeholder="Fit assessment" style="width:100%;margin-top:8px"></textarea>
+    </div>
+  </div>
+</div>
+
+<div class="screen" id="plan">
+  <div class="col">
+    <div class="card">
+      <div class="h">Assessment/Plan</div>
+      <div class="grid" style="grid-template-columns:110px 520px">
+        <span class="lbl">Assessment</span><textarea name="as1" rows="3"></textarea>
+        <span class="lbl">Plan</span><textarea name="pl1" rows="3"></textarea>
+        <span class="lbl">Follow-up</span><input type="text" name="fu1">
+        <span class="lbl">Referral</span><textarea name="rf1" rows="2"></textarea>
+      </div>
     </div>
   </div>
 </div>

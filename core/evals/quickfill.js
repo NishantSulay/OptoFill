@@ -33,8 +33,16 @@ const BOX_KEY = {
   r6: 'rx_sph_os', r7: 'rx_cyl_os', r8: 'rx_axis_os', r9: 'rx_add_os', r10: 'rx_va_os',
   t1: 'iop_od', t2: 'iop_os', n1: 'notes_general',
   g1: 'va_dist_glasses', g2: 'va_dist_contacts', g3: 'va_near_glasses', g4: 'va_near_contacts',
+  ph1: 'va_dist_ph_od', ph3: 'va_dist_ph_os',
+  ...grid('hb', 'hrx', ['sph', 'cyl', 'axis', 'add']), ...grid('fr', 'frx', ['sph', 'cyl', 'axis', 'add']),
+  ...grid('ar', 'ar', ['sph', 'cyl', 'axis']), ...grid('rt', 'ret', ['sph', 'cyl', 'axis']),
+  ...grid('k', 'kerato', ['k1', 'k1_axis', 'k2', 'k2_axis']),
 };
-const VA_SECOND = { v2: 'v1', v4: 'v3', v6: 'v5', v8: 'v7', v10: 'v9', v12: 'v11', v14: 'v13', v16: 'v15' };
+// An OD row then an OS row of boxes named prefix1, prefix2… holding key_part_od, then key_part_os
+function grid(box, key, parts) {
+  return Object.fromEntries(['od', 'os'].flatMap((e, i) => parts.map((part, j) => [box + (i * parts.length + j + 1), `${key}_${part}_${e}`])));
+}
+const VA_SECOND = { v2: 'v1', v4: 'v3', v6: 'v5', v8: 'v7', v10: 'v9', v12: 'v11', v14: 'v13', v16: 'v15', ph2: 'ph1', ph4: 'ph3' };
 // Free-text boxes: anything may go here without counting as misplaced (they're still graded when a case expects them).
 const NOTE_BOXES = new Set(['n1', 'pn', 'b13', 'rn']);
 const ON_PAGE = new Set(Object.values(BOX_KEY));

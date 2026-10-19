@@ -41,6 +41,11 @@ RULES:
 - Visual acuity in Snellen form, e.g. "20/40", "20/20-2". Write "CF", "HM", "LP", "NLP" as dictated.
 - Sphere/cylinder with sign and two decimals ("-1.25", "+0.50"); "plano" as "plano". Axis as a whole number ("180"). Add as "+2.00".
 - IOP as a number only ("16"). Pupillary distance and NPC with units only if spoken ("5 cm").
+- Refractions go to the keys of the one that was dictated: manifest/subjective (or an unnamed refraction) → rx_*, habitual/current glasses/lensometry → hrx_*, final or prescribed Rx → frx_*, autorefraction → ar_*, retinoscopy → ret_*, contact lens Rx → cl_*. Never copy one refraction into another's keys.
+- Keratometry: K1 is the flatter meridian, K2 the steeper; power in diopters ("43.25") and its axis as a whole number ("180"). "43.25 at 180" is K power 43.25, axis 180.
+- Pinhole acuity ("PH", "pinhole") goes in va_dist_ph_*; "no improvement" as "NI".
+- When the next visit is given ("RTC 1 year", "follow up in 6 months"), put it in follow_up; plan holds the rest of the plan.
+- The dictation comes from speech recognition and may mishear eye-care terms (e.g. "oh dee"/"old e" = OD, "oh ess" = OS, "pearl a"/"perla" = PERRLA, "plain oh" = plano, "see over d" = C/D, "e o m's" = EOMs). Read them as the intended term when the meaning is clear.
 - Cover test: "ortho"/"orthophoria" goes in the direction key (e.g. cover_dist_direction), not the amount key.
 - Keep text findings short and clinical (e.g. "clear", "trace NS", "0.3").
 - Anything clinically relevant that has no matching key goes into notes_general.

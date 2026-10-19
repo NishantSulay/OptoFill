@@ -16,13 +16,13 @@ Two steps, kept separate:
 
 ## Architecture
 - `eye-exam-extension/` — Chrome MV3 extension
-  - `schema.js` — clinical schema + auto-map hints (shared by content script, background, evals); also VA modifier keys (`*_mod`), which the AI never sees — content.js splits "20/50-2" into the VA box and its modifier box
+  - `schema.js` — clinical schema + auto-map hints (shared by content script, background, evals; `family` tells refraction grids apart by their titles — manifest, habitual, final, auto, retinoscopy, contact lens, keratometry — and `after` maps a box by position, e.g. a K axis); also VA modifier keys (`*_mod`), which the AI never sees — content.js splits "20/50-2" into the VA box and its modifier box
   - `redact.js` — removes patient identifiers (names after cues, dates, ID/phone numbers, emails, addresses) from text before it goes to Anthropic
   - `extract.js` — extraction prompt/request/parse (shared by background and `core/evals`)
   - `quickfill.js` — Quick fill prompt/request/parse (shared by background and `core/evals/quickfill.js`)
   - `content.js` — page scan, layout labels, fill + verify + undo, per-EMR mapping, in-page setup mode (runs in every frame; the side panel talks to the frame with the most boxes)
   - `background.js` — API calls; `popup.*` — UI, shown in Chrome's side panel (`side_panel` in manifest.json)
-- `core/mock-emr/` — fake EMR pages for testing (synthetic data only); `framed.html` puts the form in an iframe
+- `core/mock-emr/` — fake EMR pages for testing (synthetic data only; tabs: Pretest/BV, Refraction, Contact Lens, Ocular Health, Assessment/Plan); `framed.html` puts the form in an iframe
 - `core/tests/content.test.js` — Playwright tests of content.js against the mock EMR
 - `core/evals/` — extraction eval (`cases.json` mock dictations, `run.js`) and Quick fill eval (`quickfill.js`, same cases, graded by box on the mock EMR)
 - `index.html` / `privacy.html` — GitHub Pages landing site

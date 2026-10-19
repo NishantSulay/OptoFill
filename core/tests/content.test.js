@@ -58,6 +58,7 @@ const val = (page, name) => page.$eval(`[name="${name}"]`, el => el.value);
     pupils_notes: 'pn', va_dist_cc_ou: 'v11', cover_near_amount: 'c8',
     va_dist_sc_od_mod: 'v2', va_dist_sc_os_mod: 'v4', va_dist_cc_od_mod: 'v8', va_near_sc_os_mod: 'v16',
     va_dist_glasses: 'g1', va_dist_contacts: 'g2', va_near_glasses: 'g3', va_near_contacts: 'g4',
+    va_dist_ph_od: 'ph1', va_dist_ph_od_mod: 'ph2', va_dist_ph_os: 'ph3', va_dist_ph_os_mod: 'ph4',
     rx_sph_od: 'r1', rx_cyl_os: 'r7', rx_axis_os: 'r8', rx_add_od: 'r4', iop_od: 't1', iop_os: 't2',
   };
   const wrong = Object.entries(expect).filter(([k, n]) => mapped[k] !== n).map(([k, n]) => `${k}: got ${mapped[k] || 'none'}, want ${n}`);
@@ -122,6 +123,33 @@ const val = (page, name) => page.$eval(`[name="${name}"]`, el => el.value);
   check(`ocular health: ${Object.keys(healthWant).length - healthWrong.length}/${Object.keys(healthWant).length} boxes auto-mapped`, !healthWrong.length, healthWrong.join('; '));
   const healthStray = Object.entries(health).filter(([, n]) => ['fe3', 'fe4', 'fe7', 'fe8', 'h4', 'h5', 'h6', 'td1', 'td5'].includes(n));
   check('ocular health: Fundus/Crossing rows, IOP 2, Photos Declined and After Dilation are left alone', !healthStray.length, JSON.stringify(healthStray));
+  Object.assign(healthWant, { sle_sclera_od: 'sl13', sle_tbut_os: 'sl16', sle_angles_od: 'sl17', fundus_cd_v_od: 'fe13', fundus_av_ratio_os: 'fe16', fundus_method: 'fm1' });
+  const healthExtra = Object.entries(healthWant).slice(-6).filter(([k, n]) => health[k] !== n).map(([k, n]) => `${k}: got ${health[k] || 'none'}, want ${n}`);
+  check('ocular health: sclera, tear film, angles, vertical C/D, A/V ratio and fundus method mapped', !healthExtra.length, healthExtra.join('; '));
+
+  // 1d. More refractions, keratometry, contact lens and plan tabs: the same Sphere/Cylinder/Axis columns in several
+  // grids, told apart by their titles; keratometry axes sit after their K
+  const tabMap = async tab => {
+    await page.click(`[data-tab=${tab}]`);
+    await page.waitForTimeout(50);
+    return page.evaluate(() => { const m = {}; autoMapVisible(m); return Object.fromEntries(Object.entries(m).map(([k, e]) => [k, e.name])); });
+  };
+  const wrongIn = (got, want) => Object.entries(want).filter(([k, n]) => got[k] !== n).map(([k, n]) => `${k}: got ${got[k] || 'none'}, want ${n}`);
+  const refr = await tabMap('refraction');
+  const refrWant = {
+    rx_sph_od: 'r1', rx_axis_os: 'r8', hrx_sph_od: 'hb1', hrx_add_os: 'hb8', frx_cyl_od: 'fr2', frx_axis_os: 'fr7',
+    ar_sph_od: 'ar1', ar_axis_os: 'ar6', ret_cyl_od: 'rt2', ret_sph_os: 'rt4',
+    kerato_k1_od: 'k1', kerato_k1_axis_od: 'k2', kerato_k2_od: 'k3', kerato_k2_axis_od: 'k4', kerato_k1_os: 'k5', kerato_k2_axis_os: 'k8',
+  };
+  const refrWrong = wrongIn(refr, refrWant);
+  check(`refraction: ${Object.keys(refrWant).length - refrWrong.length}/${Object.keys(refrWant).length} manifest, habitual, final, auto, retinoscopy and K boxes mapped`, !refrWrong.length, refrWrong.join('; '));
+  const cl = await tabMap('contacts');
+  const clWant = { cl_brand_od: 'cl1', cl_bc_od: 'cl2', cl_dia_od: 'cl3', cl_sph_od: 'cl4', cl_cyl_od: 'cl5', cl_axis_od: 'cl6', cl_add_od: 'cl7', cl_va_od: 'cl8', cl_sph_os: 'cl12', cl_va_os: 'cl16', cl_fit: 'clf' };
+  const clWrong = wrongIn(cl, clWant);
+  check(`contact lens: ${Object.keys(clWant).length - clWrong.length}/${Object.keys(clWant).length} boxes mapped (none as manifest Rx or slit lamp)`, !clWrong.length && Object.keys(cl).length === 17, clWrong.join('; ') || JSON.stringify(cl));
+  const plan = await tabMap('plan');
+  const planWrong = wrongIn(plan, { assessment: 'as1', plan: 'pl1', follow_up: 'fu1', referral: 'rf1' });
+  check('assessment/plan: assessment, plan, follow-up and referral mapped', !planWrong.length, planWrong.join('; '));
   await page.click('[data-tab=pretest]');
   await page.waitForTimeout(50);
 

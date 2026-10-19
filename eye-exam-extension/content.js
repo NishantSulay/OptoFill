@@ -141,7 +141,8 @@ function getTextAnchors() {
     const text = n.textContent.replace(/\s+/g, ' ').trim();
     if (text.length < 2 || text.length > 40) continue;
     const p = n.parentElement;
-    if (!p || p.closest('#optofill-setup-host, script, style, noscript, option, select, textarea')) continue;
+    // Buttons and tab bars aren't labels (an "Assessment/Plan" tab would make the box below it an assessment box)
+    if (!p || p.closest('#optofill-setup-host, script, style, noscript, option, select, textarea, button, nav, [role=tab], [role=tablist]')) continue;
     range.selectNodeContents(n);
     const r = range.getBoundingClientRect();
     if (!r.width || !r.height) continue;
@@ -178,10 +179,12 @@ function getLayoutContext(el, anchors) {
   const cy = a => (a.r.top + a.r.bottom) / 2;
   const cx = a => (a.r.left + a.r.right) / 2;
 
-  // Row label: nearest text to the left on the same horizontal band
+  // Row label: nearest text to the left on the same horizontal band (further within a panel: wide grids like a
+  // contact lens Rx put the OD/OS label far from the last columns)
+  const rowReach = panel ? 900 : 400;
   let row = null;
   for (const a of anchors) {
-    if (a.r.right > f.left + 2 || f.left - a.r.right > 400) continue;
+    if (a.r.right > f.left + 2 || f.left - a.r.right > rowReach) continue;
     if (cy(a) < f.top - 4 || cy(a) > f.bottom + 4) continue;
     if (!row || a.r.right > row.r.right) row = a;
   }
@@ -574,8 +577,9 @@ const hasToken = (text, token) => text.includes(` ${token} `);
 const RIVALS = new Map();
 {
   const W = self.OPTOFILL_WORDS;
-  if (W) for (const [a, b] of [['sc', 'cc'], ['dist', 'near']]) { RIVALS.set(W[a], W[b]); RIVALS.set(W[b], W[a]); }
+  if (W) for (const [a, b] of [['sc', 'cc'], ['dist', 'near'], ['k1', 'k2']]) { RIVALS.set(W[a], W[b]); RIVALS.set(W[b], W[a]); }
 }
+const FAMILIES = self.OPTOFILL_FAMILIES || {};
 
 function scoreKey(entry, f) {
   if (!entry.must || !entry.must.length) return 0;
@@ -584,6 +588,15 @@ function scoreKey(entry, f) {
   if (entry.not && entry.not.some(t => hasToken(own, t))) return 0;
   // Checkbox fields only go to checkboxes, and other fields never do
   if ((entry.kind === 'checkbox') !== (f.type === 'checkbox')) return 0;
+  // Refraction grids (manifest, habitual, final, auto, retinoscopy, contact lens): the nearest family word decides
+  if (entry.family) {
+    let nearest = null, nearestPos = Infinity;
+    for (const [fam, words] of Object.entries(FAMILIES)) {
+      const pos = sources.findIndex(s => words.some(t => hasToken(s, t)));
+      if (pos >= 0 && pos < nearestPos) { nearest = fam; nearestPos = pos; }
+    }
+    if (nearest ? nearest !== entry.family : !entry.familyOptional) return 0;
+  }
   let score = 0;
   if (entry.eye) {
     if (!EYE_WORDS[entry.eye].some(t => hasToken(own, t))) return 0;
@@ -633,13 +646,15 @@ function autoMapVisible(map) {
     usedEls.add(c.el);
     added++;
   }
-  // VA modifier boxes: the box straight after a mapped VA box on the same row
-  for (const mod of MODIFIERS) {
-    if (map[mod.key] || !map[mod.modifierOf]) continue;
-    const vaEl = locateMapped(map[mod.modifierOf], fields);
-    const f = vaEl && fields.find(f => !usedEls.has(lastScannedEls[f.index]) && isModifierBoxOf(lastScannedEls[f.index], vaEl));
+  // Boxes placed by position: VA modifier boxes, and keys marked `after` (a keratometry axis) — the box straight
+  // after their key's box on the same row
+  const followers = [...MODIFIERS.map(m => ({ key: m.key, of: m.modifierOf })), ...SCHEMA.filter(s => s.after).map(s => ({ key: s.key, of: s.after }))];
+  for (const { key, of } of followers) {
+    if (map[key] || !map[of]) continue;
+    const prevEl = locateMapped(map[of], fields);
+    const f = prevEl && fields.find(f => !usedEls.has(lastScannedEls[f.index]) && isModifierBoxOf(lastScannedEls[f.index], prevEl));
     if (!f) continue;
-    map[mod.key] = mappingEntry(lastScannedEls[f.index], f);
+    map[key] = mappingEntry(lastScannedEls[f.index], f);
     usedEls.add(lastScannedEls[f.index]);
     added++;
   }

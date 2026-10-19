@@ -295,6 +295,13 @@
       },
       "va_dist_cc_os": {
         "absent": true
+      },
+      "follow_up": {
+        "containsAny": [
+          "year",
+          "1y",
+          "12"
+        ]
       }
     },
     "allowExtra": [
@@ -429,7 +436,8 @@
     "allowExtra": [
       "chief_complaint",
       "assessment",
-      "notes_general"
+      "notes_general",
+      "follow_up"
     ]
   },
   {
@@ -453,6 +461,12 @@
       },
       "va_dist_cc_od": {
         "absent": true
+      },
+      "va_dist_ph_od": {
+        "containsAny": [
+          "ni",
+          "noimprovement"
+        ]
       }
     },
     "allowExtra": [
@@ -602,8 +616,16 @@
   {
     "id": "custom-fields",
     "customFields": [
-      { "key": "custom_habitual_rx", "label": "Habitual Rx", "type": "text" },
-      { "key": "custom_dilated", "label": "Dilated", "type": "checkbox" }
+      {
+        "key": "custom_habitual_rx",
+        "label": "Habitual Rx",
+        "type": "text"
+      },
+      {
+        "key": "custom_dilated",
+        "label": "Dilated",
+        "type": "checkbox"
+      }
     ],
     "dictation": "Habitual Rx right minus 1.00, left minus 1.25. Dilated with one percent tropicamide. Pressures 15 right, 16 left.",
     "expect": {
@@ -625,7 +647,9 @@
     },
     "allowExtra": [
       "notes_general",
-      "dilation_agent"
+      "dilation_agent",
+      "hrx_sph_od",
+      "hrx_sph_os"
     ]
   },
   {
@@ -670,6 +694,279 @@
       "sle_lids_os",
       "sle_ac_od",
       "fundus_vessels_os",
+      "notes_general"
+    ]
+  },
+  {
+    "id": "other-refractions",
+    "dictation": "Lensometry of current glasses OD minus 1.00 minus 0.50 axis 180, OS minus 1.25 sphere. Autorefraction OD minus 1.50 minus 0.75 axis 175, OS minus 1.75 minus 0.25 axis 10. Retinoscopy OD minus 1.25 minus 0.50 axis 180, OS minus 1.50 sphere. Manifest OD minus 1.25 minus 0.50 axis 180 20/20, OS minus 1.50 DS 20/20. Final prescription same as manifest with an add of plus 1.25.",
+    "expect": {
+      "hrx_sph_od": {
+        "equals": "-1.00"
+      },
+      "hrx_cyl_od": {
+        "equals": "-0.50"
+      },
+      "hrx_axis_od": {
+        "equals": "180"
+      },
+      "hrx_sph_os": {
+        "equals": "-1.25"
+      },
+      "ar_sph_od": {
+        "equals": "-1.50"
+      },
+      "ar_cyl_od": {
+        "equals": "-0.75"
+      },
+      "ar_axis_od": {
+        "equals": "175"
+      },
+      "ar_sph_os": {
+        "equals": "-1.75"
+      },
+      "ar_cyl_os": {
+        "equals": "-0.25"
+      },
+      "ar_axis_os": {
+        "equals": "10"
+      },
+      "ret_sph_od": {
+        "equals": "-1.25"
+      },
+      "ret_cyl_od": {
+        "equals": "-0.50"
+      },
+      "ret_axis_od": {
+        "equals": "180"
+      },
+      "ret_sph_os": {
+        "equals": "-1.50"
+      },
+      "rx_sph_od": {
+        "equals": "-1.25"
+      },
+      "rx_cyl_od": {
+        "equals": "-0.50"
+      },
+      "rx_axis_od": {
+        "equals": "180"
+      },
+      "rx_sph_os": {
+        "equals": "-1.50"
+      },
+      "rx_va_od": {
+        "equals": "20/20"
+      },
+      "rx_va_os": {
+        "equals": "20/20"
+      },
+      "frx_sph_od": {
+        "equals": "-1.25"
+      },
+      "frx_sph_os": {
+        "equals": "-1.50"
+      },
+      "frx_add_od": {
+        "equals": "+1.25"
+      },
+      "frx_add_os": {
+        "equals": "+1.25"
+      }
+    },
+    "allowExtra": [
+      "frx_cyl_od",
+      "frx_axis_od",
+      "hrx_cyl_os",
+      "ret_cyl_os",
+      "rx_cyl_os",
+      "notes_general"
+    ]
+  },
+  {
+    "id": "keratometry",
+    "dictation": "Keratometry OD 43.25 at 180, 44.00 at 90. OS 43.50 at 175, 44.25 at 85.",
+    "expect": {
+      "kerato_k1_od": {
+        "equals": "43.25"
+      },
+      "kerato_k1_axis_od": {
+        "equals": "180"
+      },
+      "kerato_k2_od": {
+        "equals": "44.00"
+      },
+      "kerato_k2_axis_od": {
+        "equals": "90"
+      },
+      "kerato_k1_os": {
+        "equals": "43.50"
+      },
+      "kerato_k1_axis_os": {
+        "equals": "175"
+      },
+      "kerato_k2_os": {
+        "equals": "44.25"
+      },
+      "kerato_k2_axis_os": {
+        "equals": "85"
+      },
+      "rx_axis_od": {
+        "absent": true
+      }
+    }
+  },
+  {
+    "id": "contact-lens-rx",
+    "dictation": "Contact lenses: Acuvue Oasys OD 8.4 base curve 14.0 diameter minus 2.25, OS 8.4 14.0 minus 2.75 minus 0.75 axis 180. VA with contacts 20/20 each eye. Good centration and movement, fit acceptable.",
+    "expect": {
+      "cl_brand_od": {
+        "contains": "oasys"
+      },
+      "cl_bc_od": {
+        "equals": "8.4"
+      },
+      "cl_dia_od": {
+        "contains": "14"
+      },
+      "cl_sph_od": {
+        "equals": "-2.25"
+      },
+      "cl_bc_os": {
+        "equals": "8.4"
+      },
+      "cl_sph_os": {
+        "equals": "-2.75"
+      },
+      "cl_cyl_os": {
+        "equals": "-0.75"
+      },
+      "cl_axis_os": {
+        "equals": "180"
+      },
+      "cl_va_od": {
+        "equals": "20/20"
+      },
+      "cl_va_os": {
+        "equals": "20/20"
+      },
+      "cl_fit": {
+        "containsAny": [
+          "centration",
+          "movement",
+          "acceptable"
+        ]
+      },
+      "rx_sph_od": {
+        "absent": true
+      }
+    },
+    "allowExtra": [
+      "cl_brand_os",
+      "cl_dia_os",
+      "va_dist_cc_od",
+      "va_dist_cc_os",
+      "va_dist_contacts",
+      "notes_general"
+    ]
+  },
+  {
+    "id": "health-extras-and-plan",
+    "dictation": "Sclera white OU. Tear breakup time 6 seconds right, 7 left. Van Herick grade 4 both eyes. Vertical C/D 0.4 right and 0.45 left, A/V ratio 2/3 OU. Fundus exam with BIO and 90 diopter. Assessment dry eye. Plan artificial tears four times a day, refer to retina specialist for the left eye, return in 6 months.",
+    "expect": {
+      "sle_sclera_od": {
+        "contains": "white"
+      },
+      "sle_sclera_os": {
+        "contains": "white"
+      },
+      "sle_tbut_od": {
+        "contains": "6"
+      },
+      "sle_tbut_os": {
+        "contains": "7"
+      },
+      "sle_angles_od": {
+        "contains": "4"
+      },
+      "sle_angles_os": {
+        "contains": "4"
+      },
+      "fundus_cd_v_od": {
+        "equals": "0.4"
+      },
+      "fundus_cd_v_os": {
+        "equals": "0.45"
+      },
+      "fundus_av_ratio_od": {
+        "contains": "2/3"
+      },
+      "fundus_av_ratio_os": {
+        "contains": "2/3"
+      },
+      "fundus_method": {
+        "containsAny": [
+          "bio",
+          "90"
+        ]
+      },
+      "assessment": {
+        "contains": "dry"
+      },
+      "plan": {
+        "containsAny": [
+          "tears",
+          "qid"
+        ]
+      },
+      "referral": {
+        "contains": "retina"
+      },
+      "follow_up": {
+        "contains": "6"
+      },
+      "fundus_cd_od": {
+        "absent": true
+      }
+    },
+    "allowExtra": [
+      "fundus_vessels_od",
+      "fundus_vessels_os",
+      "notes_general"
+    ]
+  },
+  {
+    "id": "misheard-speech",
+    "dictation": "Pupils pearl a, no APD. Oh dee 20/25, oh ess 20/30 without glasses. Pinhole oh dee 20/20. Manifest oh dee plain oh, oh ess minus 0.50. See over d 0.3 oh you.",
+    "expect": {
+      "pupils_notes": {
+        "contains": "perrl"
+      },
+      "va_dist_sc_od": {
+        "equals": "20/25"
+      },
+      "va_dist_sc_os": {
+        "equals": "20/30"
+      },
+      "va_dist_ph_od": {
+        "equals": "20/20"
+      },
+      "rx_sph_od": {
+        "equals": "plano"
+      },
+      "rx_sph_os": {
+        "equals": "-0.50"
+      },
+      "fundus_cd_od": {
+        "equals": "0.3"
+      },
+      "fundus_cd_os": {
+        "equals": "0.3"
+      }
+    },
+    "allowExtra": [
+      "pupils_apd_od",
+      "pupils_apd_os",
       "notes_general"
     ]
   }
