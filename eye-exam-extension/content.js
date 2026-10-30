@@ -293,8 +293,37 @@ function getAllFields(withLayout) {
     fields.push({ index:fields.length, label:label.substring(0,80), name:name.substring(0,40), id:id.substring(0,40), type, placeholder:placeholder.substring(0,60), options, selector:buildSelector(el), ...layout });
     els.push(el);
   });
+  if (anchors) guessEyesByPosition(fields, els);
   lastScannedEls = els;
   return fields;
+}
+
+// Some panels have no OD/OS labels at all (an Optic Nerve panel: "Rim [ ] [ ]", "H [ ] V [ ] H [ ] V [ ]"). When
+// exactly two boxes on a line of one panel share a label, the left one is OD and the right one OS, as on every exam form.
+function guessEyesByPosition(fields, els) {
+  const hasEye = f => Object.values(EYE_WORDS).flat().some(t => hasToken(normText([f.label, f.row, f.col, f.placeholder].join(' | ')), t));
+  const lines = [];
+  fields.forEach((f, i) => {
+    if (f.type === 'checkbox' || f.type === 'radio' || hasEye(f)) return;
+    const name = (f.row || f.placeholder || '').trim().toLowerCase();
+    if (!name) return;
+    const r = els[i].getBoundingClientRect(), cy = (r.top + r.bottom) / 2, panel = panelOf(els[i]);
+    let line = lines.find(l => l.name === name && l.panel === panel && Math.abs(l.cy - cy) < 6);
+    if (!line) lines.push(line = { name, panel, cy, boxes: [] });
+    line.boxes.push({ f, left: r.left });
+  });
+  const pair = g => {
+    g.sort((a, b) => a.left - b.left);
+    g[0].f.eye = 'od';
+    g[1].f.eye = 'os';
+  };
+  for (const { boxes } of lines) {
+    if (boxes.length === 2) { pair(boxes); continue; }
+    // "H [ ] V [ ] H [ ] V [ ]": each label of its own twice
+    const byLabel = new Map();
+    for (const b of boxes) byLabel.set(b.f.label, [...(byLabel.get(b.f.label) || []), b]);
+    for (const g of byLabel.values()) if (g.length === 2 && g[0].f.label !== g[0].f.name) pair(g);
+  }
 }
 
 // Prefer #id / [name] only when they identify exactly one element — EMRs often reuse them
@@ -583,8 +612,8 @@ const FAMILIES = self.OPTOFILL_FAMILIES || {};
 
 function scoreKey(entry, f) {
   if (!entry.must || !entry.must.length) return 0;
-  const own = normText([f.label, f.row, f.col, f.placeholder].join(' | '));
-  const sources = [own, ...String(f.context || '').split(' / ').filter(Boolean).map(normText)];
+  const own = normText([f.label, f.row, f.col, f.placeholder, f.eye || ''].join(' | '));
+  const sources = entry.ownOnly ? [own] : [own, ...String(f.context || '').split(' / ').filter(Boolean).map(normText)];
   if (entry.not && entry.not.some(t => hasToken(own, t))) return 0;
   // Checkbox fields only go to checkboxes, and other fields never do
   if ((entry.kind === 'checkbox') !== (f.type === 'checkbox')) return 0;

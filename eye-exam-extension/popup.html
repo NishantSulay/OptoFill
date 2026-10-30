@@ -618,6 +618,13 @@
       <div class="field-hint">Extra context sent to Claude with every exam dictation.</div>
     </div>
 
+    <div class="field-group">
+      <div class="field-label">Normal findings</div>
+      <div class="field-hint" style="margin:0 0 8px">Say "SLE normal OU" or "rest of the exam normal" and each box in that section you didn't dictate gets this text. Leave one empty to skip it.</div>
+      <div id="normals-list"></div>
+      <button class="btn btn-secondary" id="normals-reset" style="margin-top:6px;padding:6px 10px;font-size:12px">Reset to defaults</button>
+    </div>
+
     <div class="save-row">
       <button class="btn btn-secondary" id="back-btn" style="flex:0.6">← Back</button>
       <button class="btn btn-primary" id="save-settings-btn">Save Settings</button>
@@ -626,6 +633,7 @@
 
   <div class="toast" id="toast"></div>
 
+  <script src="schema.js"></script>
   <script src="popup.js"></script>
 </body>
 </html>

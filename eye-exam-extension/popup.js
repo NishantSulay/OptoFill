@@ -60,11 +60,47 @@ function connectPort() {
 }
 connectPort();
 
+// Normal findings editor: one box per structure, grouped by section (schema.js has the sections and defaults)
+const normalsList = document.getElementById('normals-list');
+function renderNormals(normals) {
+  const labelOf = base => {
+    const l = (self.OPTOFILL_SCHEMA.find(s => s.key === `${base}_od`)?.label || base).replace(/ OD \(right eye\)$/, '')
+      .replace(/^(Slit lamp|Optic nerve) (?!\()/, '').replace(/^Fundus overall appearance$/, 'Fundus (overall)').replace(/^Fundus (?!\()/, '');
+    return l.charAt(0).toUpperCase() + l.slice(1);
+  };
+  normalsList.innerHTML = '';
+  for (const { label, keys } of Object.values(self.OPTOFILL_NORMAL_SECTIONS)) {
+    const h = document.createElement('div');
+    h.className = 'field-hint';
+    h.style.cssText = 'font-weight:600;margin:8px 0 4px';
+    h.textContent = label;
+    normalsList.appendChild(h);
+    for (const base of keys) {
+      const row = document.createElement('label');
+      row.style.cssText = 'display:flex;align-items:center;gap:8px;margin-bottom:4px;font-size:12px';
+      const name = document.createElement('span');
+      name.style.cssText = 'flex:0 0 42%;color:#475569';
+      name.textContent = labelOf(base);
+      const input = document.createElement('input');
+      input.className = 'field-input';
+      input.style.cssText = 'flex:1;padding:5px 8px;font-size:12px';
+      input.dataset.key = base;
+      input.value = normals[base] || '';
+      row.append(name, input);
+      normalsList.appendChild(row);
+    }
+  }
+}
+const readNormals = () => Object.fromEntries([...normalsList.querySelectorAll('input')].map(i => [i.dataset.key, i.value.trim()]));
+document.getElementById('normals-reset').addEventListener('click', () => renderNormals(self.OPTOFILL_NORMALS));
+
 // ─── Init ─────────────────────────────────────────────────────────────────────
-chrome.storage.local.get(['apiKey', 'customInstructions'], (data) => {
+chrome.storage.local.get(['apiKey', 'customInstructions', 'normals'], (data) => {
   if (data.apiKey) apiKeyInput.value = data.apiKey;
   if (data.customInstructions) customInstructions.value = data.customInstructions;
+  renderNormals(data.normals || self.OPTOFILL_NORMALS);
 });
+
 
 // Restore recording state if popup was closed while recording was active
 chrome.storage.session.get(['isRecording', 'transcript'], (data) => {
@@ -271,7 +307,7 @@ let pendingQuickFields = null;
 let pendingQuickFrameId = 0;   // the frame Quick fill scanned, so the fill goes to the same boxes
 
 fillBtn.addEventListener('click', async () => {
-  const { apiKey, customInstructions: ci } = await getSettings();
+  const { apiKey, customInstructions: ci, normals } = await getSettings();
   if (!apiKey) { showToast('Enter your API key in Settings first.', 'error'); showSettingsPanel(); return; }
   if (!transcript.trim()) return;
 
@@ -284,7 +320,7 @@ fillBtn.addEventListener('click', async () => {
   if (mappedCount > 0) {
     setStatus('processing', 'Reading your dictation…');
     fillBtnContent.innerHTML = '<span class="spinner"></span> Reading…';
-    port.postMessage({ action: 'extract', apiKey, transcript: transcript.trim(), customInstructions: ci, customFields });
+    port.postMessage({ action: 'extract', apiKey, transcript: transcript.trim(), customInstructions: ci, customFields, normals });
     return;
   }
 
@@ -426,7 +462,7 @@ function showToast(message, type='') {
 }
 
 function getSettings() {
-  return new Promise(resolve => chrome.storage.local.get(['apiKey','customInstructions'], resolve));
+  return new Promise(resolve => chrome.storage.local.get(['apiKey','customInstructions','normals'], resolve));
 }
 
 // Re-fill button — fill values whose boxes are on an EMR tab that wasn't open before
@@ -447,7 +483,7 @@ saveSettingsBtn.addEventListener('click', () => {
   const key = apiKeyInput.value.trim();
   const ci = customInstructions.value.trim();
   if (key && !key.startsWith('sk-ant-')) { showToast('API key should start with sk-ant-', 'error'); return; }
-  chrome.storage.local.set({ apiKey: key, customInstructions: ci }, () => {
+  chrome.storage.local.set({ apiKey: key, customInstructions: ci, normals: readNormals() }, () => {
     showToast('Settings saved ✓', 'success');
     setTimeout(showMainPanel, 800);
   });

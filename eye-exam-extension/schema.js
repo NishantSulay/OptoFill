@@ -4,6 +4,8 @@
 //   not:  words that must NOT appear in the box's own label/row/column
 //   eye:  'od' | 'os' | 'ou' — must appear in the box's own label/row/column
 //   kind: 'checkbox' — only checkboxes (and other keys never go to checkboxes)
+//   ownOnly: the must words have to be in the box's own label/row/column, not just a heading above (a "Fundus" row
+//            in a "Fundus Exam" panel)
 //   family: which refraction grid the box belongs to (manifest, habitual, final, auto, retino, cl). The nearest family
 //           word decides; familyOptional: a grid with no family word at all counts as this one (the manifest)
 (function (root) {
@@ -117,7 +119,7 @@
     perEye(['od', 'os', 'ou'], (e, el) => add(`pd_${d}_${e}`, `Pupillary distance ${dl} ${el}`, { must: [['pupillary', 'pd'], W[d]], eye: e }, 'Pupillary distance'));
 
   // Color vision & stereo
-  perEye(['od', 'os'], (e, el) => add(`color_${e}`, `Color vision ${el}`, { must: [['color', 'colour', 'ishihara']], eye: e }, 'Color vision'));
+  perEye(['od', 'os'], (e, el) => add(`color_${e}`, `Color vision ${el}`, { must: [['color', 'colour', 'ishihara']], not: ['notes', 'note', 'additional', 'rim', 'margin', 'depth'], eye: e }, 'Color vision'));
   add('color_method', 'Color vision method', { must: [['color', 'colour'], ['method']] }, 'Color vision');
   add('stereo', 'Stereoacuity (seconds of arc)', { must: [['stereoacuity', 'stereo']], not: ['method'] }, 'Stereo');
   add('stereo_method', 'Stereoacuity method', { must: [['stereoacuity', 'stereo'], ['method']] }, 'Stereo');
@@ -132,14 +134,23 @@
   add('sle_notes', 'Slit lamp / anterior segment notes', { must: [['biomicroscopy', 'slit lamp', 'sle', 'anterior segment', 'anterior'], ['note', 'notes', 'comments']] }, 'Anterior segment');
 
   // Posterior segment (fundus)
-  for (const [k, l, words, not] of [['cd', 'C/D ratio (horizontal, or the only C/D given)', ['c/d', 'cd', 'cup'], ['vertical', 'vert']],
-                                    ['cd_v', 'C/D ratio vertical', ['vertical', 'vert'], null],
-                                    ['nerve', 'optic nerve', ['nerve', 'disc', 'onh'], null], ['macula', 'macula', ['macula'], null],
+  // C/D boxes may be labelled just "H" and "V" inside an Optic Nerve panel
+  const ONH = ['c/d', 'cd', 'cup', 'nerve', 'onh', 'disc', 'optic'];
+  for (const [k, l, words, not] of [['cd', 'C/D ratio (horizontal, or the only C/D given)', ['c/d', 'cd', 'cup', 'h', 'horizontal'], ['vertical', 'vert', 'v', 'sup', 'inf']],
+                                    ['cd_v', 'C/D ratio vertical', ['vertical', 'vert', 'v'], ['sup', 'inf']],
+                                    ['nerve', 'optic nerve (overall)', ['nerve', 'disc', 'onh', 'additional'], ['notes', 'note', 'superior', 'inferior']], ['macula', 'macula', ['macula'], null],
                                     ['vessels', 'vessels', ['vessels', 'vasculature', 'a/v', 'bvs', 'blood vessels'], ['ratio']],
                                     ['av_ratio', 'A/V ratio', ['ratio'], null],
                                     ['periphery', 'periphery', ['periphery', 'peripheral'], null], ['vitreous', 'vitreous', ['vitreous'], null]])
     perEye(['od', 'os'], (e, el) => add(`fundus_${k}_${e}`, `Fundus ${l} ${el}`,
-      { must: k === 'cd_v' ? [words, ['c/d', 'cd', 'cup']] : k === 'av_ratio' ? [words, ['a/v', 'av', 'artery', 'arteriole']] : [words], eye: e, ...(not ? { not } : {}) }, 'Posterior segment'));
+      { must: k === 'cd' || k === 'cd_v' || k === 'nerve' ? [words, ONH] : k === 'av_ratio' ? [words, ['a/v', 'av', 'artery', 'arteriole']] : [words], eye: e, ...(not ? { not } : {}) }, 'Posterior segment'));
+  // Optic nerve rows and the rest of a fundus grid
+  for (const [k, l, words, not] of [['rim', 'neuroretinal rim', ['rim'], null], ['color', 'disc colour', ['color', 'colour'], null],
+                                    ['margin', 'margins', ['margin', 'margins'], ['rim']], ['depth', 'cup depth', ['depth'], null],
+                                    ['sup', 'superior rim', ['sup', 'superior'], null], ['inf', 'inferior rim', ['inf', 'inferior'], null]])
+    perEye(['od', 'os'], (e, el) => add(`onh_${k}_${e}`, `Optic nerve ${l} ${el}`, { must: [words, ONH], eye: e, ...(not ? { not } : {}) }, 'Posterior segment'));
+  perEye(['od', 'os'], (e, el) => add(`fundus_general_${e}`, `Fundus overall appearance ${el}`, { must: [['fundus']], ownOnly: true, eye: e }, 'Posterior segment'));
+  perEye(['od', 'os'], (e, el) => add(`fundus_crossing_${e}`, `Fundus A/V crossings ${el}`, { must: [['crossing', 'crossings', 'nicking']], eye: e }, 'Posterior segment'));
   add('fundus_method', 'Fundus exam method (DFE, BIO, 90D, Optomap…)', { must: [['method', 'technique'], ['fundus', 'posterior', 'dfe', 'retina', 'retinal']] }, 'Posterior segment');
   add('fundus_notes', 'Fundus / posterior segment notes', { must: [['fundus', 'posterior', 'dfe', 'retina'], ['note', 'notes', 'comments']] }, 'Posterior segment');
   add('dilation_agent', 'Dilation drops used (e.g. tropicamide 1%)', { must: [['dilation', 'dilated', 'dilate', 'dilating', 'mydriatic', 'mydriasis']], not: ['consent', 'post', 'after'] }, 'Posterior segment');
@@ -162,7 +173,21 @@
   const MODS = S.filter(s => /^(va_|rx_va_)/.test(s.key))
     .map(s => ({ key: `${s.key}_mod`, label: `${s.label} — modifier (e.g. −2)`, group: s.group, modifierOf: s.key }));
 
+  // Normal findings: when the doctor says a section is normal ("SLE normal OU", "rest of the exam normal"), every box
+  // in it that wasn't dictated gets this text. Defaults follow a real EMR's NORMAL buttons; the doctor can edit them.
+  const NORMAL_SECTIONS = {
+    anterior: { label: 'Anterior segment / slit lamp', keys: ['sle_lids', 'sle_conj', 'sle_cornea', 'sle_ac', 'sle_iris', 'sle_lens', 'sle_sclera', 'sle_angles'] },
+    posterior: { label: 'Posterior segment / fundus', keys: ['onh_rim', 'onh_color', 'onh_margin', 'onh_depth', 'fundus_nerve', 'fundus_macula', 'fundus_general', 'fundus_vessels', 'fundus_crossing', 'fundus_vitreous', 'fundus_periphery'] },
+  };
+  const NORMALS = {
+    sle_lids: 'Clear', sle_conj: 'Clear', sle_cornea: 'clear, no staining', sle_ac: 'VH gr 3, deep and quiet', sle_iris: 'round and flat', sle_lens: 'Clear',
+    onh_rim: 'Healthy rim', onh_color: 'pink', onh_margin: 'distinct', onh_depth: 'med',
+    fundus_macula: 'flat and clear', fundus_general: 'healthy', fundus_vessels: 'normal', fundus_crossing: 'Oblique', fundus_vitreous: 'Clear', fundus_periphery: 'Flat, no RH/RT/RD',
+  };
+
   root.OPTOFILL_SCHEMA = S;
+  root.OPTOFILL_NORMAL_SECTIONS = NORMAL_SECTIONS;
+  root.OPTOFILL_NORMALS = NORMALS;
   root.OPTOFILL_MODIFIERS = MODS;
   root.OPTOFILL_WORDS = W;   // shared word groups, so auto-map can tell rival groups apart (corrected vs uncorrected, distance vs near)
   root.OPTOFILL_FAMILIES = FAMILIES;

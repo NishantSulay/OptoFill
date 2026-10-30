@@ -310,7 +310,11 @@
       "pupils_apd_os",
       "cover_dist_amount",
       "cover_near_intermittent",
-      "notes_general"
+      "notes_general",
+      "onh_color_od",
+      "onh_color_os",
+      "onh_margin_od",
+      "onh_margin_os"
     ]
   },
   {
@@ -967,6 +971,118 @@
     "allowExtra": [
       "pupils_apd_od",
       "pupils_apd_os",
+      "notes_general"
+    ]
+  },
+  {
+    "id": "section-normals",
+    "dictation": "Slit lamp normal both eyes except 1+ nuclear sclerosis in both lenses. Pressures 16 and 15 by NCT. Fundus normal OU except a few small drusen in the left macula.",
+    "expect": {
+      "sle_lids_od": {
+        "equals": "Clear"
+      },
+      "sle_cornea_os": {
+        "equals": "clear, no staining"
+      },
+      "sle_lens_od": {
+        "containsAny": [
+          "ns",
+          "nuclear"
+        ]
+      },
+      "sle_lens_os": {
+        "containsAny": [
+          "ns",
+          "nuclear"
+        ]
+      },
+      "iop_od": {
+        "equals": "16"
+      },
+      "iop_os": {
+        "equals": "15"
+      },
+      "iop_method": {
+        "contains": "nct"
+      },
+      "fundus_macula_os": {
+        "contains": "drusen"
+      },
+      "fundus_macula_od": {
+        "equals": "flat and clear"
+      },
+      "onh_rim_od": {
+        "equals": "Healthy rim"
+      },
+      "fundus_periphery_os": {
+        "equals": "Flat, no RH/RT/RD"
+      }
+    },
+    "allowExtra": [
+      "sle_lids_os",
+      "sle_conj_od",
+      "sle_conj_os",
+      "sle_cornea_od",
+      "sle_ac_od",
+      "sle_ac_os",
+      "sle_iris_od",
+      "sle_iris_os",
+      "sle_sclera_od",
+      "sle_sclera_os",
+      "sle_angles_od",
+      "sle_angles_os",
+      "onh_rim_os",
+      "onh_color_od",
+      "onh_color_os",
+      "onh_margin_od",
+      "onh_margin_os",
+      "onh_depth_od",
+      "onh_depth_os",
+      "fundus_nerve_od",
+      "fundus_nerve_os",
+      "fundus_general_od",
+      "fundus_general_os",
+      "fundus_vessels_od",
+      "fundus_vessels_os",
+      "fundus_crossing_od",
+      "fundus_crossing_os",
+      "fundus_vitreous_od",
+      "fundus_vitreous_os",
+      "fundus_periphery_od",
+      "notes_general"
+    ]
+  },
+  {
+    "id": "section-normal-one-eye",
+    "dictation": "Anterior segment within normal limits right eye. Left eye has a pinguecula nasally, rest of the left anterior segment unremarkable.",
+    "expect": {
+      "sle_lids_od": {
+        "equals": "Clear"
+      },
+      "sle_conj_os": {
+        "contains": "pinguecula"
+      },
+      "sle_iris_os": {
+        "equals": "round and flat"
+      },
+      "fundus_macula_od": {
+        "absent": true
+      }
+    },
+    "allowExtra": [
+      "sle_lids_os",
+      "sle_conj_od",
+      "sle_cornea_od",
+      "sle_cornea_os",
+      "sle_ac_od",
+      "sle_ac_os",
+      "sle_iris_od",
+      "sle_lens_od",
+      "sle_lens_os",
+      "sle_sclera_od",
+      "sle_sclera_os",
+      "sle_angles_od",
+      "sle_angles_os",
       "notes_general"
     ]
   }

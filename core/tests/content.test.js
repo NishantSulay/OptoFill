@@ -121,11 +121,19 @@ const val = (page, name) => page.$eval(`[name="${name}"]`, el => el.value);
   };
   const healthWrong = Object.entries(healthWant).filter(([k, n]) => health[k] !== n).map(([k, n]) => `${k}: got ${health[k] || 'none'}, want ${n}`);
   check(`ocular health: ${Object.keys(healthWant).length - healthWrong.length}/${Object.keys(healthWant).length} boxes auto-mapped`, !healthWrong.length, healthWrong.join('; '));
-  const healthStray = Object.entries(health).filter(([, n]) => ['fe3', 'fe4', 'fe7', 'fe8', 'h4', 'h5', 'h6', 'td1', 'td5'].includes(n));
-  check('ocular health: Fundus/Crossing rows, IOP 2, Photos Declined and After Dilation are left alone', !healthStray.length, JSON.stringify(healthStray));
-  Object.assign(healthWant, { sle_sclera_od: 'sl13', sle_tbut_os: 'sl16', sle_angles_od: 'sl17', fundus_cd_v_od: 'fe13', fundus_av_ratio_os: 'fe16', fundus_method: 'fm1' });
+  const healthStray = Object.entries(health).filter(([, n]) => ['h4', 'h5', 'h6', 'td1', 'td5', 'onn1', 'onn2'].includes(n));
+  check('ocular health: IOP 2, Photos Declined, After Dilation and the optic nerve notes are left alone', !healthStray.length, JSON.stringify(healthStray));
+  Object.assign(healthWant, { sle_sclera_od: 'sl13', sle_tbut_os: 'sl16', sle_angles_od: 'sl17', fundus_cd_v_od: 'on2', fundus_av_ratio_os: 'fe16', fundus_method: 'fm1' });
   const healthExtra = Object.entries(healthWant).slice(-6).filter(([k, n]) => health[k] !== n).map(([k, n]) => `${k}: got ${health[k] || 'none'}, want ${n}`);
   check('ocular health: sclera, tear film, angles, vertical C/D, A/V ratio and fundus method mapped', !healthExtra.length, healthExtra.join('; '));
+  // An Optic Nerve panel with no OD/OS labels: the left box of each pair is OD
+  const onhWant = {
+    fundus_cd_od: 'on1', fundus_cd_v_od: 'on2', fundus_cd_os: 'on3', fundus_cd_v_os: 'on4', onh_sup_od: 'on5', onh_inf_os: 'on8',
+    onh_rim_od: 'on9', onh_rim_os: 'on10', onh_color_od: 'on11', onh_margin_os: 'on14', onh_depth_od: 'on15', fundus_nerve_od: 'on17', fundus_nerve_os: 'on18',
+    fundus_general_od: 'fe3', fundus_general_os: 'fe4', fundus_crossing_od: 'fe7', fundus_crossing_os: 'fe8',
+  };
+  const onhWrong = Object.entries(onhWant).filter(([k, n]) => health[k] !== n).map(([k, n]) => `${k}: got ${health[k] || 'none'}, want ${n}`);
+  check(`optic nerve panel without OD/OS labels and Fundus/Crossing rows: ${Object.keys(onhWant).length - onhWrong.length}/${Object.keys(onhWant).length} mapped`, !onhWrong.length, onhWrong.join('; '));
 
   // 1d. More refractions, keratometry, contact lens and plan tabs: the same Sphere/Cylinder/Axis columns in several
   // grids, told apart by their titles; keratometry axes sit after their K
