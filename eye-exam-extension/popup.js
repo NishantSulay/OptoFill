@@ -26,8 +26,8 @@ function connectPort() {
   port = chrome.runtime.connect({ name: 'popup' });
   port.onMessage.addListener((msg) => {
     if (msg.action === 'transcriptUpdate') {
-      transcript = msg.finalTranscript;
-      transcriptEl.value = (msg.finalTranscript + (msg.interimTranscript || '')).trim();
+      transcript = fixWords(msg.finalTranscript);
+      transcriptEl.value = fixWords(msg.finalTranscript + (msg.interimTranscript || '')).trim();
       transcriptEl.classList.remove('empty');
       updateLiveTranscript();
       updateFillBtn();
@@ -59,6 +59,12 @@ function connectPort() {
   port.onDisconnect.addListener(() => setTimeout(connectPort, 100));
 }
 connectPort();
+
+// Word fixes: the doctor's "heard = meant" list, applied to the dictation as it arrives and again when it is sent
+// (so typed or pasted text gets them too)
+const wordFixesInput = document.getElementById('word-fixes');
+let wordFixes = OptoFillWordFix.DEFAULTS;
+const fixWords = text => OptoFillWordFix.apply(text, wordFixes);
 
 // Normal findings editor: one box per structure, grouped by section (schema.js has the sections and defaults)
 const normalsList = document.getElementById('normals-list');
@@ -95,10 +101,12 @@ const readNormals = () => Object.fromEntries([...normalsList.querySelectorAll('i
 document.getElementById('normals-reset').addEventListener('click', () => renderNormals(self.OPTOFILL_NORMALS));
 
 // ─── Init ─────────────────────────────────────────────────────────────────────
-chrome.storage.local.get(['apiKey', 'customInstructions', 'normals'], (data) => {
+chrome.storage.local.get(['apiKey', 'customInstructions', 'normals', 'wordFixes'], (data) => {
   if (data.apiKey) apiKeyInput.value = data.apiKey;
   if (data.customInstructions) customInstructions.value = data.customInstructions;
   renderNormals(data.normals || self.OPTOFILL_NORMALS);
+  wordFixes = data.wordFixes ?? OptoFillWordFix.DEFAULTS;
+  wordFixesInput.value = wordFixes;
 });
 
 
@@ -310,6 +318,8 @@ fillBtn.addEventListener('click', async () => {
   const { apiKey, customInstructions: ci, normals } = await getSettings();
   if (!apiKey) { showToast('Enter your API key in Settings first.', 'error'); showSettingsPanel(); return; }
   if (!transcript.trim()) return;
+  transcript = fixWords(transcript);
+  transcriptEl.value = transcript.trim();
 
   fillBtn.disabled = true;
   const tab = await getExamTab();
@@ -483,7 +493,8 @@ saveSettingsBtn.addEventListener('click', () => {
   const key = apiKeyInput.value.trim();
   const ci = customInstructions.value.trim();
   if (key && !key.startsWith('sk-ant-')) { showToast('API key should start with sk-ant-', 'error'); return; }
-  chrome.storage.local.set({ apiKey: key, customInstructions: ci, normals: readNormals() }, () => {
+  wordFixes = wordFixesInput.value;
+  chrome.storage.local.set({ apiKey: key, customInstructions: ci, normals: readNormals(), wordFixes }, () => {
     showToast('Settings saved ✓', 'success');
     setTimeout(showMainPanel, 800);
   });

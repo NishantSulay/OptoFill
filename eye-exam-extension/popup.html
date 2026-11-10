@@ -619,6 +619,12 @@
     </div>
 
     <div class="field-group">
+      <div class="field-label">Word fixes</div>
+      <textarea class="field-input" id="word-fixes" rows="5" placeholder="pearl a = PERRLA" style="resize:vertical;font-family:ui-monospace,Menlo,monospace;font-size:12px"></textarea>
+      <div class="field-hint">Words the microphone keeps getting wrong, one per line: <b>what it hears = what you mean</b>. Fixed in your dictation as you speak.</div>
+    </div>
+
+    <div class="field-group">
       <div class="field-label">Normal findings</div>
       <div class="field-hint" style="margin:0 0 8px">Say "SLE normal OU" or "rest of the exam normal" and each box in that section you didn't dictate gets this text. Leave one empty to skip it.</div>
       <div id="normals-list"></div>
@@ -634,6 +640,7 @@
   <div class="toast" id="toast"></div>
 
   <script src="schema.js"></script>
+  <script src="wordfix.js"></script>
   <script src="popup.js"></script>
 </body>
 </html>

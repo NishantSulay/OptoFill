@@ -18,6 +18,7 @@ Two steps, kept separate:
 - `eye-exam-extension/` — Chrome MV3 extension
   - `schema.js` — clinical schema + auto-map hints (shared by content script, background, evals; `family` tells refraction grids apart by their titles — manifest, habitual, final, auto, retinoscopy, contact lens, keratometry — and `after` maps a box by position, e.g. a K axis); also the normal findings (`OPTOFILL_NORMALS`, editable in Settings) that fill a section the doctor calls normal; also VA modifier keys (`*_mod`), which the AI never sees — content.js splits "20/50-2" into the VA box and its modifier box
   - `redact.js` — removes patient identifiers (names after cues, dates, ID/phone numbers, emails, addresses) from text before it goes to Anthropic
+  - `wordfix.js` — the doctor's "heard = meant" fixes for misheard words (Settings), applied to the dictation in the side panel before redaction and the AI
   - `extract.js` — extraction prompt/request/parse (shared by background and `core/evals`)
   - `quickfill.js` — Quick fill prompt/request/parse (shared by background and `core/evals/quickfill.js`)
   - `content.js` — page scan, layout labels, fill + verify + undo, per-EMR mapping, in-page setup mode (runs in every frame; the side panel talks to the frame with the most boxes)
@@ -33,6 +34,7 @@ Two steps, kept separate:
 - Content script: `node core/tests/content.test.js` (needs `playwright`; set `CHROME_PATH` if no bundled browser)
 - Redaction: `node core/tests/redact.test.js` (no browser; must keep every eval dictation unchanged)
 - Section normals: `node core/tests/normals.test.js` (no browser, no API calls)
+- Word fixes: `node core/tests/wordfix.test.js` (no browser; the starter fixes must leave every correctly heard eval dictation unchanged)
 - Extraction eval: `ANTHROPIC_API_KEY=... node core/evals/run.js` (real API calls; `--dry-run` prints the request)
 - Quick fill eval: `ANTHROPIC_API_KEY=... node core/evals/quickfill.js` (real API calls; needs `playwright`)
 - Any change to `schema.js` hints or layout detection must keep the content tests passing; any change to
