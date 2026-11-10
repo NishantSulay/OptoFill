@@ -326,6 +326,43 @@ function guessEyesByPosition(fields, els) {
   }
 }
 
+// ─── Layout report ────────────────────────────────────────────────────────────
+// What OptoFill sees on this screen, for fixing a wrong mapping without guessing from a screenshot: every box (never
+// what is typed in it) with its labels and position, the label texts around the boxes, the panels they sit in, the
+// saved mapping and the last fill. core/tests/replay.js rebuilds the page from it and runs this file on it.
+async function buildReport() {
+  const fields = getAllFields(true), els = lastScannedEls;
+  const page = r => [Math.round(r.left + scrollX), Math.round(r.top + scrollY), Math.round(r.width), Math.round(r.height)];
+  const panels = [];
+  const panelIndex = el => {
+    const p = panelOf(el);
+    if (!p) return -1;
+    if (!panels.includes(p)) panels.push(p);
+    return panels.indexOf(p);
+  };
+  const boxes = fields.map((f, i) => ({ ...f, rect: page(els[i].getBoundingClientRect()), panel: panelIndex(els[i]), el: els[i] }));
+  // Only the text around the form: inside a panel that holds a box, or close to a box that has no panel
+  const near = (r, el) => { const b = el.getBoundingClientRect(); return r.right > b.left - 400 && r.left < b.right + 100 && r.bottom > b.top - 250 && r.top < b.bottom + 40; };
+  const loose = els.filter(el => !panelOf(el));
+  const texts = getTextAnchors().map(a => {
+    const inside = panels.filter(p => p.contains(a.node));
+    // the innermost panel that holds it
+    const panel = inside.length ? panels.indexOf(inside.reduce((x, y) => (x.contains(y) ? y : x))) : -1;
+    return panel >= 0 || loose.some(el => near(a.r, el)) ? { text: a.text, rect: page(a.r), panel, option: a.option, el: a.node } : null;
+  }).filter(Boolean);
+  // Document order, so a checkbox and the text after it stay neighbours when the page is rebuilt
+  const order = [...boxes, ...texts].sort((a, b) => (a.el === b.el ? 0 : a.el.compareDocumentPosition(b.el) & Node.DOCUMENT_POSITION_FOLLOWING ? -1 : 1));
+  order.forEach((x, i) => { x.order = i; delete x.el; });
+  return {
+    optofillReport: 1,
+    page: { host: location.hostname, frame: window.top === window ? 'top' : 'iframe', width: innerWidth, height: innerHeight },
+    panels: panels.map(p => ({ rect: page(p.getBoundingClientRect()), parent: panels.findIndex(q => q !== p && q.contains(p) && !panels.some(m => m !== p && m !== q && q.contains(m) && m.contains(p))) })),
+    fields: boxes, texts,
+    map: await loadMap(),
+    lastFill,
+  };
+}
+
 // Prefer #id / [name] only when they identify exactly one element — EMRs often reuse them
 function buildSelector(el) {
   const unique = sel => { try { return document.querySelectorAll(sel).length === 1; } catch(e) { return false; } };
@@ -964,8 +1001,11 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
     case 'fillSchema':     reply(fillSchema(msg.values).then(results => ({ results }))); return true;
     case 'refillPending':  reply(fillPending().then(results => ({ results }))); return true;
     case 'undoFill':       sendResponse({ restored: undoLastFill(), undoDepth: undoStack.length }); return true;
-    case 'getStatus':      reply(loadMap().then(map => ({ mappedCount: Object.keys(map).length, undoDepth: undoStack.length, origin: location.origin, lastFill, customFields: customFieldsOf(map) }))); return true;
+    case 'getStatus':      reply(loadMap().then(map => ({ mappedCount: Object.keys(map).length, mappedKeys: Object.keys(map), undoDepth: undoStack.length, origin: location.origin, lastFill, customFields: customFieldsOf(map) }))); return true;
     case 'forgetLastFill': lastFill = null; sendResponse({ ok: true }); return true;
+    case 'getReport':      reply(buildReport()); return true;
+    case 'exportMap':      reply(loadMap().then(map => ({ host: location.hostname, map }))); return true;
+    case 'importMap':      reply(saveMap(msg.map).then(() => ({ mappedCount: Object.keys(msg.map).length }))); return true;
     case 'startSetup':     startSetup(); sendResponse({ ok: true }); return true;
     case 'highlightField': {
       try { const el = document.querySelector(msg.selector); if (el) highlight(el); } catch(e) {}

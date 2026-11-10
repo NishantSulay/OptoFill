@@ -11,9 +11,10 @@ const ROOT = path.resolve(__dirname, '../..');
 const { DICTATION, VALUES } = require('./sample');
 
 // Stand-ins for the extension APIs, installed in every frame before its scripts run
-function installStubs(values) {
+function installStubs({ values, local }) {
   const top = window.top;
-  top.__store = top.__store || { local: { apiKey: 'sk-ant-demo' }, session: {} };
+  // The video goes straight from dictation to the filled form, so the review step is off here
+  top.__store = top.__store || { local: { apiKey: 'sk-ant-demo', reviewBeforeFill: false, ...local }, session: {} };
   const area = name => ({
     get(keys, cb) {
       const src = top.__store[name], out = {};
@@ -76,11 +77,12 @@ function serve() {
 }
 
 // Opens the stage with the EMR set up and the side panel loaded. Returns helpers to drive it.
-async function openStage(browser, { width, height, scale = 2, setup = true }) {
+// local: extra saved settings for the side panel (the tests turn the review step back on)
+async function openStage(browser, { width, height, scale = 2, setup = true, local = {} }) {
   const server = await serve();
   const base = `http://127.0.0.1:${server.address().port}`;
   const ctx = await browser.newContext({ viewport: { width, height }, deviceScaleFactor: scale });
-  await ctx.addInitScript(installStubs, VALUES);
+  await ctx.addInitScript(installStubs, { values: VALUES, local });
   const page = await ctx.newPage();
   await page.goto(`${base}/core/demo/stage.html`);
 

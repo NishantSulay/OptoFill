@@ -101,11 +101,12 @@ const readNormals = () => Object.fromEntries([...normalsList.querySelectorAll('i
 document.getElementById('normals-reset').addEventListener('click', () => renderNormals(self.OPTOFILL_NORMALS));
 
 // ─── Init ─────────────────────────────────────────────────────────────────────
-chrome.storage.local.get(['apiKey', 'customInstructions', 'normals', 'wordFixes'], (data) => {
+chrome.storage.local.get(['apiKey', 'customInstructions', 'normals', 'wordFixes', 'reviewBeforeFill'], (data) => {
   if (data.apiKey) apiKeyInput.value = data.apiKey;
   if (data.customInstructions) customInstructions.value = data.customInstructions;
   renderNormals(data.normals || self.OPTOFILL_NORMALS);
   wordFixes = data.wordFixes ?? OptoFillWordFix.DEFAULTS;
+  document.getElementById('review-setting').checked = data.reviewBeforeFill !== false;
   wordFixesInput.value = wordFixes;
 });
 
@@ -204,6 +205,7 @@ function updateFillBtn() { fillBtn.disabled = !transcript.trim(); }
 clearBtn.addEventListener('click', () => {
   if (isListening) { port.postMessage({ action: 'stopRecording' }); setListeningState(false); }
   port.postMessage({ action: 'clearRecording' });
+  if (review) closeReview();
   chrome.storage.session.remove(['transcript', 'isRecording']);
   transcript = '';
   transcriptEl.value = '';
@@ -256,6 +258,7 @@ const emrSetup     = document.getElementById('emr-setup');
 const emrSetupText = document.getElementById('emr-setup-text');
 const undoBtn      = document.getElementById('undo-btn');
 let mappedCount = 0;
+let mappedKeys = [];      // schema keys with a box on this EMR
 let customFields = [];   // boxes the doctor labelled themselves on this EMR, sent with the dictation
 
 async function refreshPageStatus() {
@@ -264,6 +267,7 @@ async function refreshPageStatus() {
   try {
     const s = await sendToPage(tab.id, { action: 'getStatus' });
     mappedCount = s?.mappedCount || 0;
+    mappedKeys = s?.mappedKeys || [];
     customFields = s?.customFields || [];
     emrSetup.classList.toggle('warn', mappedCount === 0);
     emrSetupText.textContent = mappedCount
@@ -282,6 +286,7 @@ refreshPageStatus();
 
 // The side panel stays open across tabs: when you switch tab or the page reloads, show that page's status
 function onTabChange() {
+  if (review) { closeReview(); resetFillBtn(); }
   resultsArea.classList.remove('visible');
   resultList.innerHTML = '';
   refreshPageStatus();
@@ -359,15 +364,150 @@ async function handleExtractResult(msg) {
     showToast('No exam findings recognised. Try a more detailed dictation.', 'error');
     resetFillBtn(); return;
   }
+  lastRead = { dictation: transcript.trim(), values: msg.values };
+  const { reviewBeforeFill } = await getSettings();
+  if (reviewBeforeFill === false) return fillValues(tabId, msg.values, msg.redacted);
+  showReview(tabId, msg.values, msg.redacted);
+}
+
+async function fillValues(tabId, values, redacted) {
   setStatus('processing', 'Filling and checking boxes…');
   fillBtnContent.innerHTML = '<span class="spinner"></span> Filling…';
   let res;
-  try { res = await sendToPage(tabId, { action: 'fillSchema', values: msg.values }); }
+  try { res = await sendToPage(tabId, { action: 'fillSchema', values }); }
   catch(e) { showToast('Could not fill fields on the page.', 'error'); resetFillBtn(); return; }
-  showResults(schemaItems(res?.results), { redacted: msg.redacted });
+  showResults(schemaItems(res?.results), { redacted });
   resetFillBtn();
   refreshPageStatus();
 }
+
+// ─── Setup file and layout report ─────────────────────────────────────────────
+let lastRead = null;   // the last dictation and what Claude read from it, for the report
+
+function saveFile(name, data) {
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([JSON.stringify(data, null, 1)], { type: 'application/json' }));
+  a.download = name;
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 5000);
+}
+const fileHost = host => (host || 'emr').replace(/[^a-z0-9.-]/gi, '_');
+
+// The report says what OptoFill sees on this screen (labels and positions of boxes, not their contents), the saved
+// setup, and the last dictation with identifiers removed — enough to reproduce a wrong fill elsewhere.
+document.getElementById('report-btn').addEventListener('click', async () => {
+  const tab = await getExamTab();
+  if (!tab) { showToast('Open your exam form first.', 'error'); return; }
+  try {
+    const report = await sendToPage(tab.id, { action: 'getReport' });
+    if (!report || report.error) throw new Error(report?.error || 'no report');
+    report.version = chrome.runtime.getManifest?.().version || '';
+    if (lastRead) { report.dictation = OptoFillRedact.redact(lastRead.dictation).text; report.read = lastRead.values; }
+    saveFile(`optofill-report-${fileHost(report.page.host)}.json`, report);
+    showToast(`Report saved — ${report.fields.length} boxes on this screen`, 'success');
+  } catch(e) { showToast('Could not read this page for a report.', 'error'); }
+});
+
+document.getElementById('export-btn').addEventListener('click', async () => {
+  const tab = await getExamTab();
+  if (!tab) { showToast('Open your exam form first.', 'error'); return; }
+  try {
+    const { host, map } = await sendToPage(tab.id, { action: 'exportMap' });
+    if (!Object.keys(map || {}).length) { showToast('This EMR isn’t set up yet — nothing to export.', 'error'); return; }
+    saveFile(`optofill-setup-${fileHost(host)}.json`, { optofillSetup: 1, host, map });
+    showToast(`Setup saved — ${Object.keys(map).length} fields`, 'success');
+  } catch(e) { showToast('Could not read this EMR’s setup.', 'error'); }
+});
+
+const importFile = document.getElementById('import-file');
+document.getElementById('import-btn').addEventListener('click', () => importFile.click());
+importFile.addEventListener('change', async () => {
+  const file = importFile.files[0];
+  importFile.value = '';
+  if (!file) return;
+  try {
+    const data = JSON.parse(await file.text());
+    const map = data && data.optofillSetup === 1 && data.map;
+    const ok = map && typeof map === 'object' && Object.values(map).every(e => e && typeof e.selector === 'string');
+    if (!ok || !Object.keys(map).length) throw new Error('not a setup file');
+    const tab = await getExamTab();
+    if (!tab) { showToast('Open your exam form first.', 'error'); return; }
+    if (mappedCount && !confirm(`Replace this EMR’s setup (${mappedCount} fields) with the file’s ${Object.keys(map).length} fields?`)) return;
+    await sendToPage(tab.id, { action: 'importMap', map });
+    await refreshPageStatus();
+    showToast(`Setup loaded — ${Object.keys(map).length} fields`, 'success');
+  } catch(e) { showToast('That isn’t an OptoFill setup file.', 'error'); }
+});
+
+// ─── Review before filling ────────────────────────────────────────────────────
+// Nothing is typed into the EMR until the doctor has seen what was read from the dictation. A value can be
+// corrected or removed here; values with no box on this EMR are shown greyed so nothing said goes missing unnoticed.
+const reviewArea = document.getElementById('review-area');
+const reviewList = document.getElementById('review-list');
+const reviewFillBtn = document.getElementById('review-fill');
+let review = null;   // { tabId, redacted } while the list is open
+
+function shortLabel(key) {
+  const label = self.OPTOFILL_SCHEMA.find(s => s.key === key)?.label || customFields.find(c => c.key === key)?.label || key;
+  return label.replace(/\s*\([^)]*\)/g, '').replace(/^Visual acuity /, 'VA ');
+}
+
+function showReview(tabId, values, redacted) {
+  review = { tabId, redacted };
+  reviewList.innerHTML = '';
+  resultsArea.classList.remove('visible');
+  const hasBox = k => mappedKeys.includes(k);
+  const keys = Object.keys(values).sort((a, b) => hasBox(b) - hasBox(a));
+  for (const key of keys) {
+    const row = document.createElement('div');
+    row.className = 'result-item';
+    row.dataset.key = key;
+    const name = document.createElement('span');
+    name.className = 'result-field'; name.textContent = shortLabel(key); name.title = name.textContent;
+    const input = document.createElement('input');
+    input.className = 'field-input'; input.value = values[key];
+    input.style.cssText = 'flex:0 0 46%;min-width:0;padding:4px 7px;font-size:12px';
+    input.addEventListener('input', updateReviewCount);
+    const drop = document.createElement('button');
+    drop.className = 'mini-btn'; drop.textContent = '✕'; drop.title = 'Don’t fill this one';
+    drop.addEventListener('click', () => { row.remove(); updateReviewCount(); });
+    if (!hasBox(key)) {
+      row.dataset.nobox = '1';
+      name.style.color = 'var(--gray-600)';
+      name.textContent += ' — no box on this EMR';
+      input.disabled = true;
+    }
+    row.append(name, input, drop);
+    reviewList.appendChild(row);
+  }
+  reviewArea.classList.add('visible');
+  updateReviewCount();
+  setStatus('ready', 'Check the values, then fill');
+  fillBtnContent.innerHTML = '✦ Fill Fields';
+}
+
+function reviewValues() {
+  return Object.fromEntries([...reviewList.children].filter(r => !r.dataset.nobox)
+    .map(r => [r.dataset.key, r.querySelector('input').value.trim()]).filter(([, v]) => v));
+}
+function updateReviewCount() {
+  const n = Object.keys(reviewValues()).length;
+  reviewFillBtn.textContent = `✦ Fill ${n} box${n === 1 ? '' : 'es'}`;
+  reviewFillBtn.disabled = !n;
+}
+function closeReview() { review = null; reviewArea.classList.remove('visible'); reviewList.innerHTML = ''; }
+
+reviewFillBtn.addEventListener('click', () => {
+  if (!review) return;
+  const { tabId, redacted } = review, values = reviewValues();
+  closeReview();
+  fillValues(tabId, values, redacted);
+});
+document.getElementById('review-cancel').addEventListener('click', () => {
+  closeReview();
+  resetFillBtn();
+  setStatus('ready', 'Nothing was filled');
+});
 
 // Fill results for schema values (from fillSchema or the page's lastFill) → result list items
 function schemaItems(results) {
@@ -472,7 +612,7 @@ function showToast(message, type='') {
 }
 
 function getSettings() {
-  return new Promise(resolve => chrome.storage.local.get(['apiKey','customInstructions','normals'], resolve));
+  return new Promise(resolve => chrome.storage.local.get(['apiKey','customInstructions','normals','reviewBeforeFill'], resolve));
 }
 
 // Re-fill button — fill values whose boxes are on an EMR tab that wasn't open before
@@ -494,7 +634,7 @@ saveSettingsBtn.addEventListener('click', () => {
   const ci = customInstructions.value.trim();
   if (key && !key.startsWith('sk-ant-')) { showToast('API key should start with sk-ant-', 'error'); return; }
   wordFixes = wordFixesInput.value;
-  chrome.storage.local.set({ apiKey: key, customInstructions: ci, normals: readNormals(), wordFixes }, () => {
+  chrome.storage.local.set({ apiKey: key, customInstructions: ci, normals: readNormals(), wordFixes, reviewBeforeFill: document.getElementById('review-setting').checked }, () => {
     showToast('Settings saved ✓', 'success');
     setTimeout(showMainPanel, 800);
   });

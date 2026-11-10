@@ -584,10 +584,28 @@
       </button>
     </div>
 
+    <!-- Review: what Claude read from the dictation, editable before anything is typed into the EMR -->
+    <div class="results-area" id="review-area">
+      <div class="results-label">Check before filling</div>
+      <div class="result-list" id="review-list" style="max-height:none"></div>
+      <div class="btn-row" style="display:flex;gap:8px">
+        <button class="btn btn-secondary" id="review-cancel" style="flex:0.6">✕ Cancel</button>
+        <button class="btn btn-primary" id="review-fill">✦ Fill</button>
+      </div>
+    </div>
+
     <div class="emr-setup" id="emr-setup">
       <span id="emr-setup-text">Checking this EMR…</span>
       <button class="mini-btn" id="undo-btn" style="display:none;" title="Put back what was in the boxes before OptoFill filled them">↶ Undo fill</button>
       <button class="mini-btn" id="setup-btn" title="Teach OptoFill which box is which on this EMR">Set up EMR</button>
+    </div>
+
+    <!-- Setup file (share one EMR's setup with other computers) and the layout report (for fixing a wrong mapping) -->
+    <div class="tools-row" style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;font-size:11px;color:var(--gray-600)">
+      <button class="mini-btn" id="report-btn" title="Save what OptoFill sees on this screen — box labels and positions, never what is typed in them — to send when something fills wrong">Save report</button>
+      <button class="mini-btn" id="export-btn" title="Save this EMR's setup to a file">Export setup</button>
+      <button class="mini-btn" id="import-btn" title="Load a setup file for this EMR">Import setup</button>
+      <input type="file" id="import-file" accept=".json,application/json" style="display:none" />
     </div>
 
     <div class="results-area" id="results-area">
@@ -619,6 +637,13 @@
     </div>
 
     <div class="field-group">
+      <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer">
+        <input type="checkbox" id="review-setting" checked /> Check values before filling
+      </label>
+      <div class="field-hint">Shows what Claude read from your dictation so you can fix or remove a value before it goes into the EMR.</div>
+    </div>
+
+    <div class="field-group">
       <div class="field-label">Word fixes</div>
       <textarea class="field-input" id="word-fixes" rows="5" placeholder="pearl a = PERRLA" style="resize:vertical;font-family:ui-monospace,Menlo,monospace;font-size:12px"></textarea>
       <div class="field-hint">Words the microphone keeps getting wrong, one per line: <b>what it hears = what you mean</b>. Fixed in your dictation as you speak.</div>
@@ -641,6 +666,7 @@
 
   <script src="schema.js"></script>
   <script src="wordfix.js"></script>
+  <script src="redact.js"></script>
   <script src="popup.js"></script>
 </body>
 </html>
