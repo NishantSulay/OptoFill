@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Try OptoFill — Live Demo</title>
+  <meta name="description" content="Dictate an eye exam and watch OptoFill fill a practice EMR form. Works on your phone. Synthetic data only." />
+  <!-- Try-it page: the practice EMR (core/mock-emr, synthetic data) runs the extension's real content script in a
+       frame; this page is a small stand-in for the side panel. Without an API key, the sample dictation is filled
+       from a recorded reply (core/demo/sample.js); with one, the real extraction (extract.js) reads what was said. -->
+  <style>
+    :root { --blue: #2563eb; --teal: #0d9488; --ink: #0f172a; --gray-600: #475569; --gray-400: #94a3b8; --gray-200: #e2e8f0; --bg: #f8fafc; }
+    * { box-sizing: border-box; }
+    html { -webkit-text-size-adjust: 100%; }
+    body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+    header { display: flex; align-items: center; gap: 10px; padding: 12px 16px; background: linear-gradient(135deg, #1e3a8a, var(--blue) 55%, var(--teal)); color: #fff; }
+    header a { color: #fff; text-decoration: none; font-weight: 700; font-size: 1.05rem; }
+    header .tag { margin-left: auto; font-size: 0.72rem; background: rgba(255,255,255,.18); padding: 4px 10px; border-radius: 999px; white-space: nowrap; }
+    main { max-width: 1500px; margin: 0 auto; padding: 16px; display: grid; gap: 16px; grid-template-columns: minmax(0, 1fr); }
+    @media (min-width: 980px) { main { grid-template-columns: 380px minmax(0, 1fr); align-items: start; } .panel { position: sticky; top: 16px; } }
+    .card { background: #fff; border: 1px solid var(--gray-200); border-radius: 14px; padding: 16px; box-shadow: 0 4px 16px rgba(15,23,42,.05); }
+    h1 { font-size: 1.15rem; margin: 0 0 4px; }
+    .sub { color: var(--gray-600); font-size: 0.85rem; margin: 0 0 14px; }
+    .status { display: flex; align-items: center; gap: 8px; font-size: 0.85rem; color: var(--gray-600); border: 1px solid var(--gray-200); border-radius: 10px; padding: 8px 12px; min-height: 40px; }
+    .status .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--gray-400); flex: none; }
+    .status.rec .dot { background: #dc2626; animation: pulse 1s infinite; }
+    .status.ok .dot { background: #16a34a; } .status.err { color: #b91c1c; border-color: #fecaca; background: #fef2f2; } .status.err .dot { background: #dc2626; }
+    @keyframes pulse { 50% { opacity: .3; } }
+    .mic-row { display: flex; flex-direction: column; align-items: center; gap: 6px; margin: 16px 0 12px; }
+    #mic { width: 72px; height: 72px; border-radius: 50%; border: 0; cursor: pointer; color: #fff; font-size: 28px;
+           background: linear-gradient(135deg, var(--blue), var(--teal)); box-shadow: 0 8px 22px rgba(37,99,235,.35); }
+    #mic.rec { background: #dc2626; box-shadow: 0 0 0 8px rgba(220,38,38,.18); }
+    #mic:disabled { background: var(--gray-400); box-shadow: none; cursor: not-allowed; }
+    .hint { font-size: 0.78rem; color: var(--gray-400); text-align: center; }
+    label.lbl { display: block; font-size: 0.7rem; font-weight: 700; letter-spacing: .06em; color: var(--blue); text-transform: uppercase; margin: 0 0 6px; }
+    textarea, input[type=password] { width: 100%; border: 1.5px solid var(--gray-200); border-radius: 10px; padding: 10px 12px; font: inherit; font-size: 16px; color: var(--ink); background: #fff; }
+    textarea { min-height: 120px; resize: vertical; }
+    textarea:focus, input:focus { outline: none; border-color: var(--blue); }
+    .row { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
+    button.btn { flex: 1 1 auto; min-height: 44px; border-radius: 10px; border: 1.5px solid var(--gray-200); background: #fff; color: #334155; font: inherit; font-weight: 600; font-size: 0.9rem; padding: 8px 14px; cursor: pointer; }
+    button.btn.primary { border: 0; color: #fff; background: linear-gradient(135deg, var(--blue), var(--teal)); flex: 2 1 auto; }
+    button.btn:disabled { opacity: .5; cursor: not-allowed; }
+    #results { list-style: none; margin: 12px 0 0; padding: 0; display: none; border: 1px solid var(--gray-200); border-radius: 10px; overflow: hidden; }
+    #results li { display: flex; gap: 8px; align-items: baseline; padding: 7px 12px; font-size: 0.82rem; border-top: 1px solid var(--gray-200); }
+    #results li:first-child { border-top: 0; }
+    #results .k { color: var(--gray-600); flex: 1; min-width: 0; } #results .v { font-weight: 600; text-align: right; } #results .s { flex: none; width: 1.2em; text-align: center; }
+    #results li.failed .v, #results li.unmapped .v { color: #b91c1c; }
+    details { margin-top: 14px; border-top: 1px solid var(--gray-200); padding-top: 12px; }
+    summary { cursor: pointer; font-weight: 600; font-size: 0.9rem; }
+    details p { font-size: 0.8rem; color: var(--gray-600); margin: 8px 0; }
+    .emr-head { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 10px; }
+    .emr-head h2 { font-size: 0.95rem; margin: 0 8px 0 0; }
+    .chip { border: 1.5px solid var(--gray-200); background: #fff; border-radius: 999px; padding: 6px 12px; font: inherit; font-size: 0.78rem; font-weight: 600; color: #334155; cursor: pointer; min-height: 34px; }
+    .chip.on { background: var(--blue); border-color: var(--blue); color: #fff; }
+    #emr-view { overflow: auto; -webkit-overflow-scrolling: touch; border: 1px solid var(--gray-200); border-radius: 10px; background: #e2e8f0; }
+    #emr-size { position: relative; overflow: hidden; }
+    #emr { border: 0; display: block; transform-origin: 0 0; background: #fff; }
+    .note { font-size: 0.75rem; color: var(--gray-400); margin: 8px 0 0; }
+  </style>
+</head>
+<body>
+<header>
+  <a href="./">👁 OptoFill</a>
+  <span class="tag">Live demo · practice EMR · synthetic data</span>
+</header>
+
+<main>
+  <section class="card panel">
+    <h1>Dictate the exam. Watch the form fill.</h1>
+    <p class="sub">This is a practice EMR, not a real one. Please don't say real patient details.</p>
+
+    <div class="status" id="status"><span class="dot"></span><span id="status-text">Getting the practice EMR ready…</span></div>
+
+    <div class="mic-row">
+      <button id="mic" aria-label="Start dictating" disabled>🎙</button>
+      <div class="hint" id="mic-hint">Tap to dictate</div>
+    </div>
+
+    <label class="lbl" for="transcript">Dictation</label>
+    <textarea id="transcript" placeholder="Tap “Play sample”, dictate, or type here…"></textarea>
+
+    <div class="row">
+      <button class="btn" id="sample" disabled>▶ Play sample</button>
+      <button class="btn primary" id="fill" disabled>✦ Fill the form</button>
+    </div>
+    <div class="row">
+      <button class="btn" id="clear">✕ Clear</button>
+      <button class="btn" id="undo" disabled>↩ Undo fill</button>
+    </div>
+
+    <ul id="results"></ul>
+
+    <details id="live">
+      <summary>Use your own words (live mode)</summary>
+      <p>The sample runs without an account. To have Claude read what <b>you</b> dictate, paste an Anthropic API key. It is kept in this browser only and sent only to Anthropic.</p>
+      <input type="password" id="key" placeholder="sk-ant-…" autocomplete="off" />
+      <p id="key-state"></p>
+    </details>
+  </section>
+
+  <section class="card">
+    <div class="emr-head">
+      <h2>Practice EMR</h2>
+      <span id="chips"></span>
+    </div>
+    <div id="emr-view"><div id="emr-size"><iframe id="emr" title="Practice EMR exam form" src="core/mock-emr/index.html"></iframe></div></div>
+    <p class="note">Swipe to move around the form. Boxes are filled by the same code the Chrome extension uses, then read back to check.</p>
+  </section>
+</main>
+
+<script src="eye-exam-extension/schema.js"></script>
+<script src="eye-exam-extension/redact.js"></script>
+<script src="eye-exam-extension/extract.js"></script>
+<script src="eye-exam-extension/wordfix.js"></script>
+<script src="core/demo/sample.js"></script>
+<script>
+const $ = id => document.getElementById(id);
+const statusEl = $('status'), transcriptEl = $('transcript'), micBtn = $('mic'), fillBtn = $('fill'), sampleBtn = $('sample'),
+      undoBtn = $('undo'), resultsEl = $('results'), keyInput = $('key'), frame = $('emr');
+const EMR_WIDTH = 1500;                       // the practice EMR is a desktop page; it is shown scaled down on a phone
+const SAMPLE = OptoFillSample;
+const fixWords = t => OptoFillWordFix.apply(t, OptoFillWordFix.DEFAULTS);
+const wait = ms => new Promise(r => setTimeout(r, ms));
+let emr = null;                               // the frame's window, once the content script is running in it
+let results = [];
+
+function setStatus(kind, text) { statusEl.className = 'status ' + kind; $('status-text').textContent = text; }
+function refreshButtons() { fillBtn.disabled = !emr || !transcriptEl.value.trim() || busy; sampleBtn.disabled = !emr || busy; }
+let busy = false;
+
+// ─── The practice EMR: load the extension's content script into the frame and set the EMR up ────────────────────
+function loadScript(win, src) {
+  return new Promise((ok, fail) => { const s = win.document.createElement('script'); s.src = src; s.onload = ok; s.onerror = () => fail(new Error('Could not load ' + src)); win.document.head.appendChild(s); });
+}
+
+async function startEmr() {
+  const win = frame.contentWindow, store = {};
+  sizeEmr();                                  // desktop width first: labels are matched to boxes by where they sit
+  // Stand-ins for the extension APIs the content script uses
+  const area = {
+    get(keys, cb) { const out = {}; for (const k of [].concat(keys == null ? Object.keys(store) : typeof keys === 'object' && !Array.isArray(keys) ? Object.keys(keys) : keys)) if (k in store) out[k] = store[k]; if (cb) { cb(out); return; } return Promise.resolve(out); },
+    set(o, cb) { Object.assign(store, JSON.parse(JSON.stringify(o))); cb && cb(); return Promise.resolve(); },
+    remove(k, cb) { delete store[k]; cb && cb(); return Promise.resolve(); },
+  };
+  win.chrome = { runtime: { onMessage: { addListener() {} }, sendMessage(m) { if (m && m.action === 'fillUpdated') showResults(m.results); return Promise.resolve(); } }, storage: { local: area, session: area } };
+  await loadScript(win, new URL('eye-exam-extension/schema.js', location.href).href);
+  await loadScript(win, new URL('eye-exam-extension/content.js', location.href).href);
+
+  // One-time setup, as a doctor would do it: auto-map every tab
+  const tabs = [...win.document.querySelectorAll('.tabs button')];
+  const map = {};
+  for (const t of tabs) { t.click(); await wait(30); win.autoMapVisible(map); }
+  await win.saveMap(map);
+  tabs[0].click();
+
+  $('chips').innerHTML = '';
+  tabs.forEach(t => {
+    const c = document.createElement('button');
+    c.className = 'chip'; c.textContent = t.textContent; c.dataset.tab = t.dataset.tab;
+    c.addEventListener('click', () => openTab(t.dataset.tab));
+    $('chips').appendChild(c);
+  });
+  emr = win;
+  openTab(tabs[0].dataset.tab);
+  window.addEventListener('resize', sizeEmr);
+  micBtn.disabled = !SR;
+  setStatus('', 'Ready — play the sample, or dictate your own');
+  refreshButtons();
+}
+
+function openTab(name) {
+  emr.document.querySelector(`.tabs button[data-tab="${name}"]`).click();
+  document.querySelectorAll('.chip').forEach(c => c.classList.toggle('on', c.dataset.tab === name));
+  sizeEmr();
+}
+
+function sizeEmr() {
+  const view = $('emr-view');
+  const scale = Math.min(1, Math.max(0.5, view.clientWidth / EMR_WIDTH));
+  frame.style.width = EMR_WIDTH + 'px';
+  frame.style.height = 'auto';
+  const h = Math.max(emr ? emr.document.documentElement.scrollHeight : 0, 700);
+  frame.style.height = h + 'px';
+  frame.style.transform = `scale(${scale})`;
+  $('emr-size').style.width = EMR_WIDTH * scale + 'px';
+  $('emr-size').style.height = h * scale + 'px';
+}
+
+// ─── Dictation ───────────────────────────────────────────────────────────────────────────────────────────────
+const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+let recognition = null, recording = false, base = '';
+
+if (!SR) $('mic-hint').textContent = 'This browser has no dictation — use the mic on your keyboard, or type';
+
+function startRecording() {
+  base = transcriptEl.value.trim() ? transcriptEl.value.trim() + ' ' : '';
+  const rec = recognition = new SR();
+  rec.continuous = true; rec.interimResults = true; rec.lang = 'en-US';
+  // Rebuilt from the whole result list each time: some phones re-send earlier results, so adding would repeat words
+  rec.onresult = e => {
+    if (rec !== recognition) return;
+    let final = '', interim = '';
+    for (const r of e.results) (r.isFinal ? (final += r[0].transcript.trim() + ' ') : (interim += r[0].transcript));
+    transcriptEl.value = fixWords(base + final + interim).trim();
+    rec.finalSoFar = base + final;
+    refreshButtons();
+  };
+  rec.onerror = e => {
+    if (rec !== recognition || e.error === 'no-speech' || e.error === 'aborted') return;
+    stopRecording();
+    setStatus('err', e.error === 'not-allowed' || e.error === 'service-not-allowed' ? 'Microphone is blocked — allow it for this page, or type instead' : 'Dictation stopped (' + e.error + ') — try again, or type');
+  };
+  // Phones end the session after a pause: carry on from what was heard until the doctor stops
+  rec.onend = () => {
+    if (rec !== recognition || !recording) return;
+    base = rec.finalSoFar || base;
+    try { startRecording(); } catch (_) { stopRecording(); }
+  };
+  rec.start();
+  recording = true;
+  micBtn.classList.add('rec'); micBtn.textContent = '■'; micBtn.setAttribute('aria-label', 'Stop dictating');
+  $('mic-hint').textContent = 'Listening… tap to stop';
+  setStatus('rec', 'Listening…');
+}
+
+function stopRecording() {
+  recording = false;
+  const rec = recognition; recognition = null;
+  try { rec && rec.stop(); } catch (_) {}
+  micBtn.classList.remove('rec'); micBtn.textContent = '🎙'; micBtn.setAttribute('aria-label', 'Start dictating');
+  $('mic-hint').textContent = 'Tap to dictate';
+  if (statusEl.classList.contains('rec')) setStatus('', transcriptEl.value.trim() ? 'Dictation ready — tap Fill the form' : 'Ready');
+  refreshButtons();
+}
+
+micBtn.addEventListener('click', () => {
+  if (recording) return stopRecording();
+  try { startRecording(); } catch (e) { setStatus('err', 'Could not start the microphone — type instead'); }
+});
+transcriptEl.addEventListener('input', refreshButtons);
+
+$('clear').addEventListener('click', () => { if (recording) stopRecording(); transcriptEl.value = ''; refreshButtons(); });
+
+sampleBtn.addEventListener('click', async () => {
+  if (recording) stopRecording();
+  busy = true; refreshButtons();
+  setStatus('rec', 'Playing the sample dictation…');
+  const words = SAMPLE.DICTATION.split(' ');
+  for (let i = 1; i <= words.length; i++) { transcriptEl.value = words.slice(0, i).join(' '); transcriptEl.scrollTop = transcriptEl.scrollHeight; await wait(45); }
+  busy = false;
+  setStatus('', 'Sample ready — tap Fill the form');
+  refreshButtons();
+});
+
+// ─── Fill ────────────────────────────────────────────────────────────────────────────────────────────────────
+const same = (a, b) => a.replace(/\s+/g, ' ').trim().toLowerCase() === b.replace(/\s+/g, ' ').trim().toLowerCase();
+
+async function readDictation(text) {
+  const apiKey = keyInput.value.trim();
+  if (apiKey) return OptoFillExtract.extractFindings({ apiKey, dictation: text, browser: true });
+  if (same(text, SAMPLE.DICTATION)) { await wait(900); return SAMPLE.VALUES; }
+  $('live').open = true;
+  throw new Error('To fill from your own words, add an API key below (live mode) — or tap Play sample');
+}
+
+fillBtn.addEventListener('click', async () => {
+  if (recording) stopRecording();
+  const text = fixWords(transcriptEl.value).trim();
+  if (!text) return;
+  transcriptEl.value = text;
+  busy = true; refreshButtons();
+  setStatus('rec', keyInput.value.trim() ? 'Claude is reading your dictation…' : 'Reading the dictation…');
+  try {
+    const values = await readDictation(text);
+    if (!Object.keys(values).length) throw new Error('No exam findings found in that dictation');
+    showResults(await emr.fillSchema(values));
+    // Values for boxes on other tabs wait for their tab: open each one so they fill, then show the busiest tab
+    const start = document.querySelector('.chip.on').dataset.tab;
+    for (const c of document.querySelectorAll('.chip')) {
+      if (!results.some(r => r.status === 'pending')) break;
+      openTab(c.dataset.tab); await wait(40);
+      for (const r of await emr.fillPending()) { const i = results.findIndex(x => x.key === r.key); if (i >= 0) results[i] = r; }
+    }
+    showResults(results);
+    openTab(busiestTab() || start);
+    const n = results.filter(r => r.status === 'filled').length, bad = results.length - n;   // boxes, modifier boxes included
+    setStatus(bad ? 'err' : 'ok', `Filled ${n} box${n === 1 ? '' : 'es'} and checked each one` + (bad ? ` · ${bad} could not be filled` : ''));
+    undoBtn.disabled = false;
+    if (window.innerWidth < 980) $('emr-view').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  } catch (e) {
+    setStatus('err', e.message || 'Something went wrong');
+  }
+  busy = false; refreshButtons();
+});
+
+// The tab holding the most filled boxes (each mapped box remembers nothing about its tab, so look where it sits)
+function busiestTab() {
+  const count = {};
+  for (const el of emr.document.querySelectorAll('input, textarea, select')) {
+    const screen = el.closest('.screen');
+    if (screen && (el.type === 'checkbox' ? el.checked : el.value && el.value !== 'Select')) count[screen.id] = (count[screen.id] || 0) + 1;
+  }
+  return Object.keys(count).sort((a, b) => count[b] - count[a])[0];
+}
+
+undoBtn.addEventListener('click', () => {
+  let n = 0, more;
+  while ((more = emr.undoLastFill())) n += more;
+  undoBtn.disabled = true;
+  showResults([]);
+  setStatus('', n ? `Undone — ${n} box${n === 1 ? '' : 'es'} restored` : 'Nothing to undo');
+});
+
+const MARK = { filled: '✓', pending: '⏳', failed: '✕', unmapped: '–' };
+function showResults(list) {
+  results = list || [];
+  // A VA modifier box ("-1") is shown with its acuity, as dictated
+  const shown = results.filter(r => !/_mod$/.test(r.key)).map(r => {
+    const mod = results.find(m => m.key === r.key + '_mod' && m.status === 'filled');
+    // Boxes labelled "20/" hold just "40": show the acuity as it was said
+    const value = /^(va_|rx_va_)/.test(r.key) && /^\d+$/.test(r.value) ? '20/' + r.value : String(r.value);
+    return { ...r, label: r.label.charAt(0).toUpperCase() + r.label.slice(1), value: mod ? '20/' + value.replace(/^20\//, '') + mod.value : value };
+  });
+  resultsEl.style.display = shown.length ? 'block' : 'none';
+  resultsEl.innerHTML = '';
+  for (const r of shown) {
+    const li = document.createElement('li');
+    li.className = r.status;
+    li.title = r.reason || '';
+    for (const [cls, text] of [['s', MARK[r.status] || ''], ['k', r.label], ['v', r.value]]) { const s = document.createElement('span'); s.className = cls; s.textContent = text; li.appendChild(s); }
+    resultsEl.appendChild(li);
+  }
+}
+
+// ─── Live mode key (this browser only) ───────────────────────────────────────────────────────────────────────
+const KEY = 'optofillDemoKey';
+try { keyInput.value = localStorage.getItem(KEY) || ''; } catch (_) {}
+function showKeyState() {
+  const k = keyInput.value.trim();
+  $('key-state').textContent = !k ? 'Sample mode: only the sample dictation can be filled.' : k.startsWith('sk-ant-') ? 'Live mode: Claude will read whatever you dictate.' : 'That doesn’t look like an Anthropic key (it should start with sk-ant-).';
+}
+keyInput.addEventListener('input', () => { try { keyInput.value.trim() ? localStorage.setItem(KEY, keyInput.value.trim()) : localStorage.removeItem(KEY); } catch (_) {} showKeyState(); });
+showKeyState();
+
+const ready = () => startEmr().catch(e => setStatus('err', 'The practice EMR did not load — refresh the page (' + e.message + ')'));
+if (frame.contentDocument && frame.contentDocument.readyState === 'complete' && frame.contentWindow.location.href !== 'about:blank') ready();
+else frame.addEventListener('load', ready, { once: true });
+</script>
+</body>
+</html>

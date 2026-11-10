@@ -27,6 +27,7 @@ Two steps, kept separate:
 - `core/tests/content.test.js` — Playwright tests of content.js against the mock EMR
 - `core/evals/` — extraction eval (`cases.json` mock dictations, `run.js`) and Quick fill eval (`quickfill.js`, same cases, graded by box on the mock EMR)
 - `index.html` / `privacy.html` — GitHub Pages landing site
+- `demo.html` — try-it page on the site (works on a phone): the mock EMR in a frame running the real `content.js`, with a small stand-in for the side panel. Without an API key only the sample dictation fills, from the recorded reply in `core/demo/sample.js`; with one, `extract.js` reads what was dictated
 - `core/demo/` — website video (`node core/demo/record.js` → `assets/optofill-demo.mp4`, `.gif`, `-poster.jpg`) and store screenshots (`node core/demo/screenshots.js` → `store-assets/`): the real side panel and content script on the mock EMR (`stage.html`, `lib.js`), with Claude's reply canned
 - `store-assets/` — Chrome Web Store submission screenshots and notes
 
@@ -34,6 +35,7 @@ Two steps, kept separate:
 - Content script: `node core/tests/content.test.js` (needs `playwright`; set `CHROME_PATH` if no bundled browser)
 - Redaction: `node core/tests/redact.test.js` (no browser; must keep every eval dictation unchanged)
 - Section normals: `node core/tests/normals.test.js` (no browser, no API calls)
+- Try-it page: `node core/tests/demo-page.test.js` (needs `playwright`; phone-sized, no API calls)
 - Word fixes: `node core/tests/wordfix.test.js` (no browser; the starter fixes must leave every correctly heard eval dictation unchanged)
 - Extraction eval: `ANTHROPIC_API_KEY=... node core/evals/run.js` (real API calls; `--dry-run` prints the request)
 - Quick fill eval: `ANTHROPIC_API_KEY=... node core/evals/quickfill.js` (real API calls; needs `playwright`)
@@ -73,5 +75,5 @@ git config user.name Claude
 The stop hook enforces this. If a push is rejected for authorship, amend and re-push.
 
 ### Branch
-`main` is the release branch, and GitHub Pages publishes the site (`index.html`, `privacy.html`, `assets/`) from it.
+`main` is the release branch, and GitHub Pages publishes the site (`index.html`, `privacy.html`, `demo.html`, `assets/`) from it. `demo.html` loads `eye-exam-extension/*.js` and `core/mock-emr/` from the published site, so a change to those changes the live demo.
 Bump `version` in `eye-exam-extension/manifest.json` for each release so the version on chrome://extensions shows what's loaded.
