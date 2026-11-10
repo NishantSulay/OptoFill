@@ -35,6 +35,7 @@ function connectPort() {
     }
     if (msg.action === 'micStarted') {
       setListeningState(true);
+      if (msg.engine === 'medical') setStatus('listening', 'Listening with medical speech — speak your exam findings…');
       chrome.storage.session.set({ isRecording: true });
     }
     if (msg.action === 'micStopped') {
@@ -48,6 +49,8 @@ function connectPort() {
       bar.style.display = 'block';
       bar.innerHTML = '🎙 <strong>Allow microphone access first:</strong> Click here, then click Allow in the Chrome prompt. After that, click 🎙 again.';
     }
+    // Medical speech couldn't be reached: the dictation carries on with Chrome's recognition
+    if (msg.action === 'speechFallback') showToast(msg.error + ' — using Chrome’s speech instead', 'error');
     if (msg.action === 'micError') {
       showToast(msg.error, 'error');
       setListeningState(false);
@@ -65,6 +68,12 @@ connectPort();
 const wordFixesInput = document.getElementById('word-fixes');
 let wordFixes = OptoFillWordFix.DEFAULTS;
 const fixWords = text => OptoFillWordFix.apply(text, wordFixes);
+
+// Speech engine: Chrome's built-in recognition, or the medical model (speech.js) with the doctor's own Deepgram key
+const speechEngine = document.getElementById('speech-engine');
+const deepgramKey = document.getElementById('deepgram-key');
+const showSpeechKey = () => { document.getElementById('deepgram-group').style.display = speechEngine.value === 'medical' ? 'block' : 'none'; };
+speechEngine.addEventListener('change', showSpeechKey);
 
 // Normal findings editor: one box per structure, grouped by section (schema.js has the sections and defaults)
 const normalsList = document.getElementById('normals-list');
@@ -101,12 +110,15 @@ const readNormals = () => Object.fromEntries([...normalsList.querySelectorAll('i
 document.getElementById('normals-reset').addEventListener('click', () => renderNormals(self.OPTOFILL_NORMALS));
 
 // ─── Init ─────────────────────────────────────────────────────────────────────
-chrome.storage.local.get(['apiKey', 'customInstructions', 'normals', 'wordFixes', 'reviewBeforeFill'], (data) => {
+chrome.storage.local.get(['apiKey', 'customInstructions', 'normals', 'wordFixes', 'reviewBeforeFill', 'speechEngine', 'deepgramKey'], (data) => {
   if (data.apiKey) apiKeyInput.value = data.apiKey;
   if (data.customInstructions) customInstructions.value = data.customInstructions;
   renderNormals(data.normals || self.OPTOFILL_NORMALS);
   wordFixes = data.wordFixes ?? OptoFillWordFix.DEFAULTS;
   document.getElementById('review-setting').checked = data.reviewBeforeFill !== false;
+  speechEngine.value = data.speechEngine === 'medical' ? 'medical' : 'chrome';
+  deepgramKey.value = data.deepgramKey || '';
+  showSpeechKey();
   wordFixesInput.value = wordFixes;
 });
 
@@ -461,12 +473,15 @@ function showReview(tabId, values, redacted) {
   for (const key of keys) {
     const row = document.createElement('div');
     row.className = 'result-item';
+    row.style.cssText = 'flex-wrap:wrap;gap:4px 6px';
     row.dataset.key = key;
+    // The label gets its own line, in full: "… OD" and "… OS" must never be cut off here
     const name = document.createElement('span');
-    name.className = 'result-field'; name.textContent = shortLabel(key); name.title = name.textContent;
+    name.className = 'result-field'; name.textContent = shortLabel(key);
+    name.style.cssText = 'flex:0 0 100%;max-width:none;white-space:normal;overflow:visible';
     const input = document.createElement('input');
     input.className = 'field-input'; input.value = values[key];
-    input.style.cssText = 'flex:0 0 46%;min-width:0;padding:4px 7px;font-size:12px';
+    input.style.cssText = 'flex:1;min-width:0;padding:4px 7px;font-size:12px';
     input.addEventListener('input', updateReviewCount);
     const drop = document.createElement('button');
     drop.className = 'mini-btn'; drop.textContent = '✕'; drop.title = 'Don’t fill this one';
@@ -634,7 +649,8 @@ saveSettingsBtn.addEventListener('click', () => {
   const ci = customInstructions.value.trim();
   if (key && !key.startsWith('sk-ant-')) { showToast('API key should start with sk-ant-', 'error'); return; }
   wordFixes = wordFixesInput.value;
-  chrome.storage.local.set({ apiKey: key, customInstructions: ci, normals: readNormals(), wordFixes, reviewBeforeFill: document.getElementById('review-setting').checked }, () => {
+  if (speechEngine.value === 'medical' && !deepgramKey.value.trim()) { showToast('Medical speech needs a Deepgram key — or switch back to Chrome', 'error'); return; }
+  chrome.storage.local.set({ speechEngine: speechEngine.value, deepgramKey: deepgramKey.value.trim(), apiKey: key, customInstructions: ci, normals: readNormals(), wordFixes, reviewBeforeFill: document.getElementById('review-setting').checked }, () => {
     showToast('Settings saved ✓', 'success');
     setTimeout(showMainPanel, 800);
   });

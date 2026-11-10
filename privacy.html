@@ -129,7 +129,8 @@
 
   <p><strong>b) Voice Dictations / Transcripts</strong></p>
   <ul>
-    <li>Speech is transcribed by Chrome's built-in speech recognition (the Web Speech API). <strong>Chrome sends your audio to Google's speech service</strong> to do this; it is not transcribed on your device. OptoFill itself never receives, stores, or sends audio.</li>
+    <li>Speech is transcribed by Chrome's built-in speech recognition (the Web Speech API). <strong>Chrome sends your audio to Google's speech service</strong> to do this; it is not transcribed on your device. With this default engine, OptoFill itself never receives, stores, or sends audio.</li>
+    <li><strong>Optional medical speech engine (off unless you turn it on):</strong> if you choose "Medical — Deepgram" in Settings and enter your own Deepgram key, OptoFill streams your dictation audio to Deepgram instead of Google, together with a list of eye-care terms and the right-hand side of your word fixes. The audio is not stored by OptoFill. If Deepgram can't be reached, Chrome's recognition takes over and the audio goes to Google as above.</li>
     <li>The resulting text transcript is sent to <code>api.anthropic.com</code> when you click "Fill Fields."</li>
     <li>The current transcript is kept in Chrome's session storage so it survives closing the side panel, and is cleared when you clear it or close Chrome. OptoFill has no servers and keeps no copy.</li>
   </ul>
@@ -169,11 +170,14 @@
   <p><strong>Google Chrome Web Speech API</strong><br/>
   Voice transcription is performed by Chrome's built-in speech recognition, which sends your audio to Google's servers to be transcribed. OptoFill does not control how Google handles that audio. Refer to <a href="https://policies.google.com/privacy" target="_blank">Google's Privacy Policy</a> for details.</p>
 
+  <p><strong>Deepgram (only if you turn on the medical speech engine)</strong><br/>
+  With the optional medical speech engine, your audio is sent to Deepgram under your own Deepgram account and key. OptoFill does not control how Deepgram handles that audio. Refer to <a href="https://deepgram.com/privacy" target="_blank">Deepgram's Privacy Policy</a> and your agreement with them.</p>
+
   <h2>5. Patient Privacy Laws (HIPAA, PHIPA and Others)</h2>
   <p>OptoFill is a software tool. It is not a covered entity, business associate, or health information custodian. If you use OptoFill with patient information, you are responsible for making sure your use complies with the laws that apply to you — for example HIPAA in the United States, or PHIPA and other provincial health privacy laws in Canada. This page is not legal advice.</p>
   <ul>
     <li><strong>Do not dictate patient identifiers</strong> such as names, dates of birth, health card or insurance numbers, addresses, or phone numbers. Clinical findings (VA, refraction, IOP, and so on) are all OptoFill needs.</li>
-    <li>Your audio is sent to Google by Chrome's speech recognition, and your dictation text is sent to Anthropic. Check whether your obligations allow this, and whether you need an agreement with either company, before using OptoFill with real patients.</li>
+    <li>Your audio is sent to Google by Chrome's speech recognition (or to Deepgram, if you turn on the medical speech engine), and your dictation text is sent to Anthropic. Check whether your obligations allow this, and whether you need an agreement with either company, before using OptoFill with real patients.</li>
     <li>Anthropic offers agreements for handling health information to some API customers. Contact Anthropic to find out whether one is available for your account.</li>
     <li>Set up your EMR rather than relying on quick fill, so that text shown on the page is not sent.</li>
   </ul>

@@ -19,12 +19,14 @@ Two steps, kept separate:
   - `schema.js` — clinical schema + auto-map hints (shared by content script, background, evals; `family` tells refraction grids apart by their titles — manifest, habitual, final, auto, retinoscopy, contact lens, keratometry — and `after` maps a box by position, e.g. a K axis); also the normal findings (`OPTOFILL_NORMALS`, editable in Settings) that fill a section the doctor calls normal; also VA modifier keys (`*_mod`), which the AI never sees — content.js splits "20/50-2" into the VA box and its modifier box
   - `redact.js` — removes patient identifiers (names after cues, dates, ID/phone numbers, emails, addresses) from text before it goes to Anthropic
   - `wordfix.js` — the doctor's "heard = meant" fixes for misheard words (Settings), applied to the dictation in the side panel before redaction and the AI
+  - `speech.js` — optional medical speech engine (Settings; the doctor's own Deepgram key): eye-care key terms and the streaming session. `content.js` only records the audio and passes it to `background.js`, which holds the connection and falls back to Chrome's recognition if it can't connect
   - `extract.js` — extraction prompt/request/parse (shared by background and `core/evals`)
   - `quickfill.js` — Quick fill prompt/request/parse (shared by background and `core/evals/quickfill.js`)
   - `content.js` — page scan, layout labels, fill + verify + undo, per-EMR mapping, in-page setup mode (runs in every frame; the side panel talks to the frame with the most boxes)
   - `background.js` — API calls; `popup.*` — UI, shown in Chrome's side panel (`side_panel` in manifest.json)
 - `core/mock-emr/` — fake EMR pages for testing (synthetic data only; tabs: Pretest/BV, Refraction, Contact Lens, Ocular Health, Assessment/Plan); `framed.html` puts the form in an iframe
 - `core/tests/content.test.js` — Playwright tests of content.js against the mock EMR
+- `core/tests/replay.js` — rebuilds an EMR screen from a layout report (side panel → Save report: boxes, label texts and panels, never box contents) and runs the real content script on it: `node core/tests/replay.js report.json`. Reports from real EMRs must not be committed unless they came from a test patient and hold no identifiers
 - `core/evals/` — extraction eval (`cases.json` mock dictations, `run.js`) and Quick fill eval (`quickfill.js`, same cases, graded by box on the mock EMR)
 - `index.html` / `privacy.html` — GitHub Pages landing site
 - `demo.html` — try-it page on the site (works on a phone): the mock EMR in a frame running the real `content.js`, with a small stand-in for the side panel. Without an API key only the sample dictation fills, from the recorded reply in `core/demo/sample.js`; with one, `extract.js` reads what was dictated
@@ -35,6 +37,9 @@ Two steps, kept separate:
 - Content script: `node core/tests/content.test.js` (needs `playwright`; set `CHROME_PATH` if no bundled browser)
 - Redaction: `node core/tests/redact.test.js` (no browser; must keep every eval dictation unchanged)
 - Section normals: `node core/tests/normals.test.js` (no browser, no API calls)
+- Side panel (review before fill, report, setup files): `node core/tests/panel.test.js` (needs `playwright`)
+- Layout report and replay: `node core/tests/report.test.js` (needs `playwright`; every mock tab rebuilt from its report must map as the live one)
+- Medical speech: `node core/tests/speech.test.js` (needs `playwright`; stand-in WebSocket and Chrome's fake microphone, no speech account)
 - Try-it page: `node core/tests/demo-page.test.js` (needs `playwright`; phone-sized, no API calls)
 - Word fixes: `node core/tests/wordfix.test.js` (no browser; the starter fixes must leave every correctly heard eval dictation unchanged)
 - Extraction eval: `ANTHROPIC_API_KEY=... node core/evals/run.js` (real API calls; `--dry-run` prints the request)

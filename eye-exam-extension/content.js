@@ -91,6 +91,49 @@ function discardRecognition() {
   if (rec) { rec.onstart = rec.onresult = rec.onerror = rec.onend = null; try { rec.abort(); } catch(e) {} }
 }
 
+// ─── Medical speech: the page only records ───────────────────────────────────
+// With the medical speech engine the microphone is still opened here (the EMR page is where Chrome asks for it), but
+// the audio goes to background.js in small pieces, which streams it to the speech service and sends the words back.
+let capture = null;   // the current recording; pieces from an older one are dropped
+
+async function startAudioCapture() {
+  stopAudioCapture(true);
+  const session = capture = { stream: null, recorder: null, port: null, queue: Promise.resolve() };
+  try {
+    session.stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+  } catch (e) {
+    if (capture === session) capture = null;
+    chrome.runtime.sendMessage({ action: 'audioError', error: e.name === 'NotAllowedError' ? 'not-allowed' : e.message });
+    return;
+  }
+  if (capture !== session) { session.stream.getTracks().forEach(t => t.stop()); return; }
+  session.port = chrome.runtime.connect({ name: 'optofill-audio' });
+  const type = 'audio/webm;codecs=opus';
+  const rec = session.recorder = new MediaRecorder(session.stream, MediaRecorder.isTypeSupported(type) ? { mimeType: type } : undefined);
+  // Pieces go out in the order they were recorded, and "end" after the last one
+  const post = make => { session.queue = session.queue.then(async () => { try { session.port.postMessage(await make()); } catch (e) {} }); };
+  rec.ondataavailable = e => { if (e.data && e.data.size) post(async () => ({ audio: bytesToBase64(new Uint8Array(await e.data.arrayBuffer())) })); };
+  rec.onstop = () => post(async () => ({ end: true }));
+  rec.start(250);
+}
+
+// Stop recording. The last piece and "end" still go out, unless the dictation is being thrown away.
+function stopAudioCapture(discard) {
+  const session = capture;
+  capture = null;
+  if (!session) return;
+  if (discard && session.recorder) session.recorder.ondataavailable = session.recorder.onstop = null;
+  try { if (session.recorder && session.recorder.state !== 'inactive') session.recorder.stop(); } catch (e) {}
+  if (session.stream) session.stream.getTracks().forEach(t => t.stop());
+  if (discard && session.port) try { session.port.disconnect(); } catch (e) {}
+}
+
+function bytesToBase64(bytes) {
+  let s = '';
+  for (let i = 0; i < bytes.length; i += 0x8000) s += String.fromCharCode.apply(null, bytes.subarray(i, i + 0x8000));
+  return btoa(s);
+}
+
 // Find question text for a radio/checkbox by searching wider DOM context
 function getRadioQuestionText(el) {
   // Walk up the DOM looking for a field container, then find the question label inside it
@@ -1020,7 +1063,9 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
       return true;
     case 'startRecording': startRecording(msg.existingTranscript); sendResponse({ ok: true }); return true;
     case 'stopRecording':  stopRecording(); sendResponse({ ok: true }); return true;
-    case 'clearRecording': discardRecognition(); finalTranscript = ''; sendResponse({ ok: true }); return true;
+    case 'clearRecording': discardRecognition(); stopAudioCapture(true); finalTranscript = ''; sendResponse({ ok: true }); return true;
+    case 'startAudioCapture': startAudioCapture(); sendResponse({ ok: true }); return true;
+    case 'stopAudioCapture':  stopAudioCapture(msg.discard); sendResponse({ ok: true }); return true;
     case 'requestMicPermission':
       navigator.mediaDevices.getUserMedia({ audio: true })
         .then(stream => { stream.getTracks().forEach(t => t.stop()); })

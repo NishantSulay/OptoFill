@@ -587,11 +587,12 @@
     <!-- Review: what Claude read from the dictation, editable before anything is typed into the EMR -->
     <div class="results-area" id="review-area">
       <div class="results-label">Check before filling</div>
-      <div class="result-list" id="review-list" style="max-height:none"></div>
+      <!-- The buttons sit above the list so they stay in reach however many values there are -->
       <div class="btn-row" style="display:flex;gap:8px">
         <button class="btn btn-secondary" id="review-cancel" style="flex:0.6">✕ Cancel</button>
         <button class="btn btn-primary" id="review-fill">✦ Fill</button>
       </div>
+      <div class="result-list" id="review-list" style="max-height:none"></div>
     </div>
 
     <div class="emr-setup" id="emr-setup">
@@ -634,6 +635,18 @@
       <div class="field-label">Custom Instructions (optional)</div>
       <textarea class="field-input" id="custom-instructions" rows="3" placeholder="e.g. Always use -/+ notation for sphere/cylinder…" style="resize:vertical;"></textarea>
       <div class="field-hint">Extra context sent to Claude with every exam dictation.</div>
+    </div>
+
+    <div class="field-group">
+      <div class="field-label">Speech engine</div>
+      <select class="field-input" id="speech-engine">
+        <option value="chrome">Chrome (built in, free)</option>
+        <option value="medical">Medical — Deepgram (trial, needs a key)</option>
+      </select>
+      <div id="deepgram-group" style="display:none;margin-top:8px">
+        <input type="password" class="field-input" id="deepgram-key" placeholder="Deepgram API key" autocomplete="off" />
+        <div class="field-hint">Your dictation audio is sent to Deepgram's medical speech model, with a list of eye-care terms and the right-hand side of your word fixes, instead of to Google. The key is stored in this browser only. If Deepgram can't be reached, Chrome's recognition takes over.</div>
+      </div>
     </div>
 
     <div class="field-group">
