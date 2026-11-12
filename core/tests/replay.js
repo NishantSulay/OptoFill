@@ -66,7 +66,7 @@ function buildPage(report) {
 // → { fields: what the content script reads from the rebuilt page, map: { schemaKey: field index } }
 // fromSaved: start from the report's saved setup (as the doctor's browser would) instead of an empty one; `fixed` is
 // then how many outdated mappings auto-map corrected.
-async function replay(report, browser, { png, fromSaved = false } = {}) {
+async function replay(report, browser, { png, fromSaved = false, probe } = {}) {
   const far = Math.max(...[...report.fields, ...report.texts].map(x => x.rect[1] + x.rect[3]), 600);
   const page = await browser.newPage({ viewport: { width: report.page.width, height: Math.min(far + 60, 8000) } });
   await page.addInitScript(() => {
@@ -88,6 +88,7 @@ async function replay(report, browser, { png, fromSaved = false } = {}) {
     const at = Object.fromEntries(Object.entries(map).map(([k, e]) => [k, Number(locateMapped(e, fields)?.dataset.i ?? -1)]));
     return { map: at, fixed: autoMapVisible.fixed, fields: fields.map((f, i) => ({ ...f, i: Number(lastScannedEls[i].dataset.i) })) };
   }, start);
+  if (probe) out.probe = await page.evaluate(probe);   // a look inside the rebuilt page, for working out a wrong mapping
   if (png) await page.screenshot({ path: png, fullPage: true });
   await page.close();
   return out;

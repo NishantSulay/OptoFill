@@ -196,6 +196,20 @@ function getTextAnchors() {
                       p.closest('label')?.querySelector('input[type=checkbox],input[type=radio]'));
     anchors.push({ text, r, node: p, option });
   }
+  // A drop-down that says which refraction a grid holds ("Rx 2 [Retinoscopy ▾]") heads that grid like a title would
+  for (const sel of document.querySelectorAll('select')) {
+    const text = (sel.selectedOptions[0]?.text || '').replace(/\s+/g, ' ').trim();
+    if (!text || text.length > 40 || !isVisibleField(sel) || nearestFamily([normText(text)]) === null) continue;
+    anchors.push({ text, r: sel.getBoundingClientRect(), node: sel, option: false, heading: true });
+  }
+  // A text with a box straight after it on its line ("NRA [ ]", "20/ [ ]") labels that box: it heads nothing below
+  const boxes = Array.from(document.querySelectorAll(FIELD_SELECTOR))
+    .filter(el => !['checkbox', 'radio'].includes(el.type) && el.tagName !== 'SELECT' && isVisibleField(el)).map(el => el.getBoundingClientRect());
+  for (const a of anchors) {
+    if (a.heading || a.option) continue;
+    const cy = (a.r.top + a.r.bottom) / 2;
+    a.rowLabel = boxes.some(b => b.left >= a.r.right - 2 && b.left - a.r.right < 60 && cy > b.top - 4 && cy < b.bottom + 4);
+  }
   return anchors;
 }
 
@@ -207,10 +221,12 @@ function isCovered(el, r) {
   if (x < 0 || y < 0 || x >= innerWidth || y >= innerHeight) return false;
   const top = document.elementFromPoint(x, y);
   if (!top || top.contains(el) || el.contains(top) || top.closest('#optofill-setup-host')) return false;
-  // Something else is in front: it hides the text only if it (or what it sits in) is painted, not see-through
+  // Something else is in front. It hides the text if it is a painted sheet over much of the window (a dialog); a
+  // neighbouring card that a crowded form spills onto is not that, and the label is still the box's label
   for (let n = top; n && !n.contains(el); n = n.parentElement) {
-    const s = getComputedStyle(n);
-    if (s.backgroundImage !== 'none' || !/^(transparent|rgba\(.*,\s*0\))$/.test(s.backgroundColor)) return true;
+    const s = getComputedStyle(n), b = n.getBoundingClientRect();
+    const painted = s.backgroundImage !== 'none' || !/^(transparent|rgba\(.*,\s*0\))$/.test(s.backgroundColor);
+    if (painted && b.width * b.height >= 0.2 * innerWidth * innerHeight) return true;
   }
   return false;
 }
@@ -241,9 +257,12 @@ function getLayoutContext(el, anchors) {
 
   // Row label: nearest text to the left on the same horizontal band (further within a panel: wide grids like a
   // contact lens Rx put the OD/OS label far from the last columns)
+  // A checkbox's own label ("☐ Contacts") names that checkbox: it is no row or column label for a text box near it
+  const isCheck = el.type === 'checkbox' || el.type === 'radio';
+  const labels = anchors.filter(a => !a.heading && (isCheck || !a.option));
   const rowReach = panel ? 900 : 400;
   let row = null;
-  for (const a of anchors) {
+  for (const a of labels) {
     if (a.r.right > f.left + 2 || f.left - a.r.right > rowReach) continue;
     if (cy(a) < f.top - 4 || cy(a) > f.bottom + 4) continue;
     if (!row || a.r.right > row.r.right) row = a;
@@ -253,14 +272,24 @@ function getLayoutContext(el, anchors) {
   // tall grids (slit lamp, fundus) have their OD/OS headers only at the top
   const colReach = panel ? 600 : 250;
   let col = null;
-  for (const a of anchors) {
-    // A checkbox's own label ("☐ Glasses") above a box is not that box's column header
+  for (const a of labels) {
+    // (a checkbox's own label is never a column header, even for another checkbox below it)
     if (a.option || a.r.bottom > f.top + 2 || f.top - a.r.bottom > colReach) continue;
     if (cx(a) < f.left - 4 || cx(a) > f.right + 4) continue;
     if (!col || a.r.bottom > col.r.bottom) col = a;
   }
 
+  // "OD  [ ][ ][ ]  20/ [ ]": the acuity box's nearest label is "20/", and its eye is the label that starts the line
+  let rowText = row?.text || '';
+  if (/^20\/$/.test(rowText.trim())) {
+    const eye = labels.filter(a => a.r.right <= row.r.left + 2 && Math.abs(cy(a) - cy(row)) < 8 && /^(od|os|ou)\b/i.test(a.text.trim()))
+      .sort((a, b) => b.r.right - a.r.right)[0];
+    if (eye) rowText = `${eye.text.replace(/[^a-z]/gi, '')}:20/`;
+  }
+
   const skip = new Set([row?.text, col?.text]);
+  // The other column headings on this box's heading line ("Sphere | Cyl | Axis") say nothing about this box
+  const siblingCols = new Set(col ? anchors.filter(a => a !== col && Math.abs(cy(a) - cy(col)) < 4).map(a => a.text) : []);
   const headingDist = a => (f.top - a.r.bottom) + 0.5 * Math.max(0, a.r.left - f.right, f.left - a.r.right);
   // Labels further left on the same line (e.g. "Stereoacuity  [ ]  Method Used [select]"), nearest first
   // Must line up with this row's own label, so a heading of a neighbouring column that happens to sit at this height
@@ -276,8 +305,8 @@ function getLayoutContext(el, anchors) {
                                           .map(a => a.text) : []);
   // Nearby headings above, nearest first (e.g. "Near Vision", "BV Vergences")
   const above = anchors
-    .filter(a => a.r.bottom <= f.top + 2 && f.top - a.r.bottom < 300 && !a.option &&
-                 a.r.right >= f.left - 400 && a.r.left <= f.right + 50 && !skip.has(a.text) && !siblingRows.has(a.text))
+    .filter(a => a.r.bottom <= f.top + 2 && f.top - a.r.bottom < 300 && !a.option && !a.rowLabel &&
+                 a.r.right >= f.left - 400 && a.r.left <= f.right + 50 && !skip.has(a.text) && !siblingRows.has(a.text) && !siblingCols.has(a.text))
     // Nearest first: distance above, plus half the sideways gap (a heading right over the box beats one off to the side)
     .sort((a, b) => headingDist(a) - headingDist(b))
     .filter((a, i, arr) => arr.findIndex(x => x.text === a.text) === i)   // de-duplicate before taking the nearest 4
@@ -292,10 +321,10 @@ function getLayoutContext(el, anchors) {
 
   // Text straight after the box on the same line: a checkbox's own label ("☐ Glasses ☐ Contacts")
   const after = anchors
-    .filter(a => a.r.left >= f.right - 2 && a.r.left - f.right < 60 && Math.abs(cy(a) - (f.top + f.bottom) / 2) < Math.max(6, f.height))
+    .filter(a => !a.heading && a.r.left >= f.right - 2 && a.r.left - f.right < 60 && Math.abs(cy(a) - (f.top + f.bottom) / 2) < Math.max(6, f.height))
     .sort((a, b) => a.r.left - b.r.left)[0];
 
-  return { row: row?.text || '', col: col?.text || '', context, after: after?.text || '' };
+  return { row: rowText, col: col?.text || '', context, after: after?.text || '' };
 }
 
 function isVisibleField(el) {
@@ -354,9 +383,33 @@ function getAllFields(withLayout) {
     fields.push({ index:fields.length, label:label.substring(0,80), name:name.substring(0,40), id:id.substring(0,40), type, placeholder:placeholder.substring(0,60), options, selector:buildSelector(el), ...layout });
     els.push(el);
   });
-  if (anchors) { labelPairsByPageOrder(fields, els, anchors); guessEyesByPosition(fields, els); }
+  if (anchors) { nameHeaderlessRows(fields, els); labelPairsByPageOrder(fields, els, anchors); guessEyesByPosition(fields, els); }
   lastScannedEls = els;
   return fields;
+}
+
+// Some refraction grids have no column headings at all: "OD [ ][ ][ ]" under a title like "Rx 1" or "Auto 1". Three
+// boxes after an eye label are then sphere, cylinder and axis, as every Rx is written; under a keratometry title, K1,
+// K2 and the axis. Only where the row has no headings of its own.
+function nameHeaderlessRows(fields, els) {
+  const eyeOnly = t => /^(od|os)$/.test(String(t || '').toLowerCase().replace(/[^a-z]/g, ''));
+  const lines = [];
+  fields.forEach((f, i) => {
+    if (!['text', 'number', 'tel'].includes(f.type) || !eyeOnly(f.row)) return;
+    const r = els[i].getBoundingClientRect(), cy = (r.top + r.bottom) / 2, panel = panelOf(els[i]);
+    let line = lines.find(l => l.panel === panel && Math.abs(l.cy - cy) < 6 && l.row === f.row);
+    if (!line) lines.push(line = { panel, cy, row: f.row, boxes: [] });
+    line.boxes.push({ f, left: r.left });
+  });
+  for (const { boxes } of lines) {
+    if (boxes.length !== 3 || boxes.some(b => b.f.col)) continue;
+    boxes.sort((a, b) => a.left - b.left);
+    const context = String(boxes[0].f.context || '');
+    const family = nearestFamily(context.split(' / ').filter(Boolean).map(normText));
+    if (!family && !/\b(rx|refraction)\b/i.test(context)) continue;
+    const names = family === 'kerato' ? ['K1', 'K2', 'Axis'] : ['Sphere', 'Cyl', 'Axis'];
+    boxes.forEach((b, n) => { b.f.col = names[n]; });
+  }
 }
 
 // A label followed in the page by exactly two alike boxes ("Conj [ ] [ ]") is an OD box then an OS box. On a narrow
@@ -381,13 +434,20 @@ function labelPairsByPageOrder(fields, els, anchors) {
     const panel = panelOf(b1.el);
     if (panel !== panelOf(b2.el) || (panel && !panel.contains(lab.el))) continue;
     if (!before(lab.r, b1.r) || !before(b1.r, b2.r)) continue;
+    // A second box that sits under the first ("Additional Tests [ ]" over "[ Notes ]") is no OS box: a wrapped one
+    // starts its line again, to the left of the first
+    if (!sameLine(b1.r, b2.r) && b2.r.left >= b1.r.left - 4) continue;
+    // "Comfort | CL Condition" over a box each is a line of headings, not one label with an OD and an OS box
+    const prev = items[i - 1];
+    if (!sameLine(lab.r, b1.r) && prev && prev.a && sameLine(prev.r, lab.r)) continue;
     if (!(sameLine(lab.r, b1.r) && sameLine(b1.r, b2.r))) wrapped.add(panel);
     pairs.push({ panel, text: lab.a.text, boxes: [b1.f, b2.f] });
   }
   for (const p of pairs) {
     p.boxes.forEach((f, n) => {
       const eye = n ? 'os' : 'od';
-      if (wrapped.has(p.panel)) { f.row = p.text; f.col = ''; f.eye = eye; }
+      // (what was over the box may be a real heading, as "+ve fusional vergences" is: it stays, as a heading)
+      if (wrapped.has(p.panel)) { f.context = [f.col, f.context].filter(Boolean).join(' / '); f.row = p.text; f.col = ''; f.eye = eye; }
       else if (!eyeWord([f.label, f.row, f.col, f.placeholder].join(' | '))) f.eye = eye;
     });
   }
@@ -756,15 +816,16 @@ function scoreKey(entry, f) {
   // Checkbox fields only go to checkboxes, and other fields never do
   if ((entry.kind === 'checkbox') !== (f.type === 'checkbox')) return 0;
   // Refraction grids (manifest, habitual, final, auto, retinoscopy, contact lens): the nearest family word decides
-  if (entry.family) {
-    let nearest = null, nearestPos = Infinity;
-    for (const [fam, words] of Object.entries(FAMILIES)) {
-      const pos = sources.findIndex(s => words.some(t => hasToken(s, t)));
-      if (pos >= 0 && pos < nearestPos) { nearest = fam; nearestPos = pos; }
-    }
-    if (nearest ? nearest !== entry.family : !entry.familyOptional) return 0;
-  }
   let score = 0;
+  if (entry.family || entry.notFamily) {
+    const nearest = nearestFamily(sources);
+    if (entry.notFamily && nearest === entry.notFamily) return 0;
+    if (entry.family) {
+      if (nearest ? nearest !== entry.family : !entry.familyOptional) return 0;
+      // A grid that names its family ("Rx 3 [Subjective]") beats one that only fits because it names none
+      if (nearest) score += 5;
+    }
+  }
   if (entry.eye) {
     if (!EYE_WORDS[entry.eye].some(t => hasToken(own, t))) return 0;
     for (const [eye, words] of Object.entries(EYE_WORDS)) {
@@ -789,43 +850,52 @@ function scoreKey(entry, f) {
   return score;
 }
 
-// A saved mapping can be left over from an older OptoFill that read this screen's labels wrongly (an OS key saved on
-// the OD box). Before auto-mapping, mappings on screen whose box no longer fits their key are dropped so the box and
-// the key can be matched again. What the doctor picked by hand is never touched; a mapping from before OptoFill
-// recorded who made it is dropped only when another box on screen does fit its key.
+// A saved mapping can be left over from an older OptoFill that read this screen wrongly (an OS key saved on the OD
+// box, +ve and −ve vergences swapped, a refraction split across two grids). Before auto-mapping, the mappings on
+// screen are compared with what auto-map would choose today and the outdated ones dropped, to be matched again.
+// What the doctor picked by hand, or labelled themselves, is never touched.
 function dropOutdated(map, fields) {
   let dropped = 0;
-  const boxOf = key => { const el = map[key] && locateMapped(map[key], fields); return el ? fields[lastScannedEls.indexOf(el)] : null; };
+  const boxOf = (m, key) => (m[key] && locateMapped(m[key], fields)) || null;
+  // What auto-map would do on this screen today, around what the doctor set by hand
+  const fresh = Object.fromEntries(Object.entries(map).filter(([, e]) => e.manual || e.custom));
+  autoAssign(fresh, fields);
+  const freshKeyOf = new Map(Object.keys(fresh).map(k => [boxOf(fresh, k), k]));
   for (const [key, e] of Object.entries(map)) {
-    const s = SCHEMA_BY_KEY[key];
+    if (e.manual || e.custom) continue;
+    const el = boxOf(map, key);
     // Saved by an id the page renumbers on every visit, with nothing else to find the box by: it can never be found
-    if (!e.manual && !e.custom && e.id && volatileId(e.id) && e.selector === `#${CSS.escape(e.id)}` && e.label === e.id && !boxOf(key)) { delete map[key]; dropped++; continue; }
-    if (!s || !s.must || e.manual || e.custom) continue;
-    const f = boxOf(key);
-    if (!f || scoreKey(s, f) > 0) continue;
-    if (!e.auto && !fields.some(x => scoreKey(s, x) > 0)) continue;
-    delete map[key];
-    dropped++;
-  }
-  // Boxes placed after another key's box (VA modifiers, keratometry axes) go when that key is gone or has moved
-  const followers = [...MODIFIERS.map(m => ({ key: m.key, of: m.modifierOf })), ...SCHEMA.filter(s => s.after).map(s => ({ key: s.key, of: s.after }))];
-  for (const { key, of } of followers) {
-    const e = map[key];
-    if (!e || e.manual) continue;
-    const f = boxOf(key);
-    if (!f) continue;
-    const base = map[of] && locateMapped(map[of], fields);
-    if (base ? isModifierBoxOf(lastScannedEls[f.index], base) : !fields.some(x => scoreKey(SCHEMA_BY_KEY[of], x) > 0)) continue;
-    delete map[key];
-    dropped++;
+    if (!el && e.id && volatileId(e.id) && e.selector === `#${CSS.escape(e.id)}` && e.label === e.id) { delete map[key]; dropped++; continue; }
+    if (!el || !SCHEMA_BY_KEY[key]) continue;        // on another tab: can't judge it from here
+    const now = boxOf(fresh, key);
+    if (now === el) continue;                        // still what auto-map would choose
+    const wanted = freshKeyOf.get(el);               // another key that auto-map now puts on this box
+    // Auto-map's own earlier choice is redone whenever today's rules choose differently. A mapping from before
+    // OptoFill recorded who made it is kept unless the key has a better box now, or its box belongs to another key.
+    if (e.auto || now || (wanted && wanted !== key)) { delete map[key]; dropped++; }
   }
   return dropped;
+}
+
+// Which refraction grid a box is in: the family whose word comes first in its labels, nearest label first
+function nearestFamily(sources) {
+  let nearest = null, nearestPos = Infinity;
+  for (const [fam, words] of Object.entries(FAMILIES)) {
+    const pos = sources.findIndex(s => words.some(t => hasToken(s, t)));
+    if (pos >= 0 && pos < nearestPos) { nearest = fam; nearestPos = pos; }
+  }
+  return nearest;
 }
 
 // Suggest keys for every visible, unmapped box; each key and each box used once
 function autoMapVisible(map) {
   const fields = getAllFields(true);
   autoMapVisible.fixed = dropOutdated(map, fields);
+  return autoAssign(map, fields);
+}
+
+// Adds a mapping for every box on screen that fits a key not yet in the map. Returns how many it added.
+function autoAssign(map, fields) {
   const taken = new Set(Object.values(map).map(e => locateMapped(e, fields)).filter(Boolean));
   const cands = [];
   fields.forEach(f => {
@@ -839,26 +909,60 @@ function autoMapVisible(map) {
     }
   });
   cands.sort((a, b) => b.score - a.score || a.top - b.top || a.left - b.left);
+  // One refraction goes into one grid: a screen may show several alike ("Final 1/2/3", "Current CLs" and "Trial
+  // Lens 1"), and its sphere must not land in one while its add lands in another. Each family keeps to the panel of
+  // its best match — on a tie the first panel in reading order.
+  const home = new Map();
+  // …and where some grid names the family ("Rx 3 [Subjective]"), boxes that fit only for naming no family are out
+  const named = new Set();
+  for (const c of cands) {
+    c.family = SCHEMA_BY_KEY[c.key].family;
+    if (!c.family) continue;
+    c.named = nearestFamily([c.f.label, c.f.row, c.f.col, c.f.placeholder, ...String(c.f.context || '').split(' / ')].filter(Boolean).map(normText)) === c.family;
+    if (c.named) named.add(c.family);
+  }
+  for (let i = cands.length - 1; i >= 0; i--) if (cands[i].family && !cands[i].named && named.has(cands[i].family)) cands.splice(i, 1);
+  for (const c of cands) {
+    if (!c.family) continue;
+    c.panel = panelOf(c.el);
+    const r = c.panel ? c.panel.getBoundingClientRect() : { top: 0, left: 0 };
+    const h = home.get(c.family);
+    const earlier = h && (r.top < h.top - 20 || (Math.abs(r.top - h.top) <= 20 && r.left < h.left - 20));
+    if (!h || (c.score === h.score && c.panel !== h.panel && earlier)) home.set(c.family, { panel: c.panel, score: c.score, top: r.top, left: r.left });
+    else if (c.score < h.score) continue;
+  }
+  const inHome = c => !c.family || home.get(c.family).panel === c.panel;
+  const hasHome = new Set(cands.filter(c => c.family && inHome(c)).map(c => c.key));
+
   let added = 0;
   const usedEls = new Set(taken);
+  // Boxes placed by position: VA modifier boxes, and keys marked `after` (a keratometry axis) — the box straight
+  // after their key's box on the same row. Claimed as soon as their key is placed, before a weaker match takes them.
+  const modifiers = MODIFIERS.map(m => ({ key: m.key, of: m.modifierOf }));
+  const afters = SCHEMA.filter(s => s.after).map(s => ({ key: s.key, of: s.after }));
+  const placeFollowers = (of, list = modifiers) => {
+    for (const fo of list) {
+      if (fo.of !== of || map[fo.key] || !map[of]) continue;
+      const prevEl = locateMapped(map[of], fields);
+      const f = prevEl && fields.find(f => !usedEls.has(lastScannedEls[f.index]) && isModifierBoxOf(lastScannedEls[f.index], prevEl));
+      if (!f) continue;
+      map[fo.key] = { ...mappingEntry(lastScannedEls[f.index], f), auto: true };
+      usedEls.add(lastScannedEls[f.index]);
+      added++;
+      placeFollowers(fo.key);
+    }
+  };
+  for (const key of Object.keys(map)) placeFollowers(key);
   for (const c of cands) {
     if (map[c.key] || usedEls.has(c.el)) continue;
+    if (!inHome(c) && hasHome.has(c.key)) continue;
     map[c.key] = { ...mappingEntry(c.el, c.f), auto: true };
     usedEls.add(c.el);
     added++;
+    placeFollowers(c.key);
   }
-  // Boxes placed by position: VA modifier boxes, and keys marked `after` (a keratometry axis) — the box straight
-  // after their key's box on the same row
-  const followers = [...MODIFIERS.map(m => ({ key: m.key, of: m.modifierOf })), ...SCHEMA.filter(s => s.after).map(s => ({ key: s.key, of: s.after }))];
-  for (const { key, of } of followers) {
-    if (map[key] || !map[of]) continue;
-    const prevEl = locateMapped(map[of], fields);
-    const f = prevEl && fields.find(f => !usedEls.has(lastScannedEls[f.index]) && isModifierBoxOf(lastScannedEls[f.index], prevEl));
-    if (!f) continue;
-    map[key] = { ...mappingEntry(lastScannedEls[f.index], f), auto: true };
-    usedEls.add(lastScannedEls[f.index]);
-    added++;
-  }
+  // Keratometry axes last: with "K1 [ ] K2 [ ] axis [ ]" the box after K1 is K2's own
+  for (const fo of afters) placeFollowers(fo.of, afters);
   return added;
 }
 

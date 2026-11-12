@@ -6,6 +6,7 @@
 //   kind: 'checkbox' — only checkboxes (and other keys never go to checkboxes)
 //   ownOnly: the must words have to be in the box's own label/row/column, not just a heading above (a "Fundus" row
 //            in a "Fundus Exam" panel)
+//   notFamily: never in a grid of that family (the slit lamp "lens" is not the "Lens" column of a contact lens grid)
 //   family: which refraction grid the box belongs to (manifest, habitual, final, auto, retino, cl). The nearest family
 //           word decides; familyOptional: a grid with no family word at all counts as this one (the manifest)
 (function (root) {
@@ -19,11 +20,11 @@
   };
   // Words that say which refraction grid a box is in. Specific families first: on a tie the first listed wins.
   const FAMILIES = {
+    cl: ['contact', 'contacts', 'cl', 'cls', 'trial lens'],   // first: "Current CLs" and "Final CL 1" are contact lens grids
     habitual: ['habitual', 'lensometry', 'lensometer', 'lenso', 'current', 'hrx'],
     final: ['final', 'prescribed', 'frx'],
     auto: ['autorefraction', 'autorefractor', 'auto', 'ar', 'objective'],
     retino: ['retinoscopy', 'retino', 'ret'],
-    cl: ['contact', 'contacts', 'cl', 'cls'],
     kerato: ['keratometry', 'kerato', 'k1', 'k2'],
     manifest: ['manifest', 'mrx', 'subjective', 'subj'],
   };
@@ -54,10 +55,10 @@
 
   // Manifest refraction
   const RX = [['sph', 'sphere', ['sphere', 'sph']], ['cyl', 'cylinder', ['cylinder', 'cyl']], ['axis', 'axis', ['axis', 'ax']],
-              ['add', 'add power', ['add']], ['prism', 'prism', ['prism']], ['va', 'best corrected VA', ['va', 'bcva', 'acuity']]];
+              ['add', 'add power', ['add']], ['prism', 'prism', ['prism']], ['va', 'best corrected VA', ['va', 'bcva', 'acuity', '20/']]];
   for (const [k, l, words] of RX) perEye(['od', 'os'], (e, el) =>
-    add(`rx_${k}_${e}`, `Manifest refraction ${l} ${el}`,
-        { must: k === 'va' ? [words, ['manifest', 'refraction', 'mrx', 'rx']] : [words], eye: e, family: 'manifest', familyOptional: true }, 'Refraction'));
+    add(`rx_${k}_${e}`, `Manifest refraction ${l} ${el}`,   // (VA: not the near-add line's "OU 20/" boxes)
+        { must: k === 'va' ? [words, ['manifest', 'refraction', 'mrx', 'rx']] : [words], ...(k === 'va' ? { not: ['ou'] } : {}), eye: e, family: 'manifest', familyOptional: true }, 'Refraction'));
 
   // Other refractions: habitual Rx (current glasses, from lensometry), final Rx prescribed, autorefraction, retinoscopy
   const OTHER_RX = [
@@ -79,10 +80,10 @@
     });
 
   // Contact lens Rx
-  for (const [k, l, words] of [['brand', 'brand / lens name', ['brand', 'product', 'manufacturer', 'name']], ['bc', 'base curve', ['bc', 'base curve', 'bozr', 'curve']],
+  for (const [k, l, words] of [['brand', 'brand / lens name', ['brand', 'product', 'manufacturer', 'name', 'lens', 'lens name']], ['bc', 'base curve', ['bc', 'base curve', 'bozr', 'curve']],
                                ['dia', 'diameter', ['dia', 'diameter', 'diam']], ['sph', 'power / sphere', ['power', 'pwr', 'sph', 'sphere']],
                                ['cyl', 'cylinder', ['cylinder', 'cyl']], ['axis', 'axis', ['axis', 'ax']], ['add', 'add', ['add']],
-                               ['va', 'VA with contacts', ['va', 'acuity']]])
+                               ['va', 'VA with contacts', ['va', 'v.a.', 'acuity', '20/']]])
     perEye(['od', 'os'], (e, el) => add(`cl_${k}_${e}`, `Contact lens ${l} ${el}`, { must: [words], eye: e, family: 'cl' }, 'Contact lens'));
   add('cl_fit', 'Contact lens fit assessment / notes', { must: [['fit', 'fitting']], family: 'cl' }, 'Contact lens');
 
@@ -119,7 +120,7 @@
     perEye(['od', 'os', 'ou'], (e, el) => add(`pd_${d}_${e}`, `Pupillary distance ${dl} ${el}`, { must: [['pupillary', 'pd'], W[d]], eye: e }, 'Pupillary distance'));
 
   // Color vision & stereo
-  perEye(['od', 'os'], (e, el) => add(`color_${e}`, `Color vision ${el}`, { must: [['color', 'colour', 'ishihara']], not: ['notes', 'note', 'additional', 'rim', 'margin', 'depth'], eye: e }, 'Color vision'));
+  perEye(['od', 'os'], (e, el) => add(`color_${e}`, `Color vision ${el}`, { must: [['color', 'colour', 'ishihara']], not: ['notes', 'note', 'additional', 'rim', 'margin', 'depth', 'method'], eye: e }, 'Color vision'));
   add('color_method', 'Color vision method', { must: [['color', 'colour'], ['method']] }, 'Color vision');
   add('stereo', 'Stereoacuity (seconds of arc)', { must: [['stereoacuity', 'stereo']], not: ['method'] }, 'Stereo');
   add('stereo_method', 'Stereoacuity method', { must: [['stereoacuity', 'stereo'], ['method']] }, 'Stereo');
@@ -130,7 +131,7 @@
                                ['sclera', 'sclera', ['sclera']], ['tbut', 'tear film / TBUT', ['tbut', 'tear', 'tears', 'tear film', 'fbut', 'nitbut']],
                                ['angles', 'angles / Van Herick', ['angle', 'angles', 'van herick', 'vh', 'vanherick']]])
     // "Lens" is also in a "Contact Lens" panel title: its fit notes box isn't the slit lamp lens
-    perEye(['od', 'os'], (e, el) => add(`sle_${k}_${e}`, `Slit lamp ${l} ${el}`, { must: [words], eye: e, ...(k === 'lens' ? { not: ['fit', 'fitting'] } : {}) }, 'Anterior segment'));
+    perEye(['od', 'os'], (e, el) => add(`sle_${k}_${e}`, `Slit lamp ${l} ${el}`, { must: [words], eye: e, notFamily: 'cl', ...(k === 'lens' ? { not: ['fit', 'fitting'] } : {}) }, 'Anterior segment'));
   add('sle_notes', 'Slit lamp / anterior segment notes', { must: [['biomicroscopy', 'slit lamp', 'sle', 'anterior segment', 'anterior'], ['note', 'notes', 'comments']] }, 'Anterior segment');
 
   // Posterior segment (fundus)
@@ -148,7 +149,7 @@
   for (const [k, l, words, not] of [['rim', 'neuroretinal rim', ['rim'], null], ['color', 'disc colour', ['color', 'colour'], null],
                                     ['margin', 'margins', ['margin', 'margins'], ['rim']], ['depth', 'cup depth', ['depth'], null],
                                     ['sup', 'superior rim', ['sup', 'superior'], null], ['inf', 'inferior rim', ['inf', 'inferior'], null]])
-    perEye(['od', 'os'], (e, el) => add(`onh_${k}_${e}`, `Optic nerve ${l} ${el}`, { must: [words, ONH], eye: e, ...(not ? { not } : {}) }, 'Posterior segment'));
+    perEye(['od', 'os'], (e, el) => add(`onh_${k}_${e}`, `Optic nerve ${l} ${el}`, { must: [words, ONH], eye: e, not: ['notes', 'note', ...(not || [])] }, 'Posterior segment'));
   perEye(['od', 'os'], (e, el) => add(`fundus_general_${e}`, `Fundus overall appearance ${el}`, { must: [['fundus']], ownOnly: true, eye: e }, 'Posterior segment'));
   perEye(['od', 'os'], (e, el) => add(`fundus_crossing_${e}`, `Fundus A/V crossings ${el}`, { must: [['crossing', 'crossings', 'nicking']], eye: e }, 'Posterior segment'));
   add('fundus_method', 'Fundus exam method (DFE, BIO, 90D, Optomap…)', { must: [['method', 'technique'], ['fundus', 'posterior', 'dfe', 'retina', 'retinal']] }, 'Posterior segment');

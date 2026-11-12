@@ -38,7 +38,7 @@ Two steps, kept separate:
 - Redaction: `node core/tests/redact.test.js` (no browser; must keep every eval dictation unchanged)
 - Section normals: `node core/tests/normals.test.js` (no browser, no API calls)
 - Side panel (review before fill, report, setup files): `node core/tests/panel.test.js` (needs `playwright`)
-- Layout report and replay: `node core/tests/report.test.js` (needs `playwright`; every mock tab rebuilt from its report must map as the live one)
+- Layout report and replay: `node core/tests/report.test.js` (needs `playwright`; every mock tab rebuilt from its report must map as the live one, and the real EMR layouts in `core/tests/fixtures/` — labels and box positions only — must map as recorded, from an empty setup and from the older setups saved with them)
 - Medical speech: `node core/tests/speech.test.js` (needs `playwright`; stand-in WebSocket and Chrome's fake microphone, no speech account)
 - Try-it page: `node core/tests/demo-page.test.js` (needs `playwright`; phone-sized, no API calls)
 - Word fixes: `node core/tests/wordfix.test.js` (no browser; the starter fixes must leave every correctly heard eval dictation unchanged)

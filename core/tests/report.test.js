@@ -77,6 +77,42 @@ function check(name, cond, detail = '') {
   const unfixed = Object.entries(fixes).filter(([k, i]) => healed.map[k] !== i).map(([k, i]) => `${k}: box ${healed.map[k] ?? 'none'}, want ${i}`);
   check(`outdated setup: auto-map corrects it (${healed.fixed} mappings) and keeps the right ones`, healed.fixed === 3 && !unfixed.length, `fixed ${healed.fixed}; ${unfixed.join('; ')}`);
 
+  // The other screens of that EMR. Each is checked from an empty setup, and (where the fixture carries the setup an
+  // older version saved) from that setup, which auto-map must bring to the same result.
+  const screen = async (file, name, want, never) => {
+    const fx = JSON.parse(fs.readFileSync(path.join(__dirname, 'fixtures', file), 'utf8'));
+    const got = (await replay(fx, browser)).map;
+    const wrong = Object.entries(want).filter(([k, i]) => got[k] !== i).map(([k, i]) => `${k}: got box ${got[k] ?? 'none'}, want ${i}`);
+    check(`${name}: ${Object.keys(want).length - wrong.length}/${Object.keys(want).length} boxes mapped`, !wrong.length, wrong.join('; '));
+    const stray = Object.entries(got).filter(([k, i]) => never(k, i)).map(([k, i]) => `${k}→${i}`);
+    check(`${name}: nothing mapped where it does not belong`, !stray.length, stray.join(', '));
+    if (!Object.keys(fx.map).length) return;
+    const healed = await replay(fx, browser, { fromSaved: true });
+    const differs = Object.keys(got).filter(k => healed.map[k] !== got[k]).map(k => `${k}: ${healed.map[k]} not ${got[k]}`);
+    check(`${name}: an older saved setup is brought to the same mapping (${healed.fixed} corrected)`, healed.fixed > 0 && !differs.length, differs.join('; '));
+  };
+  // Pretest: "+ve fusional vergences" is the left column; a "Contacts" checkbox over the corrected-VA modifier boxes
+  // does not make them contact lens boxes; the colour vision method is the drop-down, not an eye
+  await screen('real-pretest.json', 'pretest (real EMR layout)', {
+    chief_complaint: 0, va_dist_sc_od: 1, va_dist_sc_od_mod: 2, va_dist_cc_od: 9, va_dist_cc_od_mod: 10, va_dist_cc_os_mod: 12, va_near_cc_ou: 27,
+    va_dist_glasses: 7, va_dist_contacts: 8, pupils_light_od: 30, pupils_apd_os: 39, cover_dist_eye: 43, cover_near_amount: 50,
+    bv_pfv_dist: 59, bv_nfv_dist: 60, bv_pfv_near: 61, bv_nfv_near: 62, bv_amplitude_od: 63, bv_eoms_os: 68, bv_npc: 69,
+    pd_dist_od: 74, pd_near_ou: 79, color_od: 82, color_os: 83, color_method: 84, stereo: 85, stereo_method: 86,
+  }, k => /^(cl_|rx_|sle_)/.test(k));
+  // Refraction: headingless "OD [ ][ ][ ]" grids are sphere/cyl/axis; each grid's drop-down names its refraction; the
+  // manifest goes to the grid that says Subjective, not to "Optical RX"; the final Rx stays in Final 1
+  await screen('real-refraction.json', 'refraction (real EMR layout)', {
+    hrx_sph_od: 0, hrx_add_od: 3, hrx_prism_os: 14, kerato_k1_od: 46, kerato_k2_od: 47, kerato_k2_axis_od: 48, kerato_k1_os: 49,
+    ar_sph_od: 66, ar_cyl_od: 67, ar_axis_os: 73, ret_sph_od: 77, ret_axis_os: 84,
+    rx_sph_od: 88, rx_cyl_od: 89, rx_axis_od: 90, rx_va_od: 91, rx_va_od_mod: 92, rx_sph_os: 93, rx_va_os: 96, rx_add_od: 101, rx_add_os: 104,
+    frx_sph_od: 109, frx_cyl_od: 110, frx_axis_od: 111, frx_add_od: 112, frx_prism_od: 113, frx_sph_os: 117, frx_add_os: 120,
+  }, (k, i) => i >= 126 || /^(cl_|va_)/.test(k));
+  // Contact lens: one lens stays in one panel (Current CLs, the first), and nothing here is a slit lamp or glasses box
+  await screen('real-contact-lens.json', 'contact lens (real EMR layout)', {
+    cl_brand_od: 1, cl_bc_od: 2, cl_dia_od: 3, cl_brand_os: 5, cl_sph_od: 8, cl_cyl_od: 9, cl_axis_od: 10, cl_add_od: 11,
+    cl_sph_os: 12, cl_add_os: 15, cl_va_od: 22, cl_va_os: 24, cl_fit: 33,
+  }, (k, i) => i >= 35 || !/^cl_/.test(k));
+
   await browser.close();
   console.log(failures ? `\n${failures} check(s) failed` : '\nAll checks passed');
   process.exit(failures ? 1 : 0);
