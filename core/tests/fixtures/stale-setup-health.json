@@ -1,0 +1,2482 @@
+{
+ "optofillReport": 1,
+ "note": "Ocular Health screen of a real EMR in a wide window, with a saved setup left over from an older OptoFill (Cornea OS saved on the Cornea OD box, A/C OS on the Iris OS box). Layout, form labels and the setup only: no patient, no values.",
+ "page": {
+  "host": "emr.example.com",
+  "frame": "top",
+  "width": 1704,
+  "height": 1066
+ },
+ "panels": [
+  {
+   "rect": [
+    38,
+    93,
+    515,
+    545
+   ],
+   "parent": -1
+  },
+  {
+   "rect": [
+    38,
+    639,
+    515,
+    168
+   ],
+   "parent": -1
+  },
+  {
+   "rect": [
+    577,
+    91,
+    532,
+    379
+   ],
+   "parent": -1
+  },
+  {
+   "rect": [
+    577,
+    471,
+    532,
+    211
+   ],
+   "parent": -1
+  },
+  {
+   "rect": [
+    1117,
+    626,
+    532,
+    211
+   ],
+   "parent": -1
+  },
+  {
+   "rect": [
+    1117,
+    98,
+    532,
+    545
+   ],
+   "parent": -1
+  }
+ ],
+ "fields": [
+  {
+   "index": 0,
+   "label": "Lids",
+   "name": "",
+   "id": "",
+   "type": "textarea",
+   "placeholder": "",
+   "options": [],
+   "selector": "@0",
+   "rect": [
+    108,
+    211,
+    180,
+    41
+   ],
+   "panel": 0,
+   "order": 17
+  },
+  {
+   "index": 1,
+   "label": "field_490",
+   "name": "",
+   "id": "",
+   "type": "textarea",
+   "placeholder": "",
+   "options": [],
+   "selector": "@1",
+   "rect": [
+    322,
+    211,
+    180,
+    41
+   ],
+   "panel": 0,
+   "order": 18
+  },
+  {
+   "index": 2,
+   "label": "Conj",
+   "name": "",
+   "id": "",
+   "type": "textarea",
+   "placeholder": "",
+   "options": [],
+   "selector": "@2",
+   "rect": [
+    108,
+    268,
+    180,
+    41
+   ],
+   "panel": 0,
+   "order": 20
+  },
+  {
+   "index": 3,
+   "label": "field_492",
+   "name": "",
+   "id": "",
+   "type": "textarea",
+   "placeholder": "",
+   "options": [],
+   "selector": "@3",
+   "rect": [
+    322,
+    268,
+    180,
+    41
+   ],
+   "panel": 0,
+   "order": 21
+  },
+  {
+   "index": 4,
+   "label": "Cornea",
+   "name": "",
+   "id": "",
+   "type": "textarea",
+   "placeholder": "",
+   "options": [],
+   "selector": "@4",
+   "rect": [
+    108,
+    325,
+    180,
+    41
+   ],
+   "panel": 0,
+   "order": 23
+  },
+  {
+   "index": 5,
+   "label": "field_494",
+   "name": "",
+   "id": "",
+   "type": "textarea",
+   "placeholder": "",
+   "options": [],
+   "selector": "@5",
+   "rect": [
+    322,
+    325,
+    180,
+    41
+   ],
+   "panel": 0,
+   "order": 24
+  },
+  {
+   "index": 6,
+   "label": "A/C",
+   "name": "",
+   "id": "",
+   "type": "textarea",
+   "placeholder": "",
+   "options": [],
+   "selector": "@6",
+   "rect": [
+    108,
+    382,
+    180,
+    41
+   ],
+   "panel": 0,
+   "order": 26
+  },
+  {
+   "index": 7,
+   "label": "field_496",
+   "name": "",
+   "id": "",
+   "type": "textarea",
+   "placeholder": "",
+   "options": [],
+   "selector": "@7",
+   "rect": [
+    322,
+    382,
+    180,
+    41
+   ],
+   "panel": 0,
+   "order": 27
+  },
+  {
+   "index": 8,
+   "label": "Iris",
+   "name": "",
+   "id": "",
+   "type": "textarea",
+   "placeholder": "",
+   "options": [],
+   "selector": "@8",
+   "rect": [
+    108,
+    440,
+    180,
+    41
+   ],
+   "panel": 0,
+   "order": 29
+  },
+  {
+   "index": 9,
+   "label": "field_498",
+   "name": "",
+   "id": "",
+   "type": "textarea",
+   "placeholder": "",
+   "options": [],
+   "selector": "@9",
+   "rect": [
+    322,
+    440,
+    180,
+    41
+   ],
+   "panel": 0,
+   "order": 30
+  },
+  {
+   "index": 10,
+   "label": "Lens",
+   "name": "",
+   "id": "",
+   "type": "textarea",
+   "placeholder": "",
+   "options": [],
+   "selector": "@10",
+   "rect": [
+    108,
+    497,
+    180,
+    41
+   ],
+   "panel": 0,
+   "order": 32
+  },
+  {
+   "index": 11,
+   "label": "field_500",
+   "name": "",
+   "id": "",
+   "type": "textarea",
+   "placeholder": "",
+   "options": [],
+   "selector": "@11",
+   "rect": [
+    322,
+    497,
+    180,
+    41
+   ],
+   "panel": 0,
+   "order": 33
+  },
+  {
+   "index": 12,
+   "label": "Note here",
+   "name": "",
+   "id": "",
+   "type": "textarea",
+   "placeholder": "Note here",
+   "options": [],
+   "selector": "@12",
+   "rect": [
+    58,
+    584,
+    417,
+    44
+   ],
+   "panel": 0,
+   "order": 34
+  },
+  {
+   "index": 13,
+   "label": "BIOMICROSCOPY — Photos Declined",
+   "name": "",
+   "id": "clr-form-control-144",
+   "type": "checkbox",
+   "placeholder": "",
+   "options": [],
+   "selector": "@13",
+   "rect": [
+    51,
+    679,
+    24,
+    24
+   ],
+   "panel": 1,
+   "order": 36
+  },
+  {
+   "index": 14,
+   "label": "BIOMICROSCOPY — Photos Discussed",
+   "name": "",
+   "id": "clr-form-control-145",
+   "type": "checkbox",
+   "placeholder": "",
+   "options": [],
+   "selector": "@14",
+   "rect": [
+    226,
+    679,
+    24,
+    24
+   ],
+   "panel": 1,
+   "order": 38
+  },
+  {
+   "index": 15,
+   "label": "BIOMICROSCOPY — After Dilation",
+   "name": "",
+   "id": "clr-form-control-146",
+   "type": "checkbox",
+   "placeholder": "",
+   "options": [],
+   "selector": "@15",
+   "rect": [
+    51,
+    708,
+    24,
+    24
+   ],
+   "panel": 1,
+   "order": 40
+  },
+  {
+   "index": 16,
+   "label": "BIOMICROSCOPY — Photos Taken",
+   "name": "",
+   "id": "clr-form-control-147",
+   "type": "checkbox",
+   "placeholder": "",
+   "options": [],
+   "selector": "@16",
+   "rect": [
+    226,
+    708,
+    24,
+    24
+   ],
+   "panel": 1,
+   "order": 42
+  },
+  {
+   "index": 17,
+   "label": "BIOMICROSCOPY — Photos Approved",
+   "name": "",
+   "id": "clr-form-control-148",
+   "type": "checkbox",
+   "placeholder": "",
+   "options": [],
+   "selector": "@17",
+   "rect": [
+    51,
+    736,
+    24,
+    24
+   ],
+   "panel": 1,
+   "order": 44
+  },
+  {
+   "index": 18,
+   "label": "BIOMICROSCOPY — VF",
+   "name": "",
+   "id": "clr-form-control-149",
+   "type": "checkbox",
+   "placeholder": "",
+   "options": [],
+   "selector": "@18",
+   "rect": [
+    226,
+    736,
+    24,
+    24
+   ],
+   "panel": 1,
+   "order": 46
+  },
+  {
+   "index": 19,
+   "label": "BIOMICROSCOPY — OCT",
+   "name": "",
+   "id": "clr-form-control-150",
+   "type": "checkbox",
+   "placeholder": "",
+   "options": [],
+   "selector": "@19",
+   "rect": [
+    51,
+    765,
+    24,
+    24
+   ],
+   "panel": 1,
+   "order": 48
+  },
+  {
+   "index": 20,
+   "label": "Note here",
+   "name": "",
+   "id": "",
+   "type": "textarea",
+   "placeholder": "Note here",
+   "options": [],
+   "selector": "@20",
+   "rect": [
+    51,
+    830,
+    429,
+    44
+   ],
+   "panel": 1,
+   "order": 50
+  },
+  {
+   "index": 21,
+   "label": "H",
+   "name": "",
+   "id": "",
+   "type": "text",
+   "placeholder": "",
+   "options": [],
+   "selector": "@21",
+   "rect": [
+    712,
+    152,
+    43,
+    28
+   ],
+   "panel": 2,
+   "order": 52
+  },
+  {
+   "index": 22,
+   "label": "SUP",
+   "name": "",
+   "id": "",
+   "type": "text",
+   "placeholder": "",
+   "options": [],
+   "selector": "@22",
+   "rect": [
+    712,
+    188,
+    43,
+    28
+   ],
+   "panel": 2,
+   "order": 54
+  },
+  {
+   "index": 23,
+   "label": "V",
+   "name": "",
+   "id": "",
+   "type": "text",
+   "placeholder": "",
+   "options": [],
+   "selector": "@23",
+   "rect": [
+    820,
+    152,
+    43,
+    28
+   ],
+   "panel": 2,
+   "order": 55
+  },
+  {
+   "index": 24,
+   "label": "Inf",
+   "name": "",
+   "id": "",
+   "type": "text",
+   "placeholder": "",
+   "options": [],
+   "selector": "@24",
+   "rect": [
+    820,
+    188,
+    43,
+    28
+   ],
+   "panel": 2,
+   "order": 57
+  },
+  {
+   "index": 25,
+   "label": "H",
+   "name": "",
+   "id": "",
+   "type": "text",
+   "placeholder": "",
+   "options": [],
+   "selector": "@25",
+   "rect": [
+    928,
+    152,
+    43,
+    28
+   ],
+   "panel": 2,
+   "order": 58
+  },
+  {
+   "index": 26,
+   "label": "SUP",
+   "name": "",
+   "id": "",
+   "type": "text",
+   "placeholder": "",
+   "options": [],
+   "selector": "@26",
+   "rect": [
+    928,
+    188,
+    43,
+    28
+   ],
+   "panel": 2,
+   "order": 60
+  },
+  {
+   "index": 27,
+   "label": "V",
+   "name": "",
+   "id": "",
+   "type": "text",
+   "placeholder": "",
+   "options": [],
+   "selector": "@27",
+   "rect": [
+    1036,
+    152,
+    43,
+    28
+   ],
+   "panel": 2,
+   "order": 61
+  },
+  {
+   "index": 28,
+   "label": "Inf",
+   "name": "",
+   "id": "",
+   "type": "text",
+   "placeholder": "",
+   "options": [],
+   "selector": "@28",
+   "rect": [
+    1036,
+    188,
+    43,
+    28
+   ],
+   "panel": 2,
+   "order": 63
+  },
+  {
+   "index": 29,
+   "label": "Rim/Margin",
+   "name": "",
+   "id": "",
+   "type": "text",
+   "placeholder": "",
+   "options": [],
+   "selector": "@29",
+   "rect": [
+    705,
+    260,
+    202,
+    28
+   ],
+   "panel": 2,
+   "order": 66
+  },
+  {
+   "index": 30,
+   "label": "field_519",
+   "name": "",
+   "id": "",
+   "type": "text",
+   "placeholder": "",
+   "options": [],
+   "selector": "@30",
+   "rect": [
+    582,
+    290,
+    202,
+    28
+   ],
+   "panel": 2,
+   "order": 67
+  },
+  {
+   "index": 31,
+   "label": "Color",
+   "name": "",
+   "id": "",
+   "type": "text",
+   "placeholder": "",
+   "options": [],
+   "selector": "@31",
+   "rect": [
+    705,
+    323,
+    202,
+    28
+   ],
+   "panel": 2,
+   "order": 69
+  },
+  {
+   "index": 32,
+   "label": "field_521",
+   "name": "",
+   "id": "",
+   "type": "text",
+   "placeholder": "",
+   "options": [],
+   "selector": "@32",
+   "rect": [
+    582,
+    353,
+    202,
+    28
+   ],
+   "panel": 2,
+   "order": 70
+  },
+  {
+   "index": 33,
+   "label": "Margin",
+   "name": "",
+   "id": "",
+   "type": "text",
+   "placeholder": "",
+   "options": [],
+   "selector": "@33",
+   "rect": [
+    705,
+    386,
+    202,
+    28
+   ],
+   "panel": 2,
+   "order": 72
+  },
+  {
+   "index": 34,
+   "label": "field_523",
+   "name": "",
+   "id": "",
+   "type": "text",
+   "placeholder": "",
+   "options": [],
+   "selector": "@34",
+   "rect": [
+    582,
+    416,
+    202,
+    28
+   ],
+   "panel": 2,
+   "order": 73
+  },
+  {
+   "index": 35,
+   "label": "Depth",
+   "name": "",
+   "id": "",
+   "type": "text",
+   "placeholder": "",
+   "options": [],
+   "selector": "@35",
+   "rect": [
+    705,
+    449,
+    202,
+    28
+   ],
+   "panel": 2,
+   "order": 75
+  },
+  {
+   "index": 36,
+   "label": "field_525",
+   "name": "",
+   "id": "",
+   "type": "text",
+   "placeholder": "",
+   "options": [],
+   "selector": "@36",
+   "rect": [
+    582,
+    479,
+    202,
+    28
+   ],
+   "panel": 2,
+   "order": 76
+  },
+  {
+   "index": 37,
+   "label": "Additional",
+   "name": "",
+   "id": "",
+   "type": "text",
+   "placeholder": "",
+   "options": [],
+   "selector": "@37",
+   "rect": [
+    705,
+    512,
+    202,
+    28
+   ],
+   "panel": 2,
+   "order": 77
+  },
+  {
+   "index": 38,
+   "label": "field_527",
+   "name": "",
+   "id": "",
+   "type": "text",
+   "placeholder": "",
+   "options": [],
+   "selector": "@38",
+   "rect": [
+    582,
+    542,
+    202,
+    28
+   ],
+   "panel": 2,
+   "order": 78
+  },
+  {
+   "index": 39,
+   "label": "Notes",
+   "name": "",
+   "id": "",
+   "type": "textarea",
+   "placeholder": "Notes",
+   "options": [],
+   "selector": "@39",
+   "rect": [
+    709,
+    573,
+    199,
+    44
+   ],
+   "panel": 2,
+   "order": 79
+  },
+  {
+   "index": 40,
+   "label": "Notes",
+   "name": "",
+   "id": "",
+   "type": "textarea",
+   "placeholder": "Notes",
+   "options": [],
+   "selector": "@40",
+   "rect": [
+    912,
+    573,
+    136,
+    44
+   ],
+   "panel": 2,
+   "order": 80
+  },
+  {
+   "index": 41,
+   "label": "IOP 1",
+   "name": "",
+   "id": "",
+   "type": "text",
+   "placeholder": "",
+   "options": [],
+   "selector": "@41",
+   "rect": [
+    658,
+    555,
+    79,
+    28
+   ],
+   "panel": 3,
+   "order": 87
+  },
+  {
+   "index": 42,
+   "label": "field_531",
+   "name": "",
+   "id": "",
+   "type": "text",
+   "placeholder": "",
+   "options": [],
+   "selector": "@42",
+   "rect": [
+    743,
+    555,
+    79,
+    28
+   ],
+   "panel": 3,
+   "order": 88
+  },
+  {
+   "index": 43,
+   "label": "clr-form-control-152",
+   "name": "",
+   "id": "clr-form-control-152",
+   "type": "select-one",
+   "placeholder": "",
+   "options": [
+    {
+     "value": "",
+     "text": "Select"
+    },
+    {
+     "value": "",
+     "text": "NCT"
+    },
+    {
+     "value": "",
+     "text": "Goldmann"
+    },
+    {
+     "value": "",
+     "text": "Tonopen"
+    }
+   ],
+   "selector": "@43",
+   "rect": [
+    827,
+    557,
+    185,
+    28
+   ],
+   "panel": 3,
+   "order": 89
+  },
+  {
+   "index": 44,
+   "label": "IOP 2",
+   "name": "",
+   "id": "",
+   "type": "text",
+   "placeholder": "",
+   "options": [],
+   "selector": "@44",
+   "rect": [
+    658,
+    591,
+    79,
+    28
+   ],
+   "panel": 3,
+   "order": 92
+  },
+  {
+   "index": 45,
+   "label": "field_534",
+   "name": "",
+   "id": "",
+   "type": "text",
+   "placeholder": "",
+   "options": [],
+   "selector": "@45",
+   "rect": [
+    743,
+    591,
+    79,
+    28
+   ],
+   "panel": 3,
+   "order": 93
+  },
+  {
+   "index": 46,
+   "label": "clr-form-control-153",
+   "name": "",
+   "id": "clr-form-control-153",
+   "type": "select-one",
+   "placeholder": "",
+   "options": [
+    {
+     "value": "",
+     "text": "Select"
+    },
+    {
+     "value": "",
+     "text": "NCT"
+    },
+    {
+     "value": "",
+     "text": "Goldmann"
+    },
+    {
+     "value": "",
+     "text": "Tonopen"
+    }
+   ],
+   "selector": "@46",
+   "rect": [
+    827,
+    592,
+    185,
+    28
+   ],
+   "panel": 3,
+   "order": 94
+  },
+  {
+   "index": 47,
+   "label": "Method Used — Post Dilation IOP",
+   "name": "",
+   "id": "clr-form-control-151",
+   "type": "checkbox",
+   "placeholder": "",
+   "options": [],
+   "selector": "@47",
+   "rect": [
+    596,
+    624,
+    24,
+    24
+   ],
+   "panel": 3,
+   "order": 96
+  },
+  {
+   "index": 48,
+   "label": "Pach",
+   "name": "",
+   "id": "",
+   "type": "text",
+   "placeholder": "",
+   "options": [],
+   "selector": "@48",
+   "rect": [
+    658,
+    653,
+    79,
+    28
+   ],
+   "panel": 3,
+   "order": 99
+  },
+  {
+   "index": 49,
+   "label": "field_538",
+   "name": "",
+   "id": "",
+   "type": "text",
+   "placeholder": "",
+   "options": [],
+   "selector": "@49",
+   "rect": [
+    743,
+    653,
+    79,
+    28
+   ],
+   "panel": 3,
+   "order": 100
+  },
+  {
+   "index": 50,
+   "label": "clr-form-control-156",
+   "name": "",
+   "id": "clr-form-control-156",
+   "type": "select-one",
+   "placeholder": "",
+   "options": [
+    {
+     "value": "",
+     "text": "Select"
+    },
+    {
+     "value": "",
+     "text": "1%Tropicamide+2.5%Phenylephrine"
+    },
+    {
+     "value": "",
+     "text": "Alcaine 0.5%"
+    },
+    {
+     "value": "",
+     "text": "Cyclopentolate 1%"
+    },
+    {
+     "value": "",
+     "text": "Dilation declined - ed risks"
+    },
+    {
+     "value": "",
+     "text": "Mydriacyl 0.5%"
+    },
+    {
+     "value": "",
+     "text": "Mydriacyl 1%"
+    },
+    {
+     "value": "",
+     "text": "No dilation needed, large pupils"
+    },
+    {
+     "value": "",
+     "text": "Tropicamide 0.5%"
+    },
+    {
+     "value": "",
+     "text": "Tropicamide 1%"
+    },
+    {
+     "value": "",
+     "text": "Unable to dilate"
+    }
+   ],
+   "selector": "@50",
+   "rect": [
+    1137,
+    685,
+    262,
+    28
+   ],
+   "panel": 4,
+   "order": 101
+  },
+  {
+   "index": 51,
+   "label": "clr-form-control-157",
+   "name": "",
+   "id": "clr-form-control-157",
+   "type": "select-one",
+   "placeholder": "",
+   "options": [
+    {
+     "value": "",
+     "text": "Select"
+    },
+    {
+     "value": "",
+     "text": "1%Tropicamide+2.5%Phenylephrine"
+    },
+    {
+     "value": "",
+     "text": "Alcaine 0.5%"
+    },
+    {
+     "value": "",
+     "text": "Cyclopentolate 1%"
+    },
+    {
+     "value": "",
+     "text": "Dilation declined - ed risks"
+    },
+    {
+     "value": "",
+     "text": "Mydriacyl 0.5%"
+    },
+    {
+     "value": "",
+     "text": "Mydriacyl 1%"
+    },
+    {
+     "value": "",
+     "text": "No dilation needed, large pupils"
+    },
+    {
+     "value": "",
+     "text": "Tropicamide 0.5%"
+    },
+    {
+     "value": "",
+     "text": "Tropicamide 1%"
+    },
+    {
+     "value": "",
+     "text": "Unable to dilate"
+    }
+   ],
+   "selector": "@51",
+   "rect": [
+    1137,
+    718,
+    262,
+    28
+   ],
+   "panel": 4,
+   "order": 102
+  },
+  {
+   "index": 52,
+   "label": "clr-form-control-158",
+   "name": "",
+   "id": "clr-form-control-158",
+   "type": "select-one",
+   "placeholder": "",
+   "options": [
+    {
+     "value": "",
+     "text": "Select"
+    },
+    {
+     "value": "",
+     "text": "1%Tropicamide+2.5%Phenylephrine"
+    },
+    {
+     "value": "",
+     "text": "Alcaine 0.5%"
+    },
+    {
+     "value": "",
+     "text": "Cyclopentolate 1%"
+    },
+    {
+     "value": "",
+     "text": "Dilation declined - ed risks"
+    },
+    {
+     "value": "",
+     "text": "Mydriacyl 0.5%"
+    },
+    {
+     "value": "",
+     "text": "Mydriacyl 1%"
+    },
+    {
+     "value": "",
+     "text": "No dilation needed, large pupils"
+    },
+    {
+     "value": "",
+     "text": "Tropicamide 0.5%"
+    },
+    {
+     "value": "",
+     "text": "Tropicamide 1%"
+    },
+    {
+     "value": "",
+     "text": "Unable to dilate"
+    }
+   ],
+   "selector": "@52",
+   "rect": [
+    1137,
+    751,
+    262,
+    28
+   ],
+   "panel": 4,
+   "order": 103
+  },
+  {
+   "index": 53,
+   "label": "Fundus Lens/Bio",
+   "name": "",
+   "id": "clr-form-control-154",
+   "type": "checkbox",
+   "placeholder": "",
+   "options": [],
+   "selector": "@53",
+   "rect": [
+    1136,
+    781,
+    24,
+    24
+   ],
+   "panel": 4,
+   "order": 104
+  },
+  {
+   "index": 54,
+   "label": "Informed Consent for Dilation",
+   "name": "",
+   "id": "clr-form-control-155",
+   "type": "checkbox",
+   "placeholder": "",
+   "options": [],
+   "selector": "@54",
+   "rect": [
+    1397,
+    781,
+    24,
+    24
+   ],
+   "panel": 4,
+   "order": 106
+  },
+  {
+   "index": 55,
+   "label": "Macula",
+   "name": "",
+   "id": "",
+   "type": "textarea",
+   "placeholder": "",
+   "options": [],
+   "selector": "@55",
+   "rect": [
+    1200,
+    220,
+    179,
+    41
+   ],
+   "panel": 5,
+   "order": 112
+  },
+  {
+   "index": 56,
+   "label": "field_545",
+   "name": "",
+   "id": "",
+   "type": "textarea",
+   "placeholder": "",
+   "options": [],
+   "selector": "@56",
+   "rect": [
+    1414,
+    220,
+    179,
+    41
+   ],
+   "panel": 5,
+   "order": 113
+  },
+  {
+   "index": 57,
+   "label": "Fundus",
+   "name": "",
+   "id": "",
+   "type": "textarea",
+   "placeholder": "",
+   "options": [],
+   "selector": "@57",
+   "rect": [
+    1200,
+    274,
+    179,
+    41
+   ],
+   "panel": 5,
+   "order": 115
+  },
+  {
+   "index": 58,
+   "label": "field_547",
+   "name": "",
+   "id": "",
+   "type": "textarea",
+   "placeholder": "",
+   "options": [],
+   "selector": "@58",
+   "rect": [
+    1414,
+    274,
+    179,
+    41
+   ],
+   "panel": 5,
+   "order": 116
+  },
+  {
+   "index": 59,
+   "label": "BVs",
+   "name": "",
+   "id": "",
+   "type": "textarea",
+   "placeholder": "",
+   "options": [],
+   "selector": "@59",
+   "rect": [
+    1200,
+    328,
+    179,
+    41
+   ],
+   "panel": 5,
+   "order": 118
+  },
+  {
+   "index": 60,
+   "label": "field_549",
+   "name": "",
+   "id": "",
+   "type": "textarea",
+   "placeholder": "",
+   "options": [],
+   "selector": "@60",
+   "rect": [
+    1414,
+    328,
+    179,
+    41
+   ],
+   "panel": 5,
+   "order": 119
+  },
+  {
+   "index": 61,
+   "label": "Crossing",
+   "name": "",
+   "id": "",
+   "type": "textarea",
+   "placeholder": "",
+   "options": [],
+   "selector": "@61",
+   "rect": [
+    1200,
+    383,
+    179,
+    41
+   ],
+   "panel": 5,
+   "order": 121
+  },
+  {
+   "index": 62,
+   "label": "field_551",
+   "name": "",
+   "id": "",
+   "type": "textarea",
+   "placeholder": "",
+   "options": [],
+   "selector": "@62",
+   "rect": [
+    1414,
+    383,
+    179,
+    41
+   ],
+   "panel": 5,
+   "order": 122
+  },
+  {
+   "index": 63,
+   "label": "Vitreous",
+   "name": "",
+   "id": "",
+   "type": "textarea",
+   "placeholder": "",
+   "options": [],
+   "selector": "@63",
+   "rect": [
+    1200,
+    437,
+    179,
+    41
+   ],
+   "panel": 5,
+   "order": 124
+  },
+  {
+   "index": 64,
+   "label": "field_553",
+   "name": "",
+   "id": "",
+   "type": "textarea",
+   "placeholder": "",
+   "options": [],
+   "selector": "@64",
+   "rect": [
+    1414,
+    437,
+    179,
+    41
+   ],
+   "panel": 5,
+   "order": 125
+  },
+  {
+   "index": 65,
+   "label": "Periphery",
+   "name": "",
+   "id": "",
+   "type": "textarea",
+   "placeholder": "",
+   "options": [],
+   "selector": "@65",
+   "rect": [
+    1200,
+    491,
+    179,
+    41
+   ],
+   "panel": 5,
+   "order": 127
+  },
+  {
+   "index": 66,
+   "label": "field_555",
+   "name": "",
+   "id": "",
+   "type": "textarea",
+   "placeholder": "",
+   "options": [],
+   "selector": "@66",
+   "rect": [
+    1414,
+    491,
+    179,
+    41
+   ],
+   "panel": 5,
+   "order": 128
+  },
+  {
+   "index": 67,
+   "label": "Note here",
+   "name": "",
+   "id": "",
+   "type": "textarea",
+   "placeholder": "Note here",
+   "options": [],
+   "selector": "@67",
+   "rect": [
+    1134,
+    578,
+    423,
+    41
+   ],
+   "panel": 5,
+   "order": 129
+  }
+ ],
+ "texts": [
+  {
+   "text": "BIOMICROSCOPY",
+   "rect": [
+    115,
+    121,
+    121,
+    18
+   ],
+   "panel": 0,
+   "option": false,
+   "order": 13
+  },
+  {
+   "text": "OD",
+   "rect": [
+    159,
+    185,
+    22,
+    18
+   ],
+   "panel": 0,
+   "option": false,
+   "order": 14
+  },
+  {
+   "text": "OS",
+   "rect": [
+    412,
+    185,
+    20,
+    18
+   ],
+   "panel": 0,
+   "option": false,
+   "order": 15
+  },
+  {
+   "text": "Lids",
+   "rect": [
+    69,
+    220,
+    27,
+    18
+   ],
+   "panel": 0,
+   "option": false,
+   "order": 16
+  },
+  {
+   "text": "Conj",
+   "rect": [
+    67,
+    278,
+    32,
+    18
+   ],
+   "panel": 0,
+   "option": false,
+   "order": 19
+  },
+  {
+   "text": "Cornea",
+   "rect": [
+    62,
+    335,
+    49,
+    18
+   ],
+   "panel": 0,
+   "option": false,
+   "order": 22
+  },
+  {
+   "text": "A/C",
+   "rect": [
+    70,
+    392,
+    25,
+    18
+   ],
+   "panel": 0,
+   "option": false,
+   "order": 25
+  },
+  {
+   "text": "Iris",
+   "rect": [
+    72,
+    449,
+    23,
+    18
+   ],
+   "panel": 0,
+   "option": false,
+   "order": 28
+  },
+  {
+   "text": "Lens",
+   "rect": [
+    67,
+    506,
+    32,
+    18
+   ],
+   "panel": 0,
+   "option": false,
+   "order": 31
+  },
+  {
+   "text": "Tests Done",
+   "rect": [
+    51,
+    645,
+    76,
+    18
+   ],
+   "panel": 1,
+   "option": false,
+   "order": 35
+  },
+  {
+   "text": "Photos Declined",
+   "rect": [
+    75,
+    683,
+    103,
+    16
+   ],
+   "panel": 1,
+   "option": true,
+   "order": 37
+  },
+  {
+   "text": "Photos Discussed",
+   "rect": [
+    250,
+    683,
+    111,
+    16
+   ],
+   "panel": 1,
+   "option": true,
+   "order": 39
+  },
+  {
+   "text": "After Dilation",
+   "rect": [
+    75,
+    712,
+    85,
+    16
+   ],
+   "panel": 1,
+   "option": true,
+   "order": 41
+  },
+  {
+   "text": "Photos Taken",
+   "rect": [
+    250,
+    712,
+    85,
+    16
+   ],
+   "panel": 1,
+   "option": true,
+   "order": 43
+  },
+  {
+   "text": "Photos Approved",
+   "rect": [
+    75,
+    740,
+    109,
+    16
+   ],
+   "panel": 1,
+   "option": true,
+   "order": 45
+  },
+  {
+   "text": "VF",
+   "rect": [
+    250,
+    740,
+    16,
+    16
+   ],
+   "panel": 1,
+   "option": true,
+   "order": 47
+  },
+  {
+   "text": "OCT",
+   "rect": [
+    75,
+    769,
+    27,
+    16
+   ],
+   "panel": 1,
+   "option": true,
+   "order": 49
+  },
+  {
+   "text": "Optic Nerve",
+   "rect": [
+    578,
+    160,
+    82,
+    18
+   ],
+   "panel": 2,
+   "option": false,
+   "order": 51
+  },
+  {
+   "text": "SUP",
+   "rect": [
+    680,
+    193,
+    28,
+    18
+   ],
+   "panel": 2,
+   "option": false,
+   "order": 53
+  },
+  {
+   "text": "Inf",
+   "rect": [
+    791,
+    193,
+    19,
+    18
+   ],
+   "panel": 2,
+   "option": false,
+   "order": 56
+  },
+  {
+   "text": "SUP",
+   "rect": [
+    896,
+    193,
+    28,
+    18
+   ],
+   "panel": 2,
+   "option": false,
+   "order": 59
+  },
+  {
+   "text": "Inf",
+   "rect": [
+    1007,
+    193,
+    19,
+    18
+   ],
+   "panel": 2,
+   "option": false,
+   "order": 62
+  },
+  {
+   "text": "Normal",
+   "rect": [
+    731,
+    231,
+    54,
+    13
+   ],
+   "panel": 2,
+   "option": false,
+   "order": 64
+  },
+  {
+   "text": "Rim/Margin",
+   "rect": [
+    603,
+    265,
+    80,
+    18
+   ],
+   "panel": 2,
+   "option": false,
+   "order": 65
+  },
+  {
+   "text": "Color",
+   "rect": [
+    625,
+    328,
+    36,
+    18
+   ],
+   "panel": 2,
+   "option": false,
+   "order": 68
+  },
+  {
+   "text": "Margin",
+   "rect": [
+    619,
+    391,
+    47,
+    18
+   ],
+   "panel": 2,
+   "option": false,
+   "order": 71
+  },
+  {
+   "text": "Depth",
+   "rect": [
+    622,
+    454,
+    42,
+    18
+   ],
+   "panel": 2,
+   "option": false,
+   "order": 74
+  },
+  {
+   "text": "IOP/Pach",
+   "rect": [
+    596,
+    492,
+    64,
+    18
+   ],
+   "panel": 3,
+   "option": false,
+   "order": 81
+  },
+  {
+   "text": "Copy IOP 1 to 2",
+   "rect": [
+    935,
+    496,
+    107,
+    13
+   ],
+   "panel": 3,
+   "option": false,
+   "order": 82
+  },
+  {
+   "text": "OD",
+   "rect": [
+    659,
+    529,
+    22,
+    18
+   ],
+   "panel": 3,
+   "option": false,
+   "order": 83
+  },
+  {
+   "text": "OS",
+   "rect": [
+    739,
+    529,
+    20,
+    18
+   ],
+   "panel": 3,
+   "option": false,
+   "order": 84
+  },
+  {
+   "text": "Method Used",
+   "rect": [
+    818,
+    529,
+    90,
+    18
+   ],
+   "panel": 3,
+   "option": false,
+   "order": 85
+  },
+  {
+   "text": "IOP 1",
+   "rect": [
+    607,
+    560,
+    39,
+    18
+   ],
+   "panel": 3,
+   "option": false,
+   "order": 86
+  },
+  {
+   "text": "IOP 2",
+   "rect": [
+    607,
+    596,
+    39,
+    18
+   ],
+   "panel": 3,
+   "option": false,
+   "order": 91
+  },
+  {
+   "text": "Post Dilation IOP",
+   "rect": [
+    619,
+    628,
+    108,
+    16
+   ],
+   "panel": 3,
+   "option": true,
+   "order": 97
+  },
+  {
+   "text": "Pach",
+   "rect": [
+    610,
+    658,
+    32,
+    18
+   ],
+   "panel": 3,
+   "option": false,
+   "order": 98
+  },
+  {
+   "text": "Fundus Lens/Bio",
+   "rect": [
+    1160,
+    785,
+    106,
+    16
+   ],
+   "panel": 4,
+   "option": true,
+   "order": 105
+  },
+  {
+   "text": "Informed Consent for Dilation",
+   "rect": [
+    1421,
+    785,
+    192,
+    16
+   ],
+   "panel": 4,
+   "option": true,
+   "order": 107
+  },
+  {
+   "text": "FUNDUS EXAM",
+   "rect": [
+    1203,
+    123,
+    103,
+    18
+   ],
+   "panel": 5,
+   "option": false,
+   "order": 108
+  },
+  {
+   "text": "OD",
+   "rect": [
+    1240,
+    192,
+    22,
+    18
+   ],
+   "panel": 5,
+   "option": false,
+   "order": 109
+  },
+  {
+   "text": "OS",
+   "rect": [
+    1504,
+    192,
+    20,
+    18
+   ],
+   "panel": 5,
+   "option": false,
+   "order": 110
+  },
+  {
+   "text": "Macula",
+   "rect": [
+    1143,
+    231,
+    48,
+    18
+   ],
+   "panel": 5,
+   "option": false,
+   "order": 111
+  },
+  {
+   "text": "Fundus",
+   "rect": [
+    1142,
+    286,
+    50,
+    18
+   ],
+   "panel": 5,
+   "option": false,
+   "order": 114
+  },
+  {
+   "text": "BVs",
+   "rect": [
+    1154,
+    340,
+    26,
+    18
+   ],
+   "panel": 5,
+   "option": false,
+   "order": 117
+  },
+  {
+   "text": "Crossing",
+   "rect": [
+    1138,
+    394,
+    59,
+    18
+   ],
+   "panel": 5,
+   "option": false,
+   "order": 120
+  },
+  {
+   "text": "Vitreous",
+   "rect": [
+    1138,
+    448,
+    57,
+    18
+   ],
+   "panel": 5,
+   "option": false,
+   "order": 123
+  },
+  {
+   "text": "Periphery",
+   "rect": [
+    1138,
+    502,
+    66,
+    18
+   ],
+   "panel": 5,
+   "option": false,
+   "order": 126
+  },
+  {
+   "text": "Click on the image to draw",
+   "rect": [
+    1306,
+    650,
+    196,
+    18
+   ],
+   "panel": 5,
+   "option": false,
+   "order": 130
+  }
+ ],
+ "map": {
+  "fundus_cd_od": {
+   "selector": "@21",
+   "name": "",
+   "id": "",
+   "label": "H",
+   "row": "Optic Nerve",
+   "col": "",
+   "context": "",
+   "stripPrefix": ""
+  },
+  "fundus_cd_os": {
+   "selector": "@25",
+   "name": "",
+   "id": "",
+   "label": "H",
+   "row": "Optic Nerve",
+   "col": "",
+   "context": "",
+   "stripPrefix": ""
+  },
+  "fundus_cd_v_od": {
+   "selector": "@23",
+   "name": "",
+   "id": "",
+   "label": "V",
+   "row": "Optic Nerve",
+   "col": "",
+   "context": "",
+   "stripPrefix": ""
+  },
+  "fundus_cd_v_os": {
+   "selector": "@27",
+   "name": "",
+   "id": "",
+   "label": "V",
+   "row": "Optic Nerve",
+   "col": "",
+   "context": "",
+   "stripPrefix": ""
+  },
+  "fundus_crossing_od": {
+   "selector": "@61",
+   "name": "",
+   "id": "",
+   "label": "Crossing",
+   "row": "",
+   "col": "OD",
+   "context": "BVs / Fundus / Macula / FUNDUS EXAM",
+   "stripPrefix": ""
+  },
+  "fundus_crossing_os": {
+   "selector": "@62",
+   "name": "",
+   "id": "",
+   "label": "field_551",
+   "row": "Crossing",
+   "col": "OS",
+   "context": "BVs / OD / FUNDUS EXAM",
+   "stripPrefix": ""
+  },
+  "fundus_general_od": {
+   "selector": "@57",
+   "name": "",
+   "id": "",
+   "label": "Fundus",
+   "row": "Fundus",
+   "col": "OD",
+   "context": "FUNDUS EXAM",
+   "stripPrefix": ""
+  },
+  "fundus_general_os": {
+   "selector": "@58",
+   "name": "",
+   "id": "",
+   "label": "field_547",
+   "row": "Fundus",
+   "col": "OS",
+   "context": "OD / FUNDUS EXAM",
+   "stripPrefix": ""
+  },
+  "fundus_macula_od": {
+   "selector": "@55",
+   "name": "",
+   "id": "",
+   "label": "Macula",
+   "row": "Macula",
+   "col": "OD",
+   "context": "FUNDUS EXAM",
+   "stripPrefix": ""
+  },
+  "fundus_macula_os": {
+   "selector": "@56",
+   "name": "",
+   "id": "",
+   "label": "field_545",
+   "row": "Macula",
+   "col": "OS",
+   "context": "OD / FUNDUS EXAM",
+   "stripPrefix": ""
+  },
+  "fundus_notes": {
+   "selector": "@67",
+   "name": "",
+   "id": "",
+   "label": "Note here",
+   "row": "",
+   "col": "Periphery",
+   "context": "Vitreous / Crossing / BVs / Fundus / FUNDUS EXAM",
+   "stripPrefix": ""
+  },
+  "fundus_periphery_od": {
+   "selector": "@65",
+   "name": "",
+   "id": "",
+   "label": "Periphery",
+   "row": "",
+   "col": "OD",
+   "context": "Vitreous / Crossing / BVs / Fundus / FUNDUS EXAM",
+   "stripPrefix": ""
+  },
+  "fundus_periphery_os": {
+   "selector": "@66",
+   "name": "",
+   "id": "",
+   "label": "field_555",
+   "row": "Periphery",
+   "col": "OS",
+   "context": "BVs / OD / FUNDUS EXAM",
+   "stripPrefix": ""
+  },
+  "fundus_vessels_od": {
+   "selector": "@59",
+   "name": "",
+   "id": "",
+   "label": "BVs",
+   "row": "BVs",
+   "col": "OD",
+   "context": "Fundus / Macula / FUNDUS EXAM",
+   "stripPrefix": ""
+  },
+  "fundus_vessels_os": {
+   "selector": "@60",
+   "name": "",
+   "id": "",
+   "label": "field_549",
+   "row": "BVs",
+   "col": "OS",
+   "context": "Fundus / Macula / OD / FUNDUS EXAM",
+   "stripPrefix": ""
+  },
+  "fundus_vitreous_od": {
+   "selector": "@63",
+   "name": "",
+   "id": "",
+   "label": "Vitreous",
+   "row": "Vitreous",
+   "col": "OD",
+   "context": "BVs / FUNDUS EXAM",
+   "stripPrefix": ""
+  },
+  "fundus_vitreous_os": {
+   "selector": "@64",
+   "name": "",
+   "id": "",
+   "label": "field_553",
+   "row": "Vitreous",
+   "col": "OS",
+   "context": "BVs / OD / FUNDUS EXAM",
+   "stripPrefix": ""
+  },
+  "iop_od": {
+   "selector": "@41",
+   "name": "",
+   "id": "",
+   "label": "IOP 1",
+   "row": "IOP 1",
+   "col": "OD",
+   "context": "OS / IOP/Pach",
+   "stripPrefix": ""
+  },
+  "iop_os": {
+   "selector": "@42",
+   "name": "",
+   "id": "",
+   "label": "field_531",
+   "row": "IOP 1",
+   "col": "OS",
+   "context": "Method Used / OD / IOP/Pach",
+   "stripPrefix": ""
+  },
+  "onh_color_od": {
+   "selector": "@31",
+   "name": "",
+   "id": "",
+   "label": "Color",
+   "row": "Color",
+   "col": "",
+   "context": "Rim/Margin / SUP / Inf / Optic Nerve",
+   "stripPrefix": ""
+  },
+  "onh_color_os": {
+   "selector": "@32",
+   "name": "",
+   "id": "",
+   "label": "field_521",
+   "row": "Color",
+   "col": "",
+   "context": "Rim/Margin / Normal / SUP / Inf / Optic Nerve",
+   "stripPrefix": ""
+  },
+  "onh_depth_od": {
+   "selector": "@39",
+   "name": "",
+   "id": "",
+   "label": "Notes",
+   "row": "",
+   "col": "Normal",
+   "context": "Additional / Depth / Margin / Color / Optic Nerve",
+   "stripPrefix": ""
+  },
+  "onh_depth_os": {
+   "selector": "@40",
+   "name": "",
+   "id": "",
+   "label": "Notes",
+   "row": "",
+   "col": "Inf",
+   "context": "Additional / Depth / Margin / Color / Optic Nerve",
+   "stripPrefix": ""
+  },
+  "onh_inf_od": {
+   "selector": "@24",
+   "name": "",
+   "id": "",
+   "label": "Inf",
+   "row": "Inf",
+   "col": "",
+   "context": "SUP / Optic Nerve",
+   "stripPrefix": ""
+  },
+  "onh_inf_os": {
+   "selector": "@28",
+   "name": "",
+   "id": "",
+   "label": "Inf",
+   "row": "Inf",
+   "col": "",
+   "context": "SUP / Optic Nerve",
+   "stripPrefix": ""
+  },
+  "onh_margin_od": {
+   "selector": "@33",
+   "name": "",
+   "id": "",
+   "label": "Margin",
+   "row": "Margin",
+   "col": "",
+   "context": "Rim/Margin / SUP / Inf / Optic Nerve",
+   "stripPrefix": ""
+  },
+  "onh_margin_os": {
+   "selector": "@34",
+   "name": "",
+   "id": "",
+   "label": "field_523",
+   "row": "Margin",
+   "col": "",
+   "context": "Color / Rim/Margin / Normal / SUP / Optic Nerve",
+   "stripPrefix": ""
+  },
+  "onh_rim_od": {
+   "selector": "@29",
+   "name": "",
+   "id": "",
+   "label": "Rim/Margin",
+   "row": "Rim/Margin",
+   "col": "",
+   "context": "SUP / Inf / Optic Nerve",
+   "stripPrefix": ""
+  },
+  "onh_rim_os": {
+   "selector": "@30",
+   "name": "",
+   "id": "",
+   "label": "field_519",
+   "row": "Rim/Margin",
+   "col": "",
+   "context": "Normal / SUP / Inf / Optic Nerve",
+   "stripPrefix": ""
+  },
+  "onh_sup_od": {
+   "selector": "@22",
+   "name": "",
+   "id": "",
+   "label": "SUP",
+   "row": "SUP",
+   "col": "",
+   "context": "Optic Nerve",
+   "stripPrefix": ""
+  },
+  "onh_sup_os": {
+   "selector": "@26",
+   "name": "",
+   "id": "",
+   "label": "SUP",
+   "row": "SUP",
+   "col": "",
+   "context": "Inf / Optic Nerve",
+   "stripPrefix": ""
+  },
+  "pach_od": {
+   "selector": "@44",
+   "name": "",
+   "id": "",
+   "label": "IOP 2",
+   "row": "IOP 2",
+   "col": "OD",
+   "context": "OS / IOP/Pach",
+   "stripPrefix": ""
+  },
+  "pach_os": {
+   "selector": "@49",
+   "name": "",
+   "id": "",
+   "label": "field_538",
+   "row": "Pach",
+   "col": "OS",
+   "context": "Method Used / OD / IOP/Pach",
+   "stripPrefix": ""
+  },
+  "sle_ac_od": {
+   "selector": "@6",
+   "name": "",
+   "id": "",
+   "label": "A/C",
+   "row": "A/C",
+   "col": "OD",
+   "context": "Cornea / BIOMICROSCOPY",
+   "stripPrefix": ""
+  },
+  "sle_ac_os": {
+   "selector": "@9",
+   "name": "",
+   "id": "",
+   "label": "field_498",
+   "row": "Iris",
+   "col": "A/C",
+   "context": "Cornea / Conj / OS / OD / BIOMICROSCOPY",
+   "stripPrefix": ""
+  },
+  "sle_conj_od": {
+   "selector": "@2",
+   "name": "",
+   "id": "",
+   "label": "Conj",
+   "row": "Conj",
+   "col": "OD",
+   "context": "Lids / BIOMICROSCOPY",
+   "stripPrefix": ""
+  },
+  "sle_conj_os": {
+   "selector": "@3",
+   "name": "",
+   "id": "",
+   "label": "field_492",
+   "row": "Conj",
+   "col": "OS",
+   "context": "OD / BIOMICROSCOPY",
+   "stripPrefix": ""
+  },
+  "sle_cornea_os": {
+   "selector": "@4",
+   "name": "",
+   "id": "",
+   "label": "Cornea",
+   "row": "",
+   "col": "OS",
+   "context": "Conj / OD / Lids / BIOMICROSCOPY",
+   "stripPrefix": ""
+  },
+  "sle_iris_od": {
+   "selector": "@8",
+   "name": "",
+   "id": "",
+   "label": "Iris",
+   "row": "Iris",
+   "col": "Conj",
+   "context": "A/C / Cornea / OD / BIOMICROSCOPY",
+   "stripPrefix": ""
+  },
+  "sle_lens_od": {
+   "selector": "@10",
+   "name": "",
+   "id": "",
+   "label": "Lens",
+   "row": "Lens",
+   "col": "OD",
+   "context": "BIOMICROSCOPY",
+   "stripPrefix": ""
+  },
+  "sle_lens_os": {
+   "selector": "@11",
+   "name": "",
+   "id": "",
+   "label": "field_500",
+   "row": "Lens",
+   "col": "OS",
+   "context": "OD / BIOMICROSCOPY",
+   "stripPrefix": ""
+  },
+  "sle_lids_od": {
+   "selector": "@0",
+   "name": "",
+   "id": "",
+   "label": "Lids",
+   "row": "Lids",
+   "col": "OD",
+   "context": "BIOMICROSCOPY",
+   "stripPrefix": ""
+  },
+  "sle_lids_os": {
+   "selector": "@1",
+   "name": "",
+   "id": "",
+   "label": "field_490",
+   "row": "Lids",
+   "col": "OS",
+   "context": "OD / BIOMICROSCOPY",
+   "stripPrefix": ""
+  },
+  "sle_notes": {
+   "selector": "@12",
+   "name": "",
+   "id": "",
+   "label": "Note here",
+   "row": "",
+   "col": "Lens",
+   "context": "Iris / A/C / BIOMICROSCOPY",
+   "stripPrefix": ""
+  }
+ },
+ "lastFill": null
+}

@@ -68,6 +68,15 @@ function check(name, cond, detail = '') {
   const stray = Object.entries(got).filter(([, i]) => [20, 39, 40, 44, 45].includes(i)).map(([k, i]) => `${k}→${i}`);
   check('wrapped rows: note boxes and the IOP 2 row are left alone', !stray.length, stray.join(', '));
 
+  // The same screen in a wide window, with a setup saved by an older OptoFill that had read the wrapped rows wrongly:
+  // auto-map must correct the outdated mappings by itself, not leave the doctor to clear the setup
+  const stale = JSON.parse(fs.readFileSync(path.join(__dirname, 'fixtures/stale-setup-health.json'), 'utf8'));
+  check('outdated setup: starts with Cornea OS saved on the OD box and A/C OS on the Iris box', stale.map.sle_cornea_os.selector === '@4' && stale.map.sle_ac_os.selector === '@9' && !stale.map.sle_cornea_od);
+  const healed = await replay(stale, browser, { fromSaved: true });
+  const fixes = { sle_cornea_od: 4, sle_cornea_os: 5, sle_ac_od: 6, sle_ac_os: 7, sle_iris_od: 8, sle_iris_os: 9, pach_od: 48, pach_os: 49, iop_od: 41, fundus_crossing_od: 61 };
+  const unfixed = Object.entries(fixes).filter(([k, i]) => healed.map[k] !== i).map(([k, i]) => `${k}: box ${healed.map[k] ?? 'none'}, want ${i}`);
+  check(`outdated setup: auto-map corrects it (${healed.fixed} mappings) and keeps the right ones`, healed.fixed === 3 && !unfixed.length, `fixed ${healed.fixed}; ${unfixed.join('; ')}`);
+
   await browser.close();
   console.log(failures ? `\n${failures} check(s) failed` : '\nAll checks passed');
   process.exit(failures ? 1 : 0);

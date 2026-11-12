@@ -320,6 +320,34 @@ const val = (page, name) => page.$eval(`[name="${name}"]`, el => el.value);
         framed.every(r => r.status === 'filled') && (await frame.$eval('[name=b5]', el => el.value)) === '5 cm' &&
         (await frame.$eval('[name=v3]', el => el.value)) === '200', JSON.stringify(framed));
 
+  // Outdated setups: a mapping saved by an older OptoFill on the wrong box is corrected by auto-map; what the doctor
+  // picked by hand is never touched
+  const fresh = await openMock(browser);
+  const heal = await fresh.evaluate(() => {
+    const at = m => Object.fromEntries(Object.entries(m).map(([k, e]) => [k, e.name]));
+    const base = {}; autoMapVisible(base);
+    // as an older version left it: the OS key saved on the OD box, the OD key missing, no record of who mapped what
+    const old = JSON.parse(JSON.stringify(base));
+    for (const e of Object.values(old)) delete e.auto;
+    old.bv_amplitude_os = old.bv_amplitude_od; delete old.bv_amplitude_od;
+    autoMapVisible(old);
+    const fixed = autoMapVisible.fixed;
+    // the doctor's own choice, odd as it is: NPC on the Amplitude OD box
+    const mine = JSON.parse(JSON.stringify(base));
+    mine.bv_npc = { ...mine.bv_amplitude_od, manual: true }; delete mine.bv_amplitude_od;
+    autoMapVisible(mine);
+    const again = JSON.parse(JSON.stringify(base)); autoMapVisible(again);
+    return { old: at(old), fixed, mine: at(mine), untouched: autoMapVisible.fixed, same: JSON.stringify(at(again)) === JSON.stringify(at(base)) };
+  });
+  check('outdated setup: a key saved on the wrong eye’s box is moved to its own', heal.fixed === 1 && heal.old.bv_amplitude_od === 'b5' && heal.old.bv_amplitude_os === 'b6', JSON.stringify([heal.fixed, heal.old.bv_amplitude_od, heal.old.bv_amplitude_os]));
+  check('outdated setup: a box the doctor mapped by hand is left as chosen', heal.mine.bv_npc === 'b5', heal.mine.bv_npc);
+  check('outdated setup: a correct setup is not changed by auto-mapping again', heal.same && heal.untouched === 0, String(heal.untouched));
+  const sels = await fresh.evaluate(() => {
+    const make = id => { const el = document.createElement('input'); el.id = id; document.querySelector('.screen.on .card').appendChild(el); const s = buildSelector(el); el.remove(); return s; };
+    return [make('clr-form-control-190'), make('mat-input-5'), make('iop_method')];
+  });
+  check('ids the page renumbers on every visit are not used to find a box again', !sels[0].startsWith('#') && !sels[1].startsWith('#') && sels[2] === '#iop_method', sels.join(' , '));
+
   await browser.close();
   console.log(failures ? `\n${failures} check(s) failed` : '\nAll checks passed');
   process.exit(failures ? 1 : 0);

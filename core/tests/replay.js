@@ -64,7 +64,9 @@ function buildPage(report) {
 }
 
 // → { fields: what the content script reads from the rebuilt page, map: { schemaKey: field index } }
-async function replay(report, browser, { png } = {}) {
+// fromSaved: start from the report's saved setup (as the doctor's browser would) instead of an empty one; `fixed` is
+// then how many outdated mappings auto-map corrected.
+async function replay(report, browser, { png, fromSaved = false } = {}) {
   const far = Math.max(...[...report.fields, ...report.texts].map(x => x.rect[1] + x.rect[3]), 600);
   const page = await browser.newPage({ viewport: { width: report.page.width, height: Math.min(far + 60, 8000) } });
   await page.addInitScript(() => {
@@ -74,13 +76,18 @@ async function replay(report, browser, { png } = {}) {
   await page.evaluate(buildPage, report);
   await page.addScriptTag({ path: path.join(EXT, 'schema.js') });
   await page.addScriptTag({ path: path.join(EXT, 'content.js') });
-  const out = await page.evaluate(() => {
-    const map = {};
+  // The saved boxes are found by their place in the report, since the EMR's own selectors mean nothing here
+  const start = {};
+  if (fromSaved) for (const [key, e] of Object.entries(report.map || {})) {
+    const at = /^@\d+$/.test(e.selector) ? Number(e.selector.slice(1)) : report.fields.find(f => f.selector === e.selector)?.index;
+    start[key] = { ...e, selector: at == null ? e.selector : `[data-i="${at}"]` };
+  }
+  const out = await page.evaluate((map) => {
     autoMapVisible(map);
     const fields = getAllFields(true);
     const at = Object.fromEntries(Object.entries(map).map(([k, e]) => [k, Number(locateMapped(e, fields)?.dataset.i ?? -1)]));
-    return { map: at, fields: fields.map((f, i) => ({ ...f, i: Number(lastScannedEls[i].dataset.i) })) };
-  });
+    return { map: at, fixed: autoMapVisible.fixed, fields: fields.map((f, i) => ({ ...f, i: Number(lastScannedEls[i].dataset.i) })) };
+  }, start);
   if (png) await page.screenshot({ path: png, fullPage: true });
   await page.close();
   return out;

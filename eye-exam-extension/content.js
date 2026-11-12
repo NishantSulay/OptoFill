@@ -348,7 +348,7 @@ function getAllFields(withLayout) {
       else if (option) label = option;
       else if (question) label = question;
     }
-    if (!label) label=placeholder||name||id||`field_${rawIndex}`;
+    if (!label) label=placeholder||name||(volatileId(id)?'':id)||`field_${rawIndex}`;
     const options=el.tagName==='SELECT'?Array.from(el.options).map(o=>({value:o.value,text:o.text.trim()})):[];
     fields.push({ index:fields.length, label:label.substring(0,80), name:name.substring(0,40), id:id.substring(0,40), type, placeholder:placeholder.substring(0,60), options, selector:buildSelector(el), ...layout });
     els.push(el);
@@ -442,7 +442,8 @@ async function buildReport() {
     const inside = panels.filter(p => p.contains(a.node));
     // the innermost panel that holds it
     const panel = inside.length ? panels.indexOf(inside.reduce((x, y) => (x.contains(y) ? y : x))) : -1;
-    const around = panel >= 0 ? els.filter(el => panels[panel].contains(el)) : els;
+    // (text outside every panel — a page header with the patient's name — only counts next to boxes that are too)
+    const around = panel >= 0 ? els.filter(el => panels[panel].contains(el)) : els.filter(el => !panelOf(el));
     return around.some(el => near(a.r, el)) ? { text: a.text, rect: page(a.r), panel, option: a.option, el: a.node } : null;
   }).filter(Boolean);
   // Document order, so a checkbox and the text after it stay neighbours when the page is rebuilt
@@ -459,9 +460,13 @@ async function buildReport() {
 }
 
 // Prefer #id / [name] only when they identify exactly one element — EMRs often reuse them
+// Ids that frameworks number as the page is built ("clr-form-control-190", "mat-input-5"): different on the next
+// visit, so they can't identify a box in a saved setup, or name it
+const volatileId = id => /(^|[-_:])\d+$/.test(id) || /^(clr-|mat-|mui-|ember|react-|radix-|headlessui-|:r)/.test(id);
+
 function buildSelector(el) {
   const unique = sel => { try { return document.querySelectorAll(sel).length === 1; } catch(e) { return false; } };
-  if (el.id && unique(`#${CSS.escape(el.id)}`)) return `#${CSS.escape(el.id)}`;
+  if (el.id && !volatileId(el.id) && unique(`#${CSS.escape(el.id)}`)) return `#${CSS.escape(el.id)}`;
   if (el.name) {
     const sel = `${el.tagName.toLowerCase()}[name="${CSS.escape(el.name)}"]`;
     if (unique(sel)) return sel;
@@ -783,9 +788,43 @@ function scoreKey(entry, f) {
   return score;
 }
 
+// A saved mapping can be left over from an older OptoFill that read this screen's labels wrongly (an OS key saved on
+// the OD box). Before auto-mapping, mappings on screen whose box no longer fits their key are dropped so the box and
+// the key can be matched again. What the doctor picked by hand is never touched; a mapping from before OptoFill
+// recorded who made it is dropped only when another box on screen does fit its key.
+function dropOutdated(map, fields) {
+  let dropped = 0;
+  const boxOf = key => { const el = map[key] && locateMapped(map[key], fields); return el ? fields[lastScannedEls.indexOf(el)] : null; };
+  for (const [key, e] of Object.entries(map)) {
+    const s = SCHEMA_BY_KEY[key];
+    // Saved by an id the page renumbers on every visit, with nothing else to find the box by: it can never be found
+    if (!e.manual && !e.custom && e.id && volatileId(e.id) && e.selector === `#${CSS.escape(e.id)}` && e.label === e.id && !boxOf(key)) { delete map[key]; dropped++; continue; }
+    if (!s || !s.must || e.manual || e.custom) continue;
+    const f = boxOf(key);
+    if (!f || scoreKey(s, f) > 0) continue;
+    if (!e.auto && !fields.some(x => scoreKey(s, x) > 0)) continue;
+    delete map[key];
+    dropped++;
+  }
+  // Boxes placed after another key's box (VA modifiers, keratometry axes) go when that key is gone or has moved
+  const followers = [...MODIFIERS.map(m => ({ key: m.key, of: m.modifierOf })), ...SCHEMA.filter(s => s.after).map(s => ({ key: s.key, of: s.after }))];
+  for (const { key, of } of followers) {
+    const e = map[key];
+    if (!e || e.manual) continue;
+    const f = boxOf(key);
+    if (!f) continue;
+    const base = map[of] && locateMapped(map[of], fields);
+    if (base ? isModifierBoxOf(lastScannedEls[f.index], base) : !fields.some(x => scoreKey(SCHEMA_BY_KEY[of], x) > 0)) continue;
+    delete map[key];
+    dropped++;
+  }
+  return dropped;
+}
+
 // Suggest keys for every visible, unmapped box; each key and each box used once
 function autoMapVisible(map) {
   const fields = getAllFields(true);
+  autoMapVisible.fixed = dropOutdated(map, fields);
   const taken = new Set(Object.values(map).map(e => locateMapped(e, fields)).filter(Boolean));
   const cands = [];
   fields.forEach(f => {
@@ -803,7 +842,7 @@ function autoMapVisible(map) {
   const usedEls = new Set(taken);
   for (const c of cands) {
     if (map[c.key] || usedEls.has(c.el)) continue;
-    map[c.key] = mappingEntry(c.el, c.f);
+    map[c.key] = { ...mappingEntry(c.el, c.f), auto: true };
     usedEls.add(c.el);
     added++;
   }
@@ -815,7 +854,7 @@ function autoMapVisible(map) {
     const prevEl = locateMapped(map[of], fields);
     const f = prevEl && fields.find(f => !usedEls.has(lastScannedEls[f.index]) && isModifierBoxOf(lastScannedEls[f.index], prevEl));
     if (!f) continue;
-    map[key] = mappingEntry(lastScannedEls[f.index], f);
+    map[key] = { ...mappingEntry(lastScannedEls[f.index], f), auto: true };
     usedEls.add(lastScannedEls[f.index]);
     added++;
   }
@@ -888,9 +927,9 @@ async function startSetup() {
 
   root.querySelector('.done').addEventListener('click', stopSetup);
   root.querySelector('.auto').addEventListener('click', async () => {
-    const n = autoMapVisible(setup.map);
+    const n = autoMapVisible(setup.map), fixed = autoMapVisible.fixed;
     await saveMap(setup.map);
-    renderSetup(`Auto-mapped ${n} box${n === 1 ? '' : 'es'} — check the green labels and click any box to fix it.`);
+    renderSetup(`Auto-mapped ${n} box${n === 1 ? '' : 'es'}${fixed ? ` (${fixed} outdated mapping${fixed === 1 ? '' : 's'} corrected)` : ''} — check the green labels and click any box to fix it.`);
   });
   root.querySelector('.reset').addEventListener('click', async () => {
     const n = Object.keys(setup.map).length;
@@ -1064,7 +1103,7 @@ async function assignKey(key, extra) {
   if (prev) delete setup.map[prev];
   // Moving the doctor's own label to another box keeps its name
   const keep = setup.map[key]?.custom ? { custom: true, customLabel: setup.map[key].customLabel, type: f.type } : null;
-  setup.map[key] = { ...mappingEntry(el, f), ...(extra || keep || {}) };
+  setup.map[key] = { ...mappingEntry(el, f), manual: true, ...(extra || keep || {}) };
   await saveMap(setup.map);
   closePicker();
   setup.message = '';

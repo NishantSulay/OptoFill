@@ -502,7 +502,9 @@ function showReview(tabId, values, redacted) {
   }
   reviewArea.classList.add('visible');
   updateReviewCount();
-  setStatus('ready', 'Check the values, then fill');
+  // A value with no box would otherwise just not appear in the EMR: say so, and where to fix it
+  const lost = keys.filter(k => !hasBox(k)).length;
+  setStatus('ready', lost ? `${lost} value${lost === 1 ? ' has' : 's have'} no box on this EMR — Edit setup → Auto-map` : 'Check the values, then fill');
   fillBtnContent.innerHTML = '✦ Fill Fields';
 }
 
