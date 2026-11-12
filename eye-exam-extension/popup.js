@@ -414,9 +414,14 @@ document.getElementById('report-btn').addEventListener('click', async () => {
     const report = await sendToPage(tab.id, { action: 'getReport' });
     if (!report || report.error) throw new Error(report?.error || 'no report');
     report.version = chrome.runtime.getManifest?.().version || '';
+    // Names after a cue ("Mr. …"), dates, phone and ID numbers are removed from every label text, as for the AI
+    const clean = t => (typeof t === 'string' && t ? OptoFillRedact.redact(t).text : t);
+    for (const t of report.texts) t.text = clean(t.text);
+    for (const f of report.fields) for (const k of ['label', 'row', 'col', 'context', 'after']) f[k] = clean(f[k]);
+    for (const e of Object.values(report.map || {})) for (const k of ['label', 'row', 'col', 'context']) e[k] = clean(e[k]);
     if (lastRead) { report.dictation = OptoFillRedact.redact(lastRead.dictation).text; report.read = lastRead.values; }
     saveFile(`optofill-report-${fileHost(report.page.host)}.json`, report);
-    showToast(`Report saved — ${report.fields.length} boxes on this screen`, 'success');
+    showToast(`Report saved — ${report.fields.length} boxes. It holds the label text near them: use a test patient.`, 'success');
   } catch(e) { showToast('Could not read this page for a report.', 'error'); }
 });
 

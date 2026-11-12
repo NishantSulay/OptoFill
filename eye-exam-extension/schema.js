@@ -90,7 +90,7 @@
   perEye(['od', 'os'], (e, el) => add(`iop_${e}`, `IOP (mmHg) ${el}`, { must: [['iop', 'pressure', 'tonometry', 'nct', 'gat']], eye: e }, 'IOP'));
   add('iop_method', 'IOP method (NCT, Goldmann, iCare…)', { must: [['iop', 'pressure', 'tonometry'], ['method', 'type']] }, 'IOP');
   add('iop_time', 'IOP time measured', { must: [['iop', 'pressure', 'tonometry'], ['time']] }, 'IOP');
-  perEye(['od', 'os'], (e, el) => add(`pach_${e}`, `Pachymetry / central corneal thickness (µm) ${el}`, { must: [['pach', 'pachymetry', 'cct', 'thickness']], eye: e }, 'IOP'));
+  perEye(['od', 'os'], (e, el) => add(`pach_${e}`, `Pachymetry / central corneal thickness (µm) ${el}`, { must: [['pach', 'pachymetry', 'cct', 'thickness']], ownOnly: true, eye: e }, 'IOP'));   // not an "IOP 2" row above a Pach row
 
   // Pupils
   for (const [k, words] of [['light', ['light']], ['dark', ['dark']], ['direct', ['direct']], ['consensual', ['consensual']], ['apd', ['apd', 'rapd', 'mg']]])
@@ -139,7 +139,7 @@
   for (const [k, l, words, not] of [['cd', 'C/D ratio (horizontal, or the only C/D given)', ['c/d', 'cd', 'cup', 'h', 'horizontal'], ['vertical', 'vert', 'v', 'sup', 'inf']],
                                     ['cd_v', 'C/D ratio vertical', ['vertical', 'vert', 'v'], ['sup', 'inf']],
                                     ['nerve', 'optic nerve (overall)', ['nerve', 'disc', 'onh', 'additional'], ['notes', 'note', 'superior', 'inferior']], ['macula', 'macula', ['macula'], null],
-                                    ['vessels', 'vessels', ['vessels', 'vasculature', 'a/v', 'bvs', 'blood vessels'], ['ratio']],
+                                    ['vessels', 'blood vessels', ['vessels', 'vasculature', 'a/v', 'bvs', 'blood vessels'], ['ratio']],
                                     ['av_ratio', 'A/V ratio', ['ratio'], null],
                                     ['periphery', 'periphery', ['periphery', 'peripheral'], null], ['vitreous', 'vitreous', ['vitreous'], null]])
     perEye(['od', 'os'], (e, el) => add(`fundus_${k}_${e}`, `Fundus ${l} ${el}`,

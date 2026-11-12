@@ -24,11 +24,14 @@ is('no fixes leaves the text alone', apply('Lids clear OU.', ''), 'Lids clear OU
 check('parse reads heard and meant', JSON.stringify(parse(' oh  dee  =  OD ')) === '[{"heard":"oh dee","meant":"OD"}]', JSON.stringify(parse(' oh  dee  =  OD ')));
 
 // The starter fixes must not touch a dictation that was heard correctly
-const clean = cases.filter(c => c.id !== 'misheard-speech');
+const clean = cases.filter(c => !c.misheard);   // cases marked misheard are raw speech-recognition output
 const changed = clean.filter(c => apply(c.dictation, DEFAULTS) !== c.dictation).map(c => c.id);
 check(`starter fixes leave correctly heard dictations unchanged (${clean.length} cases)`, !changed.length, changed.join(', '));
 is('starter fixes repair the misheard terms', apply('Pupils pearl a. Oh dee 20/25, oh ess 20/30. Manifest oh dee plain oh.', DEFAULTS),
    'Pupils PERRLA. OD 20/25, OS 20/30. Manifest OD plano.');
+
+is('letters heard one by one become the eye', apply('macula flat and clear o d o s, periphery flat for odos', DEFAULTS), 'macula flat and clear OD OS, periphery flat for OD OS');
+is('…but not inside other words', apply('no d-shaped lesion; tears so so', DEFAULTS), 'no d-shaped lesion; tears so so');
 
 console.log(failures ? `\n${failures} check(s) failed` : '\nAll checks passed');
 process.exit(failures ? 1 : 0);

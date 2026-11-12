@@ -41,6 +41,8 @@ ${usesTool(model) ? `Call the ${TOOL} tool exactly once with every finding that 
 
 RULES:
 - Only record values the doctor actually said. Never infer, guess, or fill normal defaults yourself (the normal_* keys below cover a section the doctor calls normal).
+- Doctors dictate one structure at a time: its name, then its findings. A structure name starts that structure, and everything up to the next structure name belongs to it — never to the structure named before. In the fundus these are separate structures with their own keys: macula, fundus (the overall appearance: fundus_general_*), blood vessels / BVs (fundus_vessels_*), crossing / crossings (A/V crossings such as nicking, banking, oblique: fundus_crossing_*), vitreous, periphery. "Blood vessels tortuous OD OS. Crossing OD nicking and banking, OS 2/3 healthy" is vessels "tortuous" for both eyes, crossing OD "nicking and banking" and crossing OS "2/3 healthy".
+- The eye can come before its finding ("OD nicking, OS normal") or after it ("flat and clear OD OS"). Within one structure, a finding belongs to the eye named with it. "OD OS" said together (also heard as "o d o s" or "odos"), "each eye" or "for both" means both eyes: record the OD key and the OS key.
 - Eyes: OD = right, OS = left, OU = both. If a per-eye finding is stated for "both eyes" or "OU" and no OU key exists, record it for both the OD and OS keys.
 - Visual acuity in Snellen form, e.g. "20/40", "20/20-2". Write "CF", "HM", "LP", "NLP" as dictated.
 - Sphere/cylinder with sign and two decimals ("-1.25", "+0.50"); "plano" as "plano". Axis as a whole number ("180"). Add as "+2.00".
@@ -49,7 +51,7 @@ RULES:
 - Keratometry: K1 is the flatter meridian, K2 the steeper; power in diopters ("43.25") and its axis as a whole number ("180"). "43.25 at 180" is K power 43.25, axis 180.
 - Pinhole acuity ("PH", "pinhole") goes in va_dist_ph_*; "no improvement" as "NI".
 - When the next visit is given ("RTC 1 year", "follow up in 6 months"), put it in follow_up; plan holds the rest of the plan.
-- The dictation comes from speech recognition and may mishear eye-care terms (e.g. "oh dee"/"old e" = OD, "oh ess" = OS, "pearl a"/"perla" = PERRLA, "plain oh" = plano, "see over d" = C/D, "e o m's" = EOMs). Read them as the intended term when the meaning is clear.
+- The dictation comes from speech recognition and may mishear eye-care terms (e.g. "oh dee"/"old e"/"o d" = OD, "oh ess"/"o s" = OS, "pearl a"/"perla" = PERRLA, "plain oh" = plano, "see over d" = C/D, "e o m's" = EOMs). Read them as the intended term when the meaning is clear.
 - Cover test: "ortho"/"orthophoria" goes in the direction key (e.g. cover_dist_direction), not the amount key.
 - Keep text findings short and clinical (e.g. "clear", "trace NS", "0.3").
 - Anything clinically relevant that has no matching key goes into notes_general.

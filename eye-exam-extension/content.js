@@ -190,12 +190,29 @@ function getTextAnchors() {
     const r = range.getBoundingClientRect();
     if (!r.width || !r.height) continue;
     if (getComputedStyle(p).visibility === 'hidden') continue;
+    if (isCovered(p, r)) continue;
     // A checkbox/radio's own label ("☐ Glasses") names that box, not a section of the form
     const option = !!(p.previousElementSibling?.matches?.('input[type=checkbox],input[type=radio]') ||
                       p.closest('label')?.querySelector('input[type=checkbox],input[type=radio]'));
     anchors.push({ text, r, node: p, option });
   }
   return anchors;
+}
+
+// Text that is on the page but can't be seen: under a dialog (an exam form opened over the patient's history), or
+// faded out. Such text must not label the boxes drawn on top of it. Only checkable for what is in the window.
+function isCovered(el, r) {
+  for (let n = el; n && n !== document.body; n = n.parentElement) if (getComputedStyle(n).opacity === '0') return true;
+  const x = (r.left + r.right) / 2, y = (r.top + r.bottom) / 2;
+  if (x < 0 || y < 0 || x >= innerWidth || y >= innerHeight) return false;
+  const top = document.elementFromPoint(x, y);
+  if (!top || top.contains(el) || el.contains(top) || top.closest('#optofill-setup-host')) return false;
+  // Something else is in front: it hides the text only if it (or what it sits in) is painted, not see-through
+  for (let n = top; n && !n.contains(el); n = n.parentElement) {
+    const s = getComputedStyle(n);
+    if (s.backgroundImage !== 'none' || !/^(transparent|rgba\(.*,\s*0\))$/.test(s.backgroundColor)) return true;
+  }
+  return false;
 }
 
 // The bordered panel/card a box sits in — labels from neighbouring panels must not leak in
@@ -336,9 +353,43 @@ function getAllFields(withLayout) {
     fields.push({ index:fields.length, label:label.substring(0,80), name:name.substring(0,40), id:id.substring(0,40), type, placeholder:placeholder.substring(0,60), options, selector:buildSelector(el), ...layout });
     els.push(el);
   });
-  if (anchors) guessEyesByPosition(fields, els);
+  if (anchors) { labelPairsByPageOrder(fields, els, anchors); guessEyesByPosition(fields, els); }
   lastScannedEls = els;
   return fields;
+}
+
+// A label followed in the page by exactly two alike boxes ("Conj [ ] [ ]") is an OD box then an OS box. On a narrow
+// window (the side panel takes room) such rows wrap — the OS box drops to the next line, the next label moves up
+// beside it — and where things sit no longer says which label or column a box has. In a panel where any pair has
+// wrapped, every pair is labelled from the page order instead; elsewhere the order only supplies a missing eye.
+function labelPairsByPageOrder(fields, els, anchors) {
+  const eyeWord = t => Object.values(EYE_WORDS).flat().some(w => hasToken(normText(t), w));
+  const items = [...fields.map((f, i) => ({ f, el: els[i], r: els[i].getBoundingClientRect() })),
+                 ...anchors.filter(a => !a.option).map(a => ({ a, el: a.node, r: a.r }))];
+  items.sort((x, y) => (x.el === y.el ? 0 : x.el.compareDocumentPosition(y.el) & Node.DOCUMENT_POSITION_FOLLOWING ? -1 : 1));
+  const cy = r => (r.top + r.bottom) / 2;
+  const sameLine = (p, q) => cy(p) > q.top - 4 && cy(p) < q.bottom + 4 || cy(q) > p.top - 4 && cy(q) < p.bottom + 4;
+  const before = (p, q) => (sameLine(p, q) ? p.left < q.left : cy(p) < cy(q));   // reading order
+  const alike = (x, y) => x.f && y.f && x.el.tagName === y.el.tagName && x.f.type === y.f.type &&
+                          Math.abs(x.r.width - y.r.width) <= 0.2 * x.r.width && Math.abs(x.r.height - y.r.height) <= 0.2 * x.r.height;
+  const pairs = [], wrapped = new Set();
+  for (let i = 0; i + 2 < items.length; i++) {
+    const [lab, b1, b2, next] = [items[i], items[i + 1], items[i + 2], items[i + 3]];
+    if (!lab.a || !b1.f || !alike(b1, b2) || (next && alike(b1, next))) continue;
+    if (['checkbox', 'radio'].includes(b1.f.type) || eyeWord(lab.a.text)) continue;
+    const panel = panelOf(b1.el);
+    if (panel !== panelOf(b2.el) || (panel && !panel.contains(lab.el))) continue;
+    if (!before(lab.r, b1.r) || !before(b1.r, b2.r)) continue;
+    if (!(sameLine(lab.r, b1.r) && sameLine(b1.r, b2.r))) wrapped.add(panel);
+    pairs.push({ panel, text: lab.a.text, boxes: [b1.f, b2.f] });
+  }
+  for (const p of pairs) {
+    p.boxes.forEach((f, n) => {
+      const eye = n ? 'os' : 'od';
+      if (wrapped.has(p.panel)) { f.row = p.text; f.col = ''; f.eye = eye; }
+      else if (!eyeWord([f.label, f.row, f.col, f.placeholder].join(' | '))) f.eye = eye;
+    });
+  }
 }
 
 // Some panels have no OD/OS labels at all (an Optic Nerve panel: "Rim [ ] [ ]", "H [ ] V [ ] H [ ] V [ ]"). When
@@ -347,7 +398,7 @@ function guessEyesByPosition(fields, els) {
   const hasEye = f => Object.values(EYE_WORDS).flat().some(t => hasToken(normText([f.label, f.row, f.col, f.placeholder].join(' | ')), t));
   const lines = [];
   fields.forEach((f, i) => {
-    if (f.type === 'checkbox' || f.type === 'radio' || hasEye(f)) return;
+    if (f.type === 'checkbox' || f.type === 'radio' || f.eye || hasEye(f)) return;
     const name = (f.row || f.placeholder || '').trim().toLowerCase();
     if (!name) return;
     const r = els[i].getBoundingClientRect(), cy = (r.top + r.bottom) / 2, panel = panelOf(els[i]);
@@ -384,14 +435,15 @@ async function buildReport() {
     return panels.indexOf(p);
   };
   const boxes = fields.map((f, i) => ({ ...f, rect: page(els[i].getBoundingClientRect()), panel: panelIndex(els[i]), el: els[i] }));
-  // Only the text around the form: inside a panel that holds a box, or close to a box that has no panel
+  // Only the text right around the boxes (their labels and headings), not the rest of the page: a patient banner or
+  // a history list elsewhere on the screen has no place in a report
   const near = (r, el) => { const b = el.getBoundingClientRect(); return r.right > b.left - 400 && r.left < b.right + 100 && r.bottom > b.top - 250 && r.top < b.bottom + 40; };
-  const loose = els.filter(el => !panelOf(el));
   const texts = getTextAnchors().map(a => {
     const inside = panels.filter(p => p.contains(a.node));
     // the innermost panel that holds it
     const panel = inside.length ? panels.indexOf(inside.reduce((x, y) => (x.contains(y) ? y : x))) : -1;
-    return panel >= 0 || loose.some(el => near(a.r, el)) ? { text: a.text, rect: page(a.r), panel, option: a.option, el: a.node } : null;
+    const around = panel >= 0 ? els.filter(el => panels[panel].contains(el)) : els;
+    return around.some(el => near(a.r, el)) ? { text: a.text, rect: page(a.r), panel, option: a.option, el: a.node } : null;
   }).filter(Boolean);
   // Document order, so a checkbox and the text after it stay neighbours when the page is rebuilt
   const order = [...boxes, ...texts].sort((a, b) => (a.el === b.el ? 0 : a.el.compareDocumentPosition(b.el) & Node.DOCUMENT_POSITION_FOLLOWING ? -1 : 1));

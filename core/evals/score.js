@@ -25,6 +25,7 @@ function score(expect, got, allowed) {
     const v = got[key];
     let ok;
     if (rule.absent) ok = v === undefined;
+    else if (rule.lacks !== undefined) ok = v === undefined || !norm(v).includes(norm(rule.lacks));   // may be filled, but not with this
     else if (v === undefined) ok = false;
     else if (rule.equals !== undefined) ok = sameValue(v, rule.equals);
     else if (rule.equalsAny) ok = rule.equalsAny.some(x => sameValue(v, x));

@@ -941,6 +941,7 @@
   },
   {
     "id": "misheard-speech",
+    "misheard": true,
     "dictation": "Pupils pearl a, no APD. Oh dee 20/25, oh ess 20/30 without glasses. Pinhole oh dee 20/20. Manifest oh dee plain oh, oh ess minus 0.50. See over d 0.3 oh you.",
     "expect": {
       "pupils_notes": {
@@ -1084,6 +1085,88 @@
       "sle_angles_od",
       "sle_angles_os",
       "notes_general"
+    ]
+  },
+  {
+    "id": "structure-by-structure",
+    "misheard": true,
+    "dictation": "hey  okay try this now  macula  flat and clear o d o s fundus healthy o d o s  blood vessels tortuous o d o s Crossing OD nicking and banking OS 2/3 healthy  vitreous OD senoresis OS PVD  periphery superiorly  lattice degeneration  for odos  no tears holes or detachments",
+    "expect": {
+      "fundus_macula_od": {
+        "contains": "flat"
+      },
+      "fundus_macula_os": {
+        "contains": "flat"
+      },
+      "fundus_general_od": {
+        "contains": "healthy"
+      },
+      "fundus_general_os": {
+        "contains": "healthy"
+      },
+      "fundus_vessels_od": {
+        "contains": "tortuous"
+      },
+      "fundus_vessels_os": {
+        "contains": "tortuous"
+      },
+      "fundus_crossing_od": {
+        "containsAny": [
+          "nicking",
+          "banking"
+        ]
+      },
+      "fundus_crossing_os": {
+        "contains": "2/3"
+      },
+      "fundus_vitreous_od": {
+        "containsAny": [
+          "syneresis",
+          "senoresis"
+        ]
+      },
+      "fundus_vitreous_os": {
+        "contains": "pvd"
+      },
+      "fundus_periphery_od": {
+        "contains": "lattice"
+      },
+      "fundus_periphery_os": {
+        "contains": "lattice"
+      },
+      "notes_general": {
+        "absent": true
+      }
+    },
+    "allowExtra": []
+  },
+  {
+    "id": "structure-vessels-not-crossing",
+    "misheard": true,
+    "dictation": "hey  okay try this now  macula  flat and clear o d o s fundus healthy o d o s  blood vessels tortuous o d o s Crossing OD nicking and banking OS 2/3 healthy",
+    "expect": {
+      "fundus_vessels_od": {
+        "lacks": "nick"
+      },
+      "fundus_vessels_os": {
+        "lacks": "nick"
+      },
+      "fundus_crossing_od": {
+        "lacks": "2/3"
+      },
+      "fundus_av_ratio_os": {
+        "absent": true
+      }
+    },
+    "allowExtra": [
+      "fundus_macula_od",
+      "fundus_macula_os",
+      "fundus_general_od",
+      "fundus_general_os",
+      "fundus_vessels_od",
+      "fundus_vessels_os",
+      "fundus_crossing_od",
+      "fundus_crossing_os"
     ]
   }
 ]

@@ -1,0 +1,2089 @@
+{
+ "optofillReport": 1,
+ "note": "Ocular Health screen of a real EMR as laid out in a narrow window (rows wrap). Layout and form labels only: no patient, no values, no saved setup.",
+ "page": {
+  "host": "emr.example.com",
+  "frame": "top",
+  "width": 1534,
+  "height": 960
+ },
+ "panels": [
+  {
+   "rect": [
+    37,
+    129,
+    467,
+    545
+   ],
+   "parent": -1
+  },
+  {
+   "rect": [
+    37,
+    675,
+    467,
+    168
+   ],
+   "parent": -1
+  },
+  {
+   "rect": [
+    526,
+    127,
+    482,
+    379
+   ],
+   "parent": -1
+  },
+  {
+   "rect": [
+    526,
+    507,
+    482,
+    211
+   ],
+   "parent": -1
+  },
+  {
+   "rect": [
+    1014,
+    662,
+    482,
+    211
+   ],
+   "parent": -1
+  },
+  {
+   "rect": [
+    1014,
+    134,
+    482,
+    545
+   ],
+   "parent": -1
+  }
+ ],
+ "fields": [
+  {
+   "index": 0,
+   "label": "Lids",
+   "name": "",
+   "id": "",
+   "type": "textarea",
+   "placeholder": "",
+   "options": [],
+   "selector": "body > my-app:nth-of-type(1) > app-layout:nth-of-type(1) > clr-main-container:nth-of-type(1) > div:nth-of-type(3) > div:nth-of-type(1) > ng-component:nth-of-type(1) > app-dashboard-emr-history-component:nth-of-type(1) > app-view-template:nth-of-type(1) > clr-modal:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(4) > section:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > app-biomicroscopy:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(3) > textarea:nth-of-type(1)",
+   "rect": [
+    102,
+    246,
+    162,
+    41
+   ],
+   "panel": 0,
+   "order": 355
+  },
+  {
+   "index": 1,
+   "label": "field_490",
+   "name": "",
+   "id": "",
+   "type": "textarea",
+   "placeholder": "",
+   "options": [],
+   "selector": "body > my-app:nth-of-type(1) > app-layout:nth-of-type(1) > clr-main-container:nth-of-type(1) > div:nth-of-type(3) > div:nth-of-type(1) > ng-component:nth-of-type(1) > app-dashboard-emr-history-component:nth-of-type(1) > app-view-template:nth-of-type(1) > clr-modal:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(4) > section:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > app-biomicroscopy:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(3) > textarea:nth-of-type(2)",
+   "rect": [
+    295,
+    246,
+    162,
+    41
+   ],
+   "panel": 0,
+   "order": 356
+  },
+  {
+   "index": 2,
+   "label": "Conj",
+   "name": "",
+   "id": "",
+   "type": "textarea",
+   "placeholder": "",
+   "options": [],
+   "selector": "body > my-app:nth-of-type(1) > app-layout:nth-of-type(1) > clr-main-container:nth-of-type(1) > div:nth-of-type(3) > div:nth-of-type(1) > ng-component:nth-of-type(1) > app-dashboard-emr-history-component:nth-of-type(1) > app-view-template:nth-of-type(1) > clr-modal:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(4) > section:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > app-biomicroscopy:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(4) > textarea:nth-of-type(1)",
+   "rect": [
+    132,
+    303,
+    162,
+    41
+   ],
+   "panel": 0,
+   "order": 358
+  },
+  {
+   "index": 3,
+   "label": "field_492",
+   "name": "",
+   "id": "",
+   "type": "textarea",
+   "placeholder": "",
+   "options": [],
+   "selector": "body > my-app:nth-of-type(1) > app-layout:nth-of-type(1) > clr-main-container:nth-of-type(1) > div:nth-of-type(3) > div:nth-of-type(1) > ng-component:nth-of-type(1) > app-dashboard-emr-history-component:nth-of-type(1) > app-view-template:nth-of-type(1) > clr-modal:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(4) > section:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > app-biomicroscopy:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(4) > textarea:nth-of-type(2)",
+   "rect": [
+    57,
+    360,
+    162,
+    41
+   ],
+   "panel": 0,
+   "order": 359
+  },
+  {
+   "index": 4,
+   "label": "Cornea",
+   "name": "",
+   "id": "",
+   "type": "textarea",
+   "placeholder": "",
+   "options": [],
+   "selector": "body > my-app:nth-of-type(1) > app-layout:nth-of-type(1) > clr-main-container:nth-of-type(1) > div:nth-of-type(3) > div:nth-of-type(1) > ng-component:nth-of-type(1) > app-dashboard-emr-history-component:nth-of-type(1) > app-view-template:nth-of-type(1) > clr-modal:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(4) > section:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > app-biomicroscopy:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(5) > textarea:nth-of-type(1)",
+   "rect": [
+    294,
+    360,
+    162,
+    41
+   ],
+   "panel": 0,
+   "order": 361
+  },
+  {
+   "index": 5,
+   "label": "field_494",
+   "name": "",
+   "id": "",
+   "type": "textarea",
+   "placeholder": "",
+   "options": [],
+   "selector": "body > my-app:nth-of-type(1) > app-layout:nth-of-type(1) > clr-main-container:nth-of-type(1) > div:nth-of-type(3) > div:nth-of-type(1) > ng-component:nth-of-type(1) > app-dashboard-emr-history-component:nth-of-type(1) > app-view-template:nth-of-type(1) > clr-modal:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(4) > section:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > app-biomicroscopy:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(5) > textarea:nth-of-type(2)",
+   "rect": [
+    89,
+    417,
+    162,
+    41
+   ],
+   "panel": 0,
+   "order": 362
+  },
+  {
+   "index": 6,
+   "label": "A/C",
+   "name": "",
+   "id": "",
+   "type": "textarea",
+   "placeholder": "",
+   "options": [],
+   "selector": "body > my-app:nth-of-type(1) > app-layout:nth-of-type(1) > clr-main-container:nth-of-type(1) > div:nth-of-type(3) > div:nth-of-type(1) > ng-component:nth-of-type(1) > app-dashboard-emr-history-component:nth-of-type(1) > app-view-template:nth-of-type(1) > clr-modal:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(4) > section:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > app-biomicroscopy:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(6) > textarea:nth-of-type(1)",
+   "rect": [
+    57,
+    473,
+    162,
+    41
+   ],
+   "panel": 0,
+   "order": 364
+  },
+  {
+   "index": 7,
+   "label": "field_496",
+   "name": "",
+   "id": "",
+   "type": "textarea",
+   "placeholder": "",
+   "options": [],
+   "selector": "body > my-app:nth-of-type(1) > app-layout:nth-of-type(1) > clr-main-container:nth-of-type(1) > div:nth-of-type(3) > div:nth-of-type(1) > ng-component:nth-of-type(1) > app-dashboard-emr-history-component:nth-of-type(1) > app-view-template:nth-of-type(1) > clr-modal:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(4) > section:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > app-biomicroscopy:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(6) > textarea:nth-of-type(2)",
+   "rect": [
+    251,
+    473,
+    162,
+    41
+   ],
+   "panel": 0,
+   "order": 365
+  },
+  {
+   "index": 8,
+   "label": "Iris",
+   "name": "",
+   "id": "",
+   "type": "textarea",
+   "placeholder": "",
+   "options": [],
+   "selector": "body > my-app:nth-of-type(1) > app-layout:nth-of-type(1) > clr-main-container:nth-of-type(1) > div:nth-of-type(3) > div:nth-of-type(1) > ng-component:nth-of-type(1) > app-dashboard-emr-history-component:nth-of-type(1) > app-view-template:nth-of-type(1) > clr-modal:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(4) > section:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > app-biomicroscopy:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(7) > textarea:nth-of-type(1)",
+   "rect": [
+    102,
+    523,
+    162,
+    41
+   ],
+   "panel": 0,
+   "order": 367
+  },
+  {
+   "index": 9,
+   "label": "field_498",
+   "name": "",
+   "id": "",
+   "type": "textarea",
+   "placeholder": "",
+   "options": [],
+   "selector": "body > my-app:nth-of-type(1) > app-layout:nth-of-type(1) > clr-main-container:nth-of-type(1) > div:nth-of-type(3) > div:nth-of-type(1) > ng-component:nth-of-type(1) > app-dashboard-emr-history-component:nth-of-type(1) > app-view-template:nth-of-type(1) > clr-modal:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(4) > section:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > app-biomicroscopy:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(7) > textarea:nth-of-type(2)",
+   "rect": [
+    295,
+    523,
+    162,
+    41
+   ],
+   "panel": 0,
+   "order": 368
+  },
+  {
+   "index": 10,
+   "label": "Lens",
+   "name": "",
+   "id": "",
+   "type": "textarea",
+   "placeholder": "",
+   "options": [],
+   "selector": "body > my-app:nth-of-type(1) > app-layout:nth-of-type(1) > clr-main-container:nth-of-type(1) > div:nth-of-type(3) > div:nth-of-type(1) > ng-component:nth-of-type(1) > app-dashboard-emr-history-component:nth-of-type(1) > app-view-template:nth-of-type(1) > clr-modal:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(4) > section:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > app-biomicroscopy:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(8) > textarea:nth-of-type(1)",
+   "rect": [
+    132,
+    580,
+    162,
+    41
+   ],
+   "panel": 0,
+   "order": 370
+  },
+  {
+   "index": 11,
+   "label": "field_500",
+   "name": "",
+   "id": "",
+   "type": "textarea",
+   "placeholder": "",
+   "options": [],
+   "selector": "body > my-app:nth-of-type(1) > app-layout:nth-of-type(1) > clr-main-container:nth-of-type(1) > div:nth-of-type(3) > div:nth-of-type(1) > ng-component:nth-of-type(1) > app-dashboard-emr-history-component:nth-of-type(1) > app-view-template:nth-of-type(1) > clr-modal:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(4) > section:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > app-biomicroscopy:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(8) > textarea:nth-of-type(2)",
+   "rect": [
+    57,
+    631,
+    162,
+    41
+   ],
+   "panel": 0,
+   "order": 371
+  },
+  {
+   "index": 12,
+   "label": "Note here",
+   "name": "",
+   "id": "",
+   "type": "textarea",
+   "placeholder": "Note here",
+   "options": [],
+   "selector": "body > my-app:nth-of-type(1) > app-layout:nth-of-type(1) > clr-main-container:nth-of-type(1) > div:nth-of-type(3) > div:nth-of-type(1) > ng-component:nth-of-type(1) > app-dashboard-emr-history-component:nth-of-type(1) > app-view-template:nth-of-type(1) > clr-modal:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(4) > section:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > app-biomicroscopy:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(9) > textarea:nth-of-type(1)",
+   "rect": [
+    57,
+    699,
+    375,
+    44
+   ],
+   "panel": 0,
+   "order": 372
+  },
+  {
+   "index": 13,
+   "label": "BIOMICROSCOPY — Photos Declined",
+   "name": "",
+   "id": "clr-form-control-182",
+   "type": "checkbox",
+   "placeholder": "",
+   "options": [],
+   "selector": "#clr-form-control-182",
+   "rect": [
+    50,
+    715,
+    24,
+    24
+   ],
+   "panel": 1,
+   "order": 375
+  },
+  {
+   "index": 14,
+   "label": "BIOMICROSCOPY — Photos Discussed",
+   "name": "",
+   "id": "clr-form-control-183",
+   "type": "checkbox",
+   "placeholder": "",
+   "options": [],
+   "selector": "#clr-form-control-183",
+   "rect": [
+    225,
+    715,
+    24,
+    24
+   ],
+   "panel": 1,
+   "order": 377
+  },
+  {
+   "index": 15,
+   "label": "BIOMICROSCOPY — After Dilation",
+   "name": "",
+   "id": "clr-form-control-184",
+   "type": "checkbox",
+   "placeholder": "",
+   "options": [],
+   "selector": "#clr-form-control-184",
+   "rect": [
+    50,
+    744,
+    24,
+    24
+   ],
+   "panel": 1,
+   "order": 379
+  },
+  {
+   "index": 16,
+   "label": "BIOMICROSCOPY — Photos Taken",
+   "name": "",
+   "id": "clr-form-control-185",
+   "type": "checkbox",
+   "placeholder": "",
+   "options": [],
+   "selector": "#clr-form-control-185",
+   "rect": [
+    225,
+    744,
+    24,
+    24
+   ],
+   "panel": 1,
+   "order": 381
+  },
+  {
+   "index": 17,
+   "label": "BIOMICROSCOPY — Photos Approved",
+   "name": "",
+   "id": "clr-form-control-186",
+   "type": "checkbox",
+   "placeholder": "",
+   "options": [],
+   "selector": "#clr-form-control-186",
+   "rect": [
+    50,
+    773,
+    24,
+    24
+   ],
+   "panel": 1,
+   "order": 383
+  },
+  {
+   "index": 18,
+   "label": "BIOMICROSCOPY — VF",
+   "name": "",
+   "id": "clr-form-control-187",
+   "type": "checkbox",
+   "placeholder": "",
+   "options": [],
+   "selector": "#clr-form-control-187",
+   "rect": [
+    225,
+    773,
+    24,
+    24
+   ],
+   "panel": 1,
+   "order": 385
+  },
+  {
+   "index": 19,
+   "label": "BIOMICROSCOPY — OCT",
+   "name": "",
+   "id": "clr-form-control-188",
+   "type": "checkbox",
+   "placeholder": "",
+   "options": [],
+   "selector": "#clr-form-control-188",
+   "rect": [
+    50,
+    802,
+    24,
+    24
+   ],
+   "panel": 1,
+   "order": 387
+  },
+  {
+   "index": 20,
+   "label": "Note here",
+   "name": "",
+   "id": "",
+   "type": "textarea",
+   "placeholder": "Note here",
+   "options": [],
+   "selector": "body > my-app:nth-of-type(1) > app-layout:nth-of-type(1) > clr-main-container:nth-of-type(1) > div:nth-of-type(3) > div:nth-of-type(1) > ng-component:nth-of-type(1) > app-dashboard-emr-history-component:nth-of-type(1) > app-view-template:nth-of-type(1) > clr-modal:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(4) > section:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > app-tests-done:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(3) > div:nth-of-type(1) > section:nth-of-type(1) > textarea:nth-of-type(1)",
+   "rect": [
+    50,
+    868,
+    387,
+    44
+   ],
+   "panel": 1,
+   "order": 389
+  },
+  {
+   "index": 21,
+   "label": "H",
+   "name": "",
+   "id": "",
+   "type": "text",
+   "placeholder": "",
+   "options": [],
+   "selector": "body > my-app:nth-of-type(1) > app-layout:nth-of-type(1) > clr-main-container:nth-of-type(1) > div:nth-of-type(3) > div:nth-of-type(1) > ng-component:nth-of-type(1) > app-dashboard-emr-history-component:nth-of-type(1) > app-view-template:nth-of-type(1) > clr-modal:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(4) > section:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > app-optic-nerve:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > input:nth-of-type(1)",
+   "rect": [
+    651,
+    188,
+    43,
+    28
+   ],
+   "panel": 2,
+   "order": 391
+  },
+  {
+   "index": 22,
+   "label": "SUP",
+   "name": "",
+   "id": "",
+   "type": "text",
+   "placeholder": "",
+   "options": [],
+   "selector": "body > my-app:nth-of-type(1) > app-layout:nth-of-type(1) > clr-main-container:nth-of-type(1) > div:nth-of-type(3) > div:nth-of-type(1) > ng-component:nth-of-type(1) > app-dashboard-emr-history-component:nth-of-type(1) > app-view-template:nth-of-type(1) > clr-modal:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(4) > section:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > app-optic-nerve:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(2) > input:nth-of-type(1)",
+   "rect": [
+    651,
+    223,
+    43,
+    28
+   ],
+   "panel": 2,
+   "order": 393
+  },
+  {
+   "index": 23,
+   "label": "V",
+   "name": "",
+   "id": "",
+   "type": "text",
+   "placeholder": "",
+   "options": [],
+   "selector": "body > my-app:nth-of-type(1) > app-layout:nth-of-type(1) > clr-main-container:nth-of-type(1) > div:nth-of-type(3) > div:nth-of-type(1) > ng-component:nth-of-type(1) > app-dashboard-emr-history-component:nth-of-type(1) > app-view-template:nth-of-type(1) > clr-modal:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(4) > section:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > app-optic-nerve:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(3) > div:nth-of-type(1) > input:nth-of-type(1)",
+   "rect": [
+    749,
+    188,
+    43,
+    28
+   ],
+   "panel": 2,
+   "order": 394
+  },
+  {
+   "index": 24,
+   "label": "Inf",
+   "name": "",
+   "id": "",
+   "type": "text",
+   "placeholder": "",
+   "options": [],
+   "selector": "body > my-app:nth-of-type(1) > app-layout:nth-of-type(1) > clr-main-container:nth-of-type(1) > div:nth-of-type(3) > div:nth-of-type(1) > ng-component:nth-of-type(1) > app-dashboard-emr-history-component:nth-of-type(1) > app-view-template:nth-of-type(1) > clr-modal:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(4) > section:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > app-optic-nerve:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(3) > div:nth-of-type(2) > input:nth-of-type(1)",
+   "rect": [
+    749,
+    223,
+    43,
+    28
+   ],
+   "panel": 2,
+   "order": 396
+  },
+  {
+   "index": 25,
+   "label": "H",
+   "name": "",
+   "id": "",
+   "type": "text",
+   "placeholder": "",
+   "options": [],
+   "selector": "body > my-app:nth-of-type(1) > app-layout:nth-of-type(1) > clr-main-container:nth-of-type(1) > div:nth-of-type(3) > div:nth-of-type(1) > ng-component:nth-of-type(1) > app-dashboard-emr-history-component:nth-of-type(1) > app-view-template:nth-of-type(1) > clr-modal:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(4) > section:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > app-optic-nerve:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(4) > div:nth-of-type(1) > input:nth-of-type(1)",
+   "rect": [
+    847,
+    188,
+    43,
+    28
+   ],
+   "panel": 2,
+   "order": 397
+  },
+  {
+   "index": 26,
+   "label": "SUP",
+   "name": "",
+   "id": "",
+   "type": "text",
+   "placeholder": "",
+   "options": [],
+   "selector": "body > my-app:nth-of-type(1) > app-layout:nth-of-type(1) > clr-main-container:nth-of-type(1) > div:nth-of-type(3) > div:nth-of-type(1) > ng-component:nth-of-type(1) > app-dashboard-emr-history-component:nth-of-type(1) > app-view-template:nth-of-type(1) > clr-modal:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(4) > section:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > app-optic-nerve:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(4) > div:nth-of-type(2) > input:nth-of-type(1)",
+   "rect": [
+    847,
+    223,
+    43,
+    28
+   ],
+   "panel": 2,
+   "order": 399
+  },
+  {
+   "index": 27,
+   "label": "V",
+   "name": "",
+   "id": "",
+   "type": "text",
+   "placeholder": "",
+   "options": [],
+   "selector": "body > my-app:nth-of-type(1) > app-layout:nth-of-type(1) > clr-main-container:nth-of-type(1) > div:nth-of-type(3) > div:nth-of-type(1) > ng-component:nth-of-type(1) > app-dashboard-emr-history-component:nth-of-type(1) > app-view-template:nth-of-type(1) > clr-modal:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(4) > section:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > app-optic-nerve:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(5) > div:nth-of-type(1) > input:nth-of-type(1)",
+   "rect": [
+    946,
+    188,
+    43,
+    28
+   ],
+   "panel": 2,
+   "order": 400
+  },
+  {
+   "index": 28,
+   "label": "Inf",
+   "name": "",
+   "id": "",
+   "type": "text",
+   "placeholder": "",
+   "options": [],
+   "selector": "body > my-app:nth-of-type(1) > app-layout:nth-of-type(1) > clr-main-container:nth-of-type(1) > div:nth-of-type(3) > div:nth-of-type(1) > ng-component:nth-of-type(1) > app-dashboard-emr-history-component:nth-of-type(1) > app-view-template:nth-of-type(1) > clr-modal:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(4) > section:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > app-optic-nerve:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(5) > div:nth-of-type(2) > input:nth-of-type(1)",
+   "rect": [
+    946,
+    223,
+    43,
+    28
+   ],
+   "panel": 2,
+   "order": 402
+  },
+  {
+   "index": 29,
+   "label": "Rim/Margin",
+   "name": "",
+   "id": "",
+   "type": "text",
+   "placeholder": "",
+   "options": [],
+   "selector": "body > my-app:nth-of-type(1) > app-layout:nth-of-type(1) > clr-main-container:nth-of-type(1) > div:nth-of-type(3) > div:nth-of-type(1) > ng-component:nth-of-type(1) > app-dashboard-emr-history-component:nth-of-type(1) > app-view-template:nth-of-type(1) > clr-modal:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(4) > section:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > app-optic-nerve:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(4) > input:nth-of-type(1)",
+   "rect": [
+    654,
+    295,
+    202,
+    28
+   ],
+   "panel": 2,
+   "order": 405
+  },
+  {
+   "index": 30,
+   "label": "field_519",
+   "name": "",
+   "id": "",
+   "type": "text",
+   "placeholder": "",
+   "options": [],
+   "selector": "body > my-app:nth-of-type(1) > app-layout:nth-of-type(1) > clr-main-container:nth-of-type(1) > div:nth-of-type(3) > div:nth-of-type(1) > ng-component:nth-of-type(1) > app-dashboard-emr-history-component:nth-of-type(1) > app-view-template:nth-of-type(1) > clr-modal:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(4) > section:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > app-optic-nerve:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(4) > input:nth-of-type(2)",
+   "rect": [
+    531,
+    325,
+    202,
+    28
+   ],
+   "panel": 2,
+   "order": 406
+  },
+  {
+   "index": 31,
+   "label": "Color",
+   "name": "",
+   "id": "",
+   "type": "text",
+   "placeholder": "",
+   "options": [],
+   "selector": "body > my-app:nth-of-type(1) > app-layout:nth-of-type(1) > clr-main-container:nth-of-type(1) > div:nth-of-type(3) > div:nth-of-type(1) > ng-component:nth-of-type(1) > app-dashboard-emr-history-component:nth-of-type(1) > app-view-template:nth-of-type(1) > clr-modal:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(4) > section:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > app-optic-nerve:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(5) > input:nth-of-type(1)",
+   "rect": [
+    654,
+    358,
+    202,
+    28
+   ],
+   "panel": 2,
+   "order": 408
+  },
+  {
+   "index": 32,
+   "label": "field_521",
+   "name": "",
+   "id": "",
+   "type": "text",
+   "placeholder": "",
+   "options": [],
+   "selector": "body > my-app:nth-of-type(1) > app-layout:nth-of-type(1) > clr-main-container:nth-of-type(1) > div:nth-of-type(3) > div:nth-of-type(1) > ng-component:nth-of-type(1) > app-dashboard-emr-history-component:nth-of-type(1) > app-view-template:nth-of-type(1) > clr-modal:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(4) > section:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > app-optic-nerve:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(5) > input:nth-of-type(2)",
+   "rect": [
+    531,
+    388,
+    202,
+    28
+   ],
+   "panel": 2,
+   "order": 409
+  },
+  {
+   "index": 33,
+   "label": "Margin",
+   "name": "",
+   "id": "",
+   "type": "text",
+   "placeholder": "",
+   "options": [],
+   "selector": "body > my-app:nth-of-type(1) > app-layout:nth-of-type(1) > clr-main-container:nth-of-type(1) > div:nth-of-type(3) > div:nth-of-type(1) > ng-component:nth-of-type(1) > app-dashboard-emr-history-component:nth-of-type(1) > app-view-template:nth-of-type(1) > clr-modal:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(4) > section:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > app-optic-nerve:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(6) > input:nth-of-type(1)",
+   "rect": [
+    654,
+    421,
+    202,
+    28
+   ],
+   "panel": 2,
+   "order": 411
+  },
+  {
+   "index": 34,
+   "label": "field_523",
+   "name": "",
+   "id": "",
+   "type": "text",
+   "placeholder": "",
+   "options": [],
+   "selector": "body > my-app:nth-of-type(1) > app-layout:nth-of-type(1) > clr-main-container:nth-of-type(1) > div:nth-of-type(3) > div:nth-of-type(1) > ng-component:nth-of-type(1) > app-dashboard-emr-history-component:nth-of-type(1) > app-view-template:nth-of-type(1) > clr-modal:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(4) > section:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > app-optic-nerve:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(6) > input:nth-of-type(2)",
+   "rect": [
+    531,
+    451,
+    202,
+    28
+   ],
+   "panel": 2,
+   "order": 412
+  },
+  {
+   "index": 35,
+   "label": "Depth",
+   "name": "",
+   "id": "",
+   "type": "text",
+   "placeholder": "",
+   "options": [],
+   "selector": "body > my-app:nth-of-type(1) > app-layout:nth-of-type(1) > clr-main-container:nth-of-type(1) > div:nth-of-type(3) > div:nth-of-type(1) > ng-component:nth-of-type(1) > app-dashboard-emr-history-component:nth-of-type(1) > app-view-template:nth-of-type(1) > clr-modal:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(4) > section:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > app-optic-nerve:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(7) > input:nth-of-type(1)",
+   "rect": [
+    654,
+    484,
+    202,
+    28
+   ],
+   "panel": 2,
+   "order": 414
+  },
+  {
+   "index": 36,
+   "label": "field_525",
+   "name": "",
+   "id": "",
+   "type": "text",
+   "placeholder": "",
+   "options": [],
+   "selector": "body > my-app:nth-of-type(1) > app-layout:nth-of-type(1) > clr-main-container:nth-of-type(1) > div:nth-of-type(3) > div:nth-of-type(1) > ng-component:nth-of-type(1) > app-dashboard-emr-history-component:nth-of-type(1) > app-view-template:nth-of-type(1) > clr-modal:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(4) > section:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > app-optic-nerve:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(7) > input:nth-of-type(2)",
+   "rect": [
+    531,
+    514,
+    202,
+    28
+   ],
+   "panel": 2,
+   "order": 415
+  },
+  {
+   "index": 37,
+   "label": "Additional",
+   "name": "",
+   "id": "",
+   "type": "text",
+   "placeholder": "",
+   "options": [],
+   "selector": "body > my-app:nth-of-type(1) > app-layout:nth-of-type(1) > clr-main-container:nth-of-type(1) > div:nth-of-type(3) > div:nth-of-type(1) > ng-component:nth-of-type(1) > app-dashboard-emr-history-component:nth-of-type(1) > app-view-template:nth-of-type(1) > clr-modal:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(4) > section:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > app-optic-nerve:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(8) > input:nth-of-type(1)",
+   "rect": [
+    654,
+    547,
+    202,
+    28
+   ],
+   "panel": 2,
+   "order": 417
+  },
+  {
+   "index": 38,
+   "label": "field_527",
+   "name": "",
+   "id": "",
+   "type": "text",
+   "placeholder": "",
+   "options": [],
+   "selector": "body > my-app:nth-of-type(1) > app-layout:nth-of-type(1) > clr-main-container:nth-of-type(1) > div:nth-of-type(3) > div:nth-of-type(1) > ng-component:nth-of-type(1) > app-dashboard-emr-history-component:nth-of-type(1) > app-view-template:nth-of-type(1) > clr-modal:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(4) > section:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > app-optic-nerve:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(8) > input:nth-of-type(2)",
+   "rect": [
+    531,
+    577,
+    202,
+    28
+   ],
+   "panel": 2,
+   "order": 418
+  },
+  {
+   "index": 39,
+   "label": "Notes",
+   "name": "",
+   "id": "",
+   "type": "textarea",
+   "placeholder": "Notes",
+   "options": [],
+   "selector": "body > my-app:nth-of-type(1) > app-layout:nth-of-type(1) > clr-main-container:nth-of-type(1) > div:nth-of-type(3) > div:nth-of-type(1) > ng-component:nth-of-type(1) > app-dashboard-emr-history-component:nth-of-type(1) > app-view-template:nth-of-type(1) > clr-modal:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(4) > section:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > app-optic-nerve:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(9) > textarea:nth-of-type(1)",
+   "rect": [
+    658,
+    608,
+    180,
+    44
+   ],
+   "panel": 2,
+   "order": 419
+  },
+  {
+   "index": 40,
+   "label": "Notes",
+   "name": "",
+   "id": "",
+   "type": "textarea",
+   "placeholder": "Notes",
+   "options": [],
+   "selector": "body > my-app:nth-of-type(1) > app-layout:nth-of-type(1) > clr-main-container:nth-of-type(1) > div:nth-of-type(3) > div:nth-of-type(1) > ng-component:nth-of-type(1) > app-dashboard-emr-history-component:nth-of-type(1) > app-view-template:nth-of-type(1) > clr-modal:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(4) > section:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > app-optic-nerve:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(9) > textarea:nth-of-type(2)",
+   "rect": [
+    842,
+    608,
+    123,
+    44
+   ],
+   "panel": 2,
+   "order": 420
+  },
+  {
+   "index": 41,
+   "label": "IOP 1",
+   "name": "",
+   "id": "",
+   "type": "text",
+   "placeholder": "",
+   "options": [],
+   "selector": "body > my-app:nth-of-type(1) > app-layout:nth-of-type(1) > clr-main-container:nth-of-type(1) > div:nth-of-type(3) > div:nth-of-type(1) > ng-component:nth-of-type(1) > app-dashboard-emr-history-component:nth-of-type(1) > app-view-template:nth-of-type(1) > clr-modal:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(4) > section:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > app-iop-pach:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(3) > div:nth-of-type(1) > section:nth-of-type(1) > div:nth-of-type(1) > input:nth-of-type(1)",
+   "rect": [
+    607,
+    591,
+    71,
+    28
+   ],
+   "panel": 3,
+   "order": 427
+  },
+  {
+   "index": 42,
+   "label": "field_531",
+   "name": "",
+   "id": "",
+   "type": "text",
+   "placeholder": "",
+   "options": [],
+   "selector": "body > my-app:nth-of-type(1) > app-layout:nth-of-type(1) > clr-main-container:nth-of-type(1) > div:nth-of-type(3) > div:nth-of-type(1) > ng-component:nth-of-type(1) > app-dashboard-emr-history-component:nth-of-type(1) > app-view-template:nth-of-type(1) > clr-modal:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(4) > section:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > app-iop-pach:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(3) > div:nth-of-type(1) > section:nth-of-type(1) > div:nth-of-type(1) > input:nth-of-type(2)",
+   "rect": [
+    683,
+    591,
+    71,
+    28
+   ],
+   "panel": 3,
+   "order": 428
+  },
+  {
+   "index": 43,
+   "label": "clr-form-control-190",
+   "name": "",
+   "id": "clr-form-control-190",
+   "type": "select-one",
+   "placeholder": "",
+   "options": [
+    {
+     "value": "",
+     "text": "Select"
+    },
+    {
+     "value": "",
+     "text": "NCT"
+    },
+    {
+     "value": "",
+     "text": "Goldmann"
+    },
+    {
+     "value": "",
+     "text": "Tonopen"
+    }
+   ],
+   "selector": "#clr-form-control-190",
+   "rect": [
+    759,
+    592,
+    185,
+    28
+   ],
+   "panel": 3,
+   "order": 429
+  },
+  {
+   "index": 44,
+   "label": "IOP 2",
+   "name": "",
+   "id": "",
+   "type": "text",
+   "placeholder": "",
+   "options": [],
+   "selector": "body > my-app:nth-of-type(1) > app-layout:nth-of-type(1) > clr-main-container:nth-of-type(1) > div:nth-of-type(3) > div:nth-of-type(1) > ng-component:nth-of-type(1) > app-dashboard-emr-history-component:nth-of-type(1) > app-view-template:nth-of-type(1) > clr-modal:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(4) > section:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > app-iop-pach:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(3) > div:nth-of-type(1) > section:nth-of-type(1) > div:nth-of-type(2) > input:nth-of-type(1)",
+   "rect": [
+    607,
+    626,
+    71,
+    28
+   ],
+   "panel": 3,
+   "order": 432
+  },
+  {
+   "index": 45,
+   "label": "field_534",
+   "name": "",
+   "id": "",
+   "type": "text",
+   "placeholder": "",
+   "options": [],
+   "selector": "body > my-app:nth-of-type(1) > app-layout:nth-of-type(1) > clr-main-container:nth-of-type(1) > div:nth-of-type(3) > div:nth-of-type(1) > ng-component:nth-of-type(1) > app-dashboard-emr-history-component:nth-of-type(1) > app-view-template:nth-of-type(1) > clr-modal:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(4) > section:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > app-iop-pach:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(3) > div:nth-of-type(1) > section:nth-of-type(1) > div:nth-of-type(2) > input:nth-of-type(2)",
+   "rect": [
+    683,
+    626,
+    71,
+    28
+   ],
+   "panel": 3,
+   "order": 433
+  },
+  {
+   "index": 46,
+   "label": "clr-form-control-191",
+   "name": "",
+   "id": "clr-form-control-191",
+   "type": "select-one",
+   "placeholder": "",
+   "options": [
+    {
+     "value": "",
+     "text": "Select"
+    },
+    {
+     "value": "",
+     "text": "NCT"
+    },
+    {
+     "value": "",
+     "text": "Goldmann"
+    },
+    {
+     "value": "",
+     "text": "Tonopen"
+    }
+   ],
+   "selector": "#clr-form-control-191",
+   "rect": [
+    545,
+    657,
+    185,
+    28
+   ],
+   "panel": 3,
+   "order": 434
+  },
+  {
+   "index": 47,
+   "label": "Method Used — Post Dilation IOP",
+   "name": "",
+   "id": "clr-form-control-189",
+   "type": "checkbox",
+   "placeholder": "",
+   "options": [],
+   "selector": "#clr-form-control-189",
+   "rect": [
+    544,
+    687,
+    24,
+    24
+   ],
+   "panel": 3,
+   "order": 436
+  },
+  {
+   "index": 48,
+   "label": "Pach",
+   "name": "",
+   "id": "",
+   "type": "text",
+   "placeholder": "",
+   "options": [],
+   "selector": "body > my-app:nth-of-type(1) > app-layout:nth-of-type(1) > clr-main-container:nth-of-type(1) > div:nth-of-type(3) > div:nth-of-type(1) > ng-component:nth-of-type(1) > app-dashboard-emr-history-component:nth-of-type(1) > app-view-template:nth-of-type(1) > clr-modal:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(4) > section:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > app-iop-pach:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(3) > div:nth-of-type(1) > section:nth-of-type(1) > div:nth-of-type(3) > input:nth-of-type(1)",
+   "rect": [
+    607,
+    716,
+    71,
+    28
+   ],
+   "panel": 3,
+   "order": 439
+  },
+  {
+   "index": 49,
+   "label": "field_538",
+   "name": "",
+   "id": "",
+   "type": "text",
+   "placeholder": "",
+   "options": [],
+   "selector": "body > my-app:nth-of-type(1) > app-layout:nth-of-type(1) > clr-main-container:nth-of-type(1) > div:nth-of-type(3) > div:nth-of-type(1) > ng-component:nth-of-type(1) > app-dashboard-emr-history-component:nth-of-type(1) > app-view-template:nth-of-type(1) > clr-modal:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(4) > section:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > app-iop-pach:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(3) > div:nth-of-type(1) > section:nth-of-type(1) > div:nth-of-type(3) > input:nth-of-type(2)",
+   "rect": [
+    683,
+    716,
+    71,
+    28
+   ],
+   "panel": 3,
+   "order": 440
+  },
+  {
+   "index": 50,
+   "label": "clr-form-control-194",
+   "name": "",
+   "id": "clr-form-control-194",
+   "type": "select-one",
+   "placeholder": "",
+   "options": [
+    {
+     "value": "",
+     "text": "Select"
+    },
+    {
+     "value": "",
+     "text": "1%Tropicamide+2.5%Phenylephrine"
+    },
+    {
+     "value": "",
+     "text": "Alcaine 0.5%"
+    },
+    {
+     "value": "",
+     "text": "Cyclopentolate 1%"
+    },
+    {
+     "value": "",
+     "text": "Dilation declined - ed risks"
+    },
+    {
+     "value": "",
+     "text": "Mydriacyl 0.5%"
+    },
+    {
+     "value": "",
+     "text": "Mydriacyl 1%"
+    },
+    {
+     "value": "",
+     "text": "No dilation needed, large pupils"
+    },
+    {
+     "value": "",
+     "text": "Tropicamide 0.5%"
+    },
+    {
+     "value": "",
+     "text": "Tropicamide 1%"
+    },
+    {
+     "value": "",
+     "text": "Unable to dilate"
+    }
+   ],
+   "selector": "#clr-form-control-194",
+   "rect": [
+    1034,
+    721,
+    262,
+    28
+   ],
+   "panel": 4,
+   "order": 442
+  },
+  {
+   "index": 51,
+   "label": "clr-form-control-195",
+   "name": "",
+   "id": "clr-form-control-195",
+   "type": "select-one",
+   "placeholder": "",
+   "options": [
+    {
+     "value": "",
+     "text": "Select"
+    },
+    {
+     "value": "",
+     "text": "1%Tropicamide+2.5%Phenylephrine"
+    },
+    {
+     "value": "",
+     "text": "Alcaine 0.5%"
+    },
+    {
+     "value": "",
+     "text": "Cyclopentolate 1%"
+    },
+    {
+     "value": "",
+     "text": "Dilation declined - ed risks"
+    },
+    {
+     "value": "",
+     "text": "Mydriacyl 0.5%"
+    },
+    {
+     "value": "",
+     "text": "Mydriacyl 1%"
+    },
+    {
+     "value": "",
+     "text": "No dilation needed, large pupils"
+    },
+    {
+     "value": "",
+     "text": "Tropicamide 0.5%"
+    },
+    {
+     "value": "",
+     "text": "Tropicamide 1%"
+    },
+    {
+     "value": "",
+     "text": "Unable to dilate"
+    }
+   ],
+   "selector": "#clr-form-control-195",
+   "rect": [
+    1034,
+    754,
+    262,
+    28
+   ],
+   "panel": 4,
+   "order": 443
+  },
+  {
+   "index": 52,
+   "label": "clr-form-control-196",
+   "name": "",
+   "id": "clr-form-control-196",
+   "type": "select-one",
+   "placeholder": "",
+   "options": [
+    {
+     "value": "",
+     "text": "Select"
+    },
+    {
+     "value": "",
+     "text": "1%Tropicamide+2.5%Phenylephrine"
+    },
+    {
+     "value": "",
+     "text": "Alcaine 0.5%"
+    },
+    {
+     "value": "",
+     "text": "Cyclopentolate 1%"
+    },
+    {
+     "value": "",
+     "text": "Dilation declined - ed risks"
+    },
+    {
+     "value": "",
+     "text": "Mydriacyl 0.5%"
+    },
+    {
+     "value": "",
+     "text": "Mydriacyl 1%"
+    },
+    {
+     "value": "",
+     "text": "No dilation needed, large pupils"
+    },
+    {
+     "value": "",
+     "text": "Tropicamide 0.5%"
+    },
+    {
+     "value": "",
+     "text": "Tropicamide 1%"
+    },
+    {
+     "value": "",
+     "text": "Unable to dilate"
+    }
+   ],
+   "selector": "#clr-form-control-196",
+   "rect": [
+    1034,
+    787,
+    262,
+    28
+   ],
+   "panel": 4,
+   "order": 444
+  },
+  {
+   "index": 53,
+   "label": "Fundus Lens/Bio",
+   "name": "",
+   "id": "clr-form-control-192",
+   "type": "checkbox",
+   "placeholder": "",
+   "options": [],
+   "selector": "#clr-form-control-192",
+   "rect": [
+    1033,
+    817,
+    24,
+    24
+   ],
+   "panel": 4,
+   "order": 447
+  },
+  {
+   "index": 54,
+   "label": "Informed Consent for Dilation",
+   "name": "",
+   "id": "clr-form-control-193",
+   "type": "checkbox",
+   "placeholder": "",
+   "options": [],
+   "selector": "#clr-form-control-193",
+   "rect": [
+    1270,
+    825,
+    24,
+    24
+   ],
+   "panel": 4,
+   "order": 449
+  },
+  {
+   "index": 55,
+   "label": "Macula",
+   "name": "",
+   "id": "",
+   "type": "textarea",
+   "placeholder": "",
+   "options": [],
+   "selector": "body > my-app:nth-of-type(1) > app-layout:nth-of-type(1) > clr-main-container:nth-of-type(1) > div:nth-of-type(3) > div:nth-of-type(1) > ng-component:nth-of-type(1) > app-dashboard-emr-history-component:nth-of-type(1) > app-view-template:nth-of-type(1) > clr-modal:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(4) > section:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(3) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > app-fundus-exam:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(3) > textarea:nth-of-type(1)",
+   "rect": [
+    1091,
+    255,
+    161,
+    41
+   ],
+   "panel": 5,
+   "order": 455
+  },
+  {
+   "index": 56,
+   "label": "field_545",
+   "name": "",
+   "id": "",
+   "type": "textarea",
+   "placeholder": "",
+   "options": [],
+   "selector": "body > my-app:nth-of-type(1) > app-layout:nth-of-type(1) > clr-main-container:nth-of-type(1) > div:nth-of-type(3) > div:nth-of-type(1) > ng-component:nth-of-type(1) > app-dashboard-emr-history-component:nth-of-type(1) > app-view-template:nth-of-type(1) > clr-modal:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(4) > section:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(3) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > app-fundus-exam:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(3) > textarea:nth-of-type(2)",
+   "rect": [
+    1285,
+    255,
+    161,
+    41
+   ],
+   "panel": 5,
+   "order": 456
+  },
+  {
+   "index": 57,
+   "label": "Fundus",
+   "name": "",
+   "id": "",
+   "type": "textarea",
+   "placeholder": "",
+   "options": [],
+   "selector": "body > my-app:nth-of-type(1) > app-layout:nth-of-type(1) > clr-main-container:nth-of-type(1) > div:nth-of-type(3) > div:nth-of-type(1) > ng-component:nth-of-type(1) > app-dashboard-emr-history-component:nth-of-type(1) > app-view-template:nth-of-type(1) > clr-modal:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(4) > section:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(3) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > app-fundus-exam:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(4) > textarea:nth-of-type(1)",
+   "rect": [
+    1091,
+    309,
+    161,
+    41
+   ],
+   "panel": 5,
+   "order": 458
+  },
+  {
+   "index": 58,
+   "label": "field_547",
+   "name": "",
+   "id": "",
+   "type": "textarea",
+   "placeholder": "",
+   "options": [],
+   "selector": "body > my-app:nth-of-type(1) > app-layout:nth-of-type(1) > clr-main-container:nth-of-type(1) > div:nth-of-type(3) > div:nth-of-type(1) > ng-component:nth-of-type(1) > app-dashboard-emr-history-component:nth-of-type(1) > app-view-template:nth-of-type(1) > clr-modal:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(4) > section:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(3) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > app-fundus-exam:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(4) > textarea:nth-of-type(2)",
+   "rect": [
+    1285,
+    309,
+    161,
+    41
+   ],
+   "panel": 5,
+   "order": 459
+  },
+  {
+   "index": 59,
+   "label": "BVs",
+   "name": "",
+   "id": "",
+   "type": "textarea",
+   "placeholder": "",
+   "options": [],
+   "selector": "body > my-app:nth-of-type(1) > app-layout:nth-of-type(1) > clr-main-container:nth-of-type(1) > div:nth-of-type(3) > div:nth-of-type(1) > ng-component:nth-of-type(1) > app-dashboard-emr-history-component:nth-of-type(1) > app-view-template:nth-of-type(1) > clr-modal:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(4) > section:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(3) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > app-fundus-exam:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(5) > textarea:nth-of-type(1)",
+   "rect": [
+    1091,
+    363,
+    161,
+    41
+   ],
+   "panel": 5,
+   "order": 461
+  },
+  {
+   "index": 60,
+   "label": "field_549",
+   "name": "",
+   "id": "",
+   "type": "textarea",
+   "placeholder": "",
+   "options": [],
+   "selector": "body > my-app:nth-of-type(1) > app-layout:nth-of-type(1) > clr-main-container:nth-of-type(1) > div:nth-of-type(3) > div:nth-of-type(1) > ng-component:nth-of-type(1) > app-dashboard-emr-history-component:nth-of-type(1) > app-view-template:nth-of-type(1) > clr-modal:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(4) > section:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(3) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > app-fundus-exam:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(5) > textarea:nth-of-type(2)",
+   "rect": [
+    1285,
+    363,
+    161,
+    41
+   ],
+   "panel": 5,
+   "order": 462
+  },
+  {
+   "index": 61,
+   "label": "Crossing",
+   "name": "",
+   "id": "",
+   "type": "textarea",
+   "placeholder": "",
+   "options": [],
+   "selector": "body > my-app:nth-of-type(1) > app-layout:nth-of-type(1) > clr-main-container:nth-of-type(1) > div:nth-of-type(3) > div:nth-of-type(1) > ng-component:nth-of-type(1) > app-dashboard-emr-history-component:nth-of-type(1) > app-view-template:nth-of-type(1) > clr-modal:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(4) > section:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(3) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > app-fundus-exam:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(6) > textarea:nth-of-type(1)",
+   "rect": [
+    1091,
+    417,
+    161,
+    41
+   ],
+   "panel": 5,
+   "order": 464
+  },
+  {
+   "index": 62,
+   "label": "field_551",
+   "name": "",
+   "id": "",
+   "type": "textarea",
+   "placeholder": "",
+   "options": [],
+   "selector": "body > my-app:nth-of-type(1) > app-layout:nth-of-type(1) > clr-main-container:nth-of-type(1) > div:nth-of-type(3) > div:nth-of-type(1) > ng-component:nth-of-type(1) > app-dashboard-emr-history-component:nth-of-type(1) > app-view-template:nth-of-type(1) > clr-modal:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(4) > section:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(3) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > app-fundus-exam:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(6) > textarea:nth-of-type(2)",
+   "rect": [
+    1285,
+    417,
+    161,
+    41
+   ],
+   "panel": 5,
+   "order": 465
+  },
+  {
+   "index": 63,
+   "label": "Vitreous",
+   "name": "",
+   "id": "",
+   "type": "textarea",
+   "placeholder": "",
+   "options": [],
+   "selector": "body > my-app:nth-of-type(1) > app-layout:nth-of-type(1) > clr-main-container:nth-of-type(1) > div:nth-of-type(3) > div:nth-of-type(1) > ng-component:nth-of-type(1) > app-dashboard-emr-history-component:nth-of-type(1) > app-view-template:nth-of-type(1) > clr-modal:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(4) > section:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(3) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > app-fundus-exam:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(7) > textarea:nth-of-type(1)",
+   "rect": [
+    1091,
+    471,
+    161,
+    41
+   ],
+   "panel": 5,
+   "order": 467
+  },
+  {
+   "index": 64,
+   "label": "field_553",
+   "name": "",
+   "id": "",
+   "type": "textarea",
+   "placeholder": "",
+   "options": [],
+   "selector": "body > my-app:nth-of-type(1) > app-layout:nth-of-type(1) > clr-main-container:nth-of-type(1) > div:nth-of-type(3) > div:nth-of-type(1) > ng-component:nth-of-type(1) > app-dashboard-emr-history-component:nth-of-type(1) > app-view-template:nth-of-type(1) > clr-modal:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(4) > section:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(3) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > app-fundus-exam:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(7) > textarea:nth-of-type(2)",
+   "rect": [
+    1285,
+    471,
+    161,
+    41
+   ],
+   "panel": 5,
+   "order": 468
+  },
+  {
+   "index": 65,
+   "label": "Periphery",
+   "name": "",
+   "id": "",
+   "type": "textarea",
+   "placeholder": "",
+   "options": [],
+   "selector": "body > my-app:nth-of-type(1) > app-layout:nth-of-type(1) > clr-main-container:nth-of-type(1) > div:nth-of-type(3) > div:nth-of-type(1) > ng-component:nth-of-type(1) > app-dashboard-emr-history-component:nth-of-type(1) > app-view-template:nth-of-type(1) > clr-modal:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(4) > section:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(3) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > app-fundus-exam:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(8) > textarea:nth-of-type(1)",
+   "rect": [
+    1091,
+    525,
+    161,
+    41
+   ],
+   "panel": 5,
+   "order": 470
+  },
+  {
+   "index": 66,
+   "label": "field_555",
+   "name": "",
+   "id": "",
+   "type": "textarea",
+   "placeholder": "",
+   "options": [],
+   "selector": "body > my-app:nth-of-type(1) > app-layout:nth-of-type(1) > clr-main-container:nth-of-type(1) > div:nth-of-type(3) > div:nth-of-type(1) > ng-component:nth-of-type(1) > app-dashboard-emr-history-component:nth-of-type(1) > app-view-template:nth-of-type(1) > clr-modal:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(4) > section:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(3) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > app-fundus-exam:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(8) > textarea:nth-of-type(2)",
+   "rect": [
+    1285,
+    525,
+    161,
+    41
+   ],
+   "panel": 5,
+   "order": 471
+  },
+  {
+   "index": 67,
+   "label": "Note here",
+   "name": "",
+   "id": "",
+   "type": "textarea",
+   "placeholder": "Note here",
+   "options": [],
+   "selector": "body > my-app:nth-of-type(1) > app-layout:nth-of-type(1) > clr-main-container:nth-of-type(1) > div:nth-of-type(3) > div:nth-of-type(1) > ng-component:nth-of-type(1) > app-dashboard-emr-history-component:nth-of-type(1) > app-view-template:nth-of-type(1) > clr-modal:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(4) > section:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(3) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > app-fundus-exam:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(9) > textarea:nth-of-type(1)",
+   "rect": [
+    1031,
+    613,
+    380,
+    41
+   ],
+   "panel": 5,
+   "order": 472
+  }
+ ],
+ "texts": [
+  {
+   "text": "BIOMICROSCOPY",
+   "rect": [
+    108,
+    157,
+    121,
+    17
+   ],
+   "panel": 0,
+   "option": false,
+   "order": 351
+  },
+  {
+   "text": "OD",
+   "rect": [
+    146,
+    221,
+    22,
+    17
+   ],
+   "panel": 0,
+   "option": false,
+   "order": 352
+  },
+  {
+   "text": "OS",
+   "rect": [
+    375,
+    221,
+    20,
+    17
+   ],
+   "panel": 0,
+   "option": false,
+   "order": 353
+  },
+  {
+   "text": "Lids",
+   "rect": [
+    66,
+    256,
+    27,
+    17
+   ],
+   "panel": 0,
+   "option": false,
+   "order": 354
+  },
+  {
+   "text": "Conj",
+   "rect": [
+    94,
+    313,
+    32,
+    17
+   ],
+   "panel": 0,
+   "option": false,
+   "order": 357
+  },
+  {
+   "text": "Cornea",
+   "rect": [
+    253,
+    370,
+    49,
+    17
+   ],
+   "panel": 0,
+   "option": false,
+   "order": 360
+  },
+  {
+   "text": "A/C",
+   "rect": [
+    290,
+    427,
+    25,
+    17
+   ],
+   "panel": 0,
+   "option": false,
+   "order": 363
+  },
+  {
+   "text": "Iris",
+   "rect": [
+    68,
+    533,
+    23,
+    17
+   ],
+   "panel": 0,
+   "option": false,
+   "order": 366
+  },
+  {
+   "text": "Lens",
+   "rect": [
+    94,
+    590,
+    32,
+    17
+   ],
+   "panel": 0,
+   "option": false,
+   "order": 369
+  },
+  {
+   "text": "Click on the image to draw",
+   "rect": [
+    192,
+    774,
+    196,
+    17
+   ],
+   "panel": 0,
+   "option": false,
+   "order": 373
+  },
+  {
+   "text": "Tests Done",
+   "rect": [
+    50,
+    681,
+    76,
+    17
+   ],
+   "panel": 1,
+   "option": false,
+   "order": 374
+  },
+  {
+   "text": "Photos Declined",
+   "rect": [
+    74,
+    719,
+    103,
+    16
+   ],
+   "panel": 1,
+   "option": true,
+   "order": 376
+  },
+  {
+   "text": "Photos Discussed",
+   "rect": [
+    249,
+    719,
+    111,
+    16
+   ],
+   "panel": 1,
+   "option": true,
+   "order": 378
+  },
+  {
+   "text": "After Dilation",
+   "rect": [
+    74,
+    748,
+    85,
+    16
+   ],
+   "panel": 1,
+   "option": true,
+   "order": 380
+  },
+  {
+   "text": "Photos Taken",
+   "rect": [
+    249,
+    748,
+    85,
+    16
+   ],
+   "panel": 1,
+   "option": true,
+   "order": 382
+  },
+  {
+   "text": "Photos Approved",
+   "rect": [
+    74,
+    777,
+    109,
+    16
+   ],
+   "panel": 1,
+   "option": true,
+   "order": 384
+  },
+  {
+   "text": "VF",
+   "rect": [
+    249,
+    777,
+    16,
+    16
+   ],
+   "panel": 1,
+   "option": true,
+   "order": 386
+  },
+  {
+   "text": "OCT",
+   "rect": [
+    74,
+    806,
+    27,
+    16
+   ],
+   "panel": 1,
+   "option": true,
+   "order": 388
+  },
+  {
+   "text": "Optic Nerve",
+   "rect": [
+    527,
+    196,
+    82,
+    17
+   ],
+   "panel": 2,
+   "option": false,
+   "order": 390
+  },
+  {
+   "text": "SUP",
+   "rect": [
+    619,
+    228,
+    28,
+    17
+   ],
+   "panel": 2,
+   "option": false,
+   "order": 392
+  },
+  {
+   "text": "Inf",
+   "rect": [
+    720,
+    228,
+    19,
+    17
+   ],
+   "panel": 2,
+   "option": false,
+   "order": 395
+  },
+  {
+   "text": "SUP",
+   "rect": [
+    815,
+    228,
+    28,
+    17
+   ],
+   "panel": 2,
+   "option": false,
+   "order": 398
+  },
+  {
+   "text": "Inf",
+   "rect": [
+    916,
+    228,
+    19,
+    17
+   ],
+   "panel": 2,
+   "option": false,
+   "order": 401
+  },
+  {
+   "text": "Normal",
+   "rect": [
+    669,
+    266,
+    54,
+    13
+   ],
+   "panel": 2,
+   "option": false,
+   "order": 403
+  },
+  {
+   "text": "Rim/Margin",
+   "rect": [
+    551,
+    300,
+    80,
+    17
+   ],
+   "panel": 2,
+   "option": false,
+   "order": 404
+  },
+  {
+   "text": "Color",
+   "rect": [
+    573,
+    363,
+    36,
+    17
+   ],
+   "panel": 2,
+   "option": false,
+   "order": 407
+  },
+  {
+   "text": "Margin",
+   "rect": [
+    568,
+    426,
+    47,
+    17
+   ],
+   "panel": 2,
+   "option": false,
+   "order": 410
+  },
+  {
+   "text": "Depth",
+   "rect": [
+    570,
+    489,
+    42,
+    17
+   ],
+   "panel": 2,
+   "option": false,
+   "order": 413
+  },
+  {
+   "text": "Additional",
+   "rect": [
+    557,
+    552,
+    69,
+    17
+   ],
+   "panel": 2,
+   "option": false,
+   "order": 416
+  },
+  {
+   "text": "IOP/Pach",
+   "rect": [
+    544,
+    528,
+    64,
+    17
+   ],
+   "panel": 3,
+   "option": false,
+   "order": 421
+  },
+  {
+   "text": "Copy IOP 1 to 2",
+   "rect": [
+    834,
+    532,
+    107,
+    13
+   ],
+   "panel": 3,
+   "option": false,
+   "order": 422
+  },
+  {
+   "text": "OD",
+   "rect": [
+    608,
+    565,
+    22,
+    17
+   ],
+   "panel": 3,
+   "option": false,
+   "order": 423
+  },
+  {
+   "text": "OS",
+   "rect": [
+    679,
+    565,
+    20,
+    17
+   ],
+   "panel": 3,
+   "option": false,
+   "order": 424
+  },
+  {
+   "text": "Method Used",
+   "rect": [
+    750,
+    565,
+    90,
+    17
+   ],
+   "panel": 3,
+   "option": false,
+   "order": 425
+  },
+  {
+   "text": "IOP 1",
+   "rect": [
+    555,
+    596,
+    39,
+    17
+   ],
+   "panel": 3,
+   "option": false,
+   "order": 426
+  },
+  {
+   "text": "IOP 2",
+   "rect": [
+    555,
+    631,
+    39,
+    17
+   ],
+   "panel": 3,
+   "option": false,
+   "order": 431
+  },
+  {
+   "text": "Post Dilation IOP",
+   "rect": [
+    568,
+    691,
+    108,
+    16
+   ],
+   "panel": 3,
+   "option": true,
+   "order": 437
+  },
+  {
+   "text": "Pach",
+   "rect": [
+    559,
+    721,
+    32,
+    17
+   ],
+   "panel": 3,
+   "option": false,
+   "order": 438
+  },
+  {
+   "text": "Dilation",
+   "rect": [
+    1033,
+    683,
+    52,
+    17
+   ],
+   "panel": 4,
+   "option": false,
+   "order": 441
+  },
+  {
+   "text": "Time Stamp",
+   "rect": [
+    1270,
+    683,
+    83,
+    17
+   ],
+   "panel": 4,
+   "option": false,
+   "order": 445
+  },
+  {
+   "text": "Fundus Lens/Bio",
+   "rect": [
+    1057,
+    821,
+    106,
+    16
+   ],
+   "panel": 4,
+   "option": true,
+   "order": 448
+  },
+  {
+   "text": "Informed Consent for Dilation",
+   "rect": [
+    1294,
+    821,
+    138,
+    32
+   ],
+   "panel": 4,
+   "option": true,
+   "order": 450
+  },
+  {
+   "text": "FUNDUS EXAM",
+   "rect": [
+    1094,
+    159,
+    103,
+    17
+   ],
+   "panel": 5,
+   "option": false,
+   "order": 451
+  },
+  {
+   "text": "OD",
+   "rect": [
+    1125,
+    228,
+    22,
+    17
+   ],
+   "panel": 5,
+   "option": false,
+   "order": 452
+  },
+  {
+   "text": "OS",
+   "rect": [
+    1364,
+    228,
+    20,
+    17
+   ],
+   "panel": 5,
+   "option": false,
+   "order": 453
+  },
+  {
+   "text": "Macula",
+   "rect": [
+    1037,
+    267,
+    48,
+    17
+   ],
+   "panel": 5,
+   "option": false,
+   "order": 454
+  },
+  {
+   "text": "Fundus",
+   "rect": [
+    1036,
+    321,
+    50,
+    17
+   ],
+   "panel": 5,
+   "option": false,
+   "order": 457
+  },
+  {
+   "text": "BVs",
+   "rect": [
+    1048,
+    375,
+    26,
+    17
+   ],
+   "panel": 5,
+   "option": false,
+   "order": 460
+  },
+  {
+   "text": "Crossing",
+   "rect": [
+    1035,
+    429,
+    59,
+    17
+   ],
+   "panel": 5,
+   "option": false,
+   "order": 463
+  },
+  {
+   "text": "Vitreous",
+   "rect": [
+    1035,
+    483,
+    57,
+    17
+   ],
+   "panel": 5,
+   "option": false,
+   "order": 466
+  },
+  {
+   "text": "Periphery",
+   "rect": [
+    1035,
+    537,
+    66,
+    17
+   ],
+   "panel": 5,
+   "option": false,
+   "order": 469
+  },
+  {
+   "text": "Click on the image to draw",
+   "rect": [
+    1177,
+    685,
+    196,
+    17
+   ],
+   "panel": 5,
+   "option": false,
+   "order": 473
+  }
+ ],
+ "map": {},
+ "lastFill": null
+}

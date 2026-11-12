@@ -2,7 +2,7 @@
 // dictation before it is shown or sent anywhere. Shared by popup.js and core/tests.
 (function (root) {
   // Safe starters: phrases that only ever mean the eye-care term in a dictation
-  const DEFAULTS = ['oh dee = OD', 'oh ess = OS', 'pearl a = PERRLA', 'perla = PERRLA', 'plain oh = plano'].join('\n');
+  const DEFAULTS = ['oh dee = OD', 'oh ess = OS', 'o d = OD', 'o s = OS', 'odos = OD OS', 'pearl a = PERRLA', 'perla = PERRLA', 'plain oh = plano'].join('\n');
 
   // "heard = meant" per line ("->" and "→" also work). Lines without both sides are ignored.
   function parse(text) {
