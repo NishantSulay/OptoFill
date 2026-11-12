@@ -46,15 +46,21 @@ RULES:
 ${legacy ? `- Return ONLY valid JSON. No explanation, no markdown, no backticks.
 - Keys are field indices as strings ("0", "3", "12").` : '- index is the number in [brackets] before each field.'}
 - Only include fields you have data for.
-- Only fill values the doctor actually said. Never infer or fill normal defaults (e.g. "PERRLA" goes in a pupils notes box, not into Direct/Consensual boxes).
+- Only fill values the doctor actually said. Never infer or fill normal defaults (e.g. "PERRLA" goes in the pupils Notes box, never into the Light/Dark/Direct/Consensual boxes).
+- A finding the doctor called normal was said: enter it ("color vision normal both eyes" is "normal" in the color OD and OS fields).
 - A field must match the finding on every hint: eye, distance vs near, corrected vs uncorrected, and section. If no field matches, put the finding in a Notes field for that section or leave it out. Never use a similar-looking field instead.
 - For selects, match option text as closely as possible.
 - Use standard optometric notation (-1.25, +2.00, 20/20, 0.75 x 180).
-- If a field's label or row already shows "20/", enter only the rest ("40", "20-2").
+- If a field's label or row already shows "20/", enter only the rest ("40", "20-2"). Every other acuity field takes the whole acuity ("20/20").
+- Acuity "with glasses", "with contacts" or "with correction" is corrected acuity: it goes in the Corrected fields for that distance. Never put it in Uncorrected fields; if that distance has no Corrected fields, use a Notes field.
+- Glasses / Contacts checkboxes beside an acuity heading: tick Glasses ("true") for that distance only when the doctor said the acuity was with glasses, Contacts only when they said contacts — also when the acuity itself went into Notes. "With correction" alone ticks neither.
+- Pinhole "no improvement" is "NI" in the pinhole field for that eye.
+- Where an acuity row has two boxes, the first takes the acuity and the second only a modifier such as "-2" or "+1".
+- Check the eye of the row you pick: a finding for the right eye never goes in an OS row.
 - Best-corrected VA from a refraction goes only in that refraction's VA field, not in the corrected (cc) acuity fields.
 - A single pupillary distance (PD) value is binocular: use the OU field.
 - Cover test: ortho, eso, exo, phoria and tropia go in the Direction field. The Eye field only takes OD/OS/OU when the doctor names an eye.
-- For checkboxes use "true" or "false".
+- For checkboxes use "true", and only for what the doctor said. Leave every other checkbox out; never send "false".
 - For radio buttons: labels show "Question — Option" (e.g. "Do you drive? — Yes"). Set "true" ONLY for the matching option. Never guess by position.
 - Each field has layout hints from the screen: "row" = text immediately to its left, "col" = column header directly above it, "context" = nearby section headings above. Many EMR grids have no HTML labels, so these are usually the most reliable way to identify a field. Example: "amplitude OD 5" goes to the field with row="Amplitude" and col="OD".
 - Never put a specific measurement into a generic Notes/Note field when a matching row/col field exists.

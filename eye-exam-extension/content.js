@@ -254,7 +254,8 @@ function getLayoutContext(el, anchors) {
   const colReach = panel ? 600 : 250;
   let col = null;
   for (const a of anchors) {
-    if (a.r.bottom > f.top + 2 || f.top - a.r.bottom > colReach) continue;
+    // A checkbox's own label ("☐ Glasses") above a box is not that box's column header
+    if (a.option || a.r.bottom > f.top + 2 || f.top - a.r.bottom > colReach) continue;
     if (cx(a) < f.left - 4 || cx(a) > f.right + 4) continue;
     if (!col || a.r.bottom > col.r.bottom) col = a;
   }

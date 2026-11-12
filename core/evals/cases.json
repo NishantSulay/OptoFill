@@ -781,6 +781,7 @@
     "allowExtra": [
       "frx_cyl_od",
       "frx_axis_od",
+      "frx_cyl_os",
       "hrx_cyl_os",
       "ret_cyl_os",
       "rx_cyl_os",

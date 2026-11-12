@@ -49,6 +49,7 @@ RULES:
 - IOP as a number only ("16"). Pupillary distance and NPC with units only if spoken ("5 cm").
 - Refractions go to the keys of the one that was dictated: manifest/subjective (or an unnamed refraction) → rx_*, habitual/current glasses/lensometry → hrx_*, final or prescribed Rx → frx_*, autorefraction → ar_*, retinoscopy → ret_*, contact lens Rx → cl_*. Never copy one refraction into another's keys.
 - Keratometry: K1 is the flatter meridian, K2 the steeper; power in diopters ("43.25") and its axis as a whole number ("180"). "43.25 at 180" is K power 43.25, axis 180.
+- The optic nerve / disc described as a whole ("nerves pink with distinct margins", "discs healthy") goes in fundus_nerve_* in the doctor's words; a colour, margin, rim or cup depth that was said is also recorded in its own onh_* key.
 - Pinhole acuity ("PH", "pinhole") goes in va_dist_ph_*; "no improvement" as "NI".
 - When the next visit is given ("RTC 1 year", "follow up in 6 months"), put it in follow_up; plan holds the rest of the plan.
 - The dictation comes from speech recognition and may mishear eye-care terms (e.g. "oh dee"/"old e"/"o d" = OD, "oh ess"/"o s" = OS, "pearl a"/"perla" = PERRLA, "plain oh" = plano, "see over d" = C/D, "e o m's" = EOMs). Read them as the intended term when the meaning is clear.
@@ -58,13 +59,13 @@ RULES:
 - Keys whose label ends in "(checkbox)" are checkboxes: "true" only when the doctor says so (e.g. acuity "with glasses", "consent obtained", "OCT done"). Never "false". A test that is only planned is not done.
 - Text like [name], [date] or [id] marks a patient identifier that was removed. Never record it in any key.
 
-NORMAL SECTIONS: when the doctor says a whole section is normal (e.g. "SLE normal OU", "anterior segment WNL", "fundus unremarkable OD", "rest of the exam normal"), record its key with the eyes it applies to: "OU", "OD" or "OS". OptoFill then fills that section's boxes that weren't dictated with the doctor's own normal findings. Still record every specific finding dictated in that section. A single normal structure ("lens clear") is that structure's key, not a section.
+NORMAL SECTIONS: when the doctor says a whole section is normal (e.g. "SLE normal OU", "anterior segment WNL", "fundus unremarkable OD", "rest of the exam normal"), record its key with the eyes it applies to: "OU", "OD" or "OS". OptoFill then fills that section's boxes that weren't dictated with the doctor's own normal findings. Still record every specific finding dictated in that section. A single normal structure ("lens clear") is that structure's key, not a section. A finding in one structure still goes in that structure's key, not a notes key, and "rest normal" / "otherwise unremarkable" makes the section normal for that eye too: "SLE normal OD. OS has a pterygium temporally, otherwise normal" is normal_anterior "OU" and sle_conj_os "pterygium temporally".
 ${Object.entries(NORMAL_SECTIONS).map(([s, v]) => `normal_${s}: ${v.label} is normal`).join('\n')}
 ${customInstructions ? `\nDOCTOR INSTRUCTIONS:\n${customInstructions}\n` : ''}
 SCHEMA KEYS:
 ${fieldList}${customList ? `
 
-CUSTOM FIELDS ON THIS EMR (named by the doctor; record one only when the dictation clearly refers to that name):
+CUSTOM FIELDS ON THIS EMR (named by the doctor; record one only when the dictation clearly refers to that name. When the doctor says a custom field's name, what follows goes in that field, in the doctor's words — even if schema keys also fit, in which case fill both):
 ${customList}` : ''}`;
   }
 
@@ -110,7 +111,10 @@ ${customList}` : ''}`;
     } else throw new Error('Claude did not return findings');
     const out = {};
     for (const f of input?.findings || []) {
-      if (keys.has(f.key) && f.value != null && String(f.value).trim()) out[f.key] = String(f.value).trim();
+      if (!keys.has(f.key) || f.value == null || !String(f.value).trim()) continue;
+      const v = String(f.value).trim();
+      // A section called normal for one eye and later for the other comes back as two flags: keep both eyes
+      out[f.key] = f.key.startsWith('normal_') && out[f.key] ? `${out[f.key]} ${v}` : v;
     }
     return out;
   }

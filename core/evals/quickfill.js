@@ -80,7 +80,7 @@ function toKeys(fields, mapping) {
   const got = {}, notes = {};
   for (const [name, v] of Object.entries(byName)) {
     if (VA_SECOND[name]) continue;
-    if (BOX_KEY[name] && BOX_KEY[name].startsWith('va_')) {
+    if (VA_SECOND_OF[name]) {   // a "20/" row; the Glasses/Contacts checkboxes are va_* keys too, but hold "true"
       const extra = byName[VA_SECOND_OF[name]] || '';
       got[BOX_KEY[name]] = '20/' + v.replace(/^20\//, '') + (isModifier(extra) ? extra : '');
     } else if (BOX_KEY[name]) got[BOX_KEY[name]] = v;
@@ -99,7 +99,10 @@ const isModifier = v => /^[+-]\s*\d/.test(v);
 function grade(c, fields, mapping) {
   const { got, notes, stray } = toKeys(fields, mapping);
   // Quick fill has no units rule, so "5 cm" may be entered as "5".
-  const expect = Object.fromEntries(Object.entries(c.expect).filter(([k]) => ON_PAGE.has(k)).map(([k, r]) => {
+  // When the page lacks a box the case expects (e.g. no fundus grid on these tabs), a Notes box is the right
+  // place for that finding, so "notes must stay empty" is not graded.
+  const offPage = Object.entries(c.expect).some(([k, r]) => !ON_PAGE.has(k) && !r.absent && r.lacks === undefined);
+  const expect = Object.fromEntries(Object.entries(c.expect).filter(([k, r]) => ON_PAGE.has(k) && !(offPage && r.absent && NOTE_BOXES.has(boxOf(k)))).map(([k, r]) => {
     const n = typeof r.equals === 'string' && r.equals.match(/^(\S+) cm$/);
     return [k, n ? { equalsAny: [r.equals, n[1]] } : r];
   }));
