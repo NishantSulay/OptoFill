@@ -1,0 +1,13 @@
+<!doctype html>
+<!-- The extension's background script (background.js) and the files it imports, as a hidden page. preload.js gives it
+     chrome.* and turns its importScripts() into nothing, since the files are loaded here. -->
+<meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; connect-src https://api.anthropic.com wss://api.deepgram.com https://api.deepgram.com">
+<title>OptoFill background</title>
+<script src="../ext/schema.js"></script>
+<script src="../ext/redact.js"></script>
+<script src="../ext/extract.js"></script>
+<script src="../ext/quickfill.js"></script>
+<script src="../ext/wordfix.js"></script>
+<script src="../ext/speech.js"></script>
+<script src="../ext/background.js"></script>
