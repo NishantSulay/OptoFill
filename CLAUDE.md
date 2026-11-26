@@ -32,7 +32,6 @@ Two steps, kept separate:
 - `demo.html` — try-it page on the site (works on a phone): the mock EMR in a frame running the real `content.js`, with a small stand-in for the side panel. Without an API key only the sample dictation fills, from the recorded reply in `core/demo/sample.js`; with one, `extract.js` reads what was dictated
 - `core/demo/` — website video (`node core/demo/record.js` → `assets/optofill-demo.mp4`, `.gif`, `-poster.jpg`) and store screenshots (`node core/demo/screenshots.js` → `store-assets/`): the real side panel and content script on the mock EMR (`stage.html`, `lib.js`), with Claude's reply canned
 - `store-assets/` — Chrome Web Store submission screenshots and notes
-- `desktop/` — desktop app prototype (Electron): the web EMR and the side panel in one window, running the extension's files unchanged. `main.js` and `preload.js` stand in for the Chrome APIs they use (storage, messages, ports, tabs, scripting). Chrome's own speech recognition isn't available there, so dictation uses Medical speech. See `desktop/README.md`
 
 ## Testing
 - Content script: `node core/tests/content.test.js` (needs `playwright`; set `CHROME_PATH` if no bundled browser)
@@ -42,7 +41,6 @@ Two steps, kept separate:
 - Layout report and replay: `node core/tests/report.test.js` (needs `playwright`; every mock tab rebuilt from its report must map as the live one, and the real EMR layouts in `core/tests/fixtures/` — labels and box positions only — must map as recorded, from an empty setup and from the older setups saved with them)
 - Medical speech: `node core/tests/speech.test.js` (needs `playwright`; stand-in WebSocket and Chrome's fake microphone, no speech account)
 - Try-it page: `node core/tests/demo-page.test.js` (needs `playwright`; phone-sized, no API calls)
-- Desktop app: `node core/tests/desktop.test.js` (needs `playwright` and `cd desktop && npm install`; on Linux without a display, `xvfb-run -a`; canned reply, no API calls)
 - Word fixes: `node core/tests/wordfix.test.js` (no browser; the starter fixes must leave every correctly heard eval dictation unchanged)
 - Extraction eval: `ANTHROPIC_API_KEY=... node core/evals/run.js` (real API calls; `--dry-run` prints the request)
 - Quick fill eval: `ANTHROPIC_API_KEY=... node core/evals/quickfill.js` (real API calls; needs `playwright`)
