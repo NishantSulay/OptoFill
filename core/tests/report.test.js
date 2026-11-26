@@ -5,7 +5,7 @@
 const fs = require('fs');
 const path = require('path');
 const { chromium } = require('playwright');
-const { replay, savedMap } = require('./replay');
+const { replay, savedMap, nextVisit } = require('./replay');
 
 const ROOT = path.resolve(__dirname, '../..');
 let failures = 0;
@@ -112,6 +112,41 @@ function check(name, cond, detail = '') {
     cl_brand_od: 1, cl_bc_od: 2, cl_dia_od: 3, cl_brand_os: 5, cl_sph_od: 8, cl_cyl_od: 9, cl_axis_od: 10, cl_add_od: 11,
     cl_sph_os: 12, cl_add_os: 15, cl_va_od: 22, cl_va_os: 24, cl_fit: 33,
   }, (k, i) => i >= 35 || !/^cl_/.test(k));
+
+  // The next visit to a screen set up earlier, laid out a little differently (a doctor had to run auto-map again: this
+  // EMR's boxes have no id or name, so a box was saved by its path through the page and its number among the inputs).
+  // The saved setup alone must find every box: the one that was saved, or, where an older OptoFill saved a box
+  // auto-map now reads differently, the one auto-map chooses today. Only a box an older OptoFill read differently and
+  // today's auto-map has no answer for may be lost (it is relabelled on the first visit after an update while its
+  // path still works). Boxes found are relabelled, and a further visit finds them again.
+  for (const file of ['real-pretest.json', 'real-refraction.json', 'stale-setup-health.json']) {
+    const fx = JSON.parse(fs.readFileSync(path.join(__dirname, 'fixtures', file), 'utf8'));
+    const today = (await replay(fx, browser)).map;
+    const saved = Object.fromEntries(Object.entries(fx.map).map(([k, e]) => [k, Number(e.selector.slice(1))]));
+    const { got, relabelled, again } = await nextVisit(fx, browser);
+    const keys = Object.keys(saved);
+    const wrong = keys.filter(k => got[k] >= 0 && got[k] !== saved[k] && got[k] !== today[k]).map(k => `${k}: box ${got[k]}, saved ${saved[k]}, today ${today[k]}`);
+    const lost = keys.filter(k => got[k] < 0 && today[k] !== undefined).map(k => `${k} (box ${today[k]})`);
+    check(`next visit, ${file}: the saved setup finds its boxes (${keys.filter(k => got[k] >= 0).length}/${keys.length}) and no others`,
+      !wrong.length && !lost.length, [...wrong, ...lost.map(x => 'lost ' + x)].join('; '));
+    const forgot = keys.filter(k => got[k] >= 0 && again[k] !== got[k]).map(k => `${k}: ${again[k]} not ${got[k]}`);
+    check(`next visit, ${file}: the setup is brought up to date (${relabelled} relabelled) and a further visit finds the same boxes`, !forgot.length, forgot.join('; '));
+  }
+
+  // A saved path that now leads to the box next to it (an earlier box in the same grid went away) must not fill that box
+  const fxp = JSON.parse(fs.readFileSync(path.join(__dirname, 'fixtures', 'real-pretest.json'), 'utf8'));
+  const shifted = (await replay(fxp, browser, { probe: () => {
+    const fields = getAllFields(true);
+    const f = fields.find(x => x.row === 'Amplitude' && x.col === 'OD');
+    const box = lastScannedEls[f.index], entry = mappingEntry(box, f);
+    const before = [...box.parentElement.children].filter(c => c.tagName === 'INPUT' && (box.compareDocumentPosition(c) & Node.DOCUMENT_POSITION_PRECEDING));
+    before[0].remove();
+    const now = getAllFields(true);
+    const pathLeadsTo = document.querySelector(entry.selector);
+    return { isPath: /^body > /.test(entry.selector), pathMoved: !!pathLeadsTo && pathLeadsTo !== box, found: locateMapped(entry, now) === box };
+  } })).probe;
+  check('shifted page: a saved path that leads to the next box is not trusted; the saved labels find the right one',
+    shifted.isPath && shifted.pathMoved && shifted.found, JSON.stringify(shifted));
 
   await browser.close();
   console.log(failures ? `\n${failures} check(s) failed` : '\nAll checks passed');

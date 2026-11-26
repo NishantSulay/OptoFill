@@ -94,6 +94,36 @@ async function replay(report, browser, { png, fromSaved = false, probe } = {}) {
   return out;
 }
 
+// The next visit to a screen set up earlier: the page is laid out a little differently (here: inputs added before the
+// form, so each unlabelled box's number "field_<n>" moves on, and the saved paths through the page no longer lead
+// anywhere). → { got: { schemaKey: field index or -1 } as found from the saved setup alone (no auto-map), relabelled:
+// how many saved boxes were brought up to date, again: { schemaKey: field index or -1 } found on a further visit from
+// the updated setup, its paths lost again }
+async function nextVisit(report, browser) {
+  const page = await browser.newPage({ viewport: { width: report.page.width, height: 2000 } });
+  await page.addInitScript(() => {
+    window.chrome = { runtime: { onMessage: { addListener() {} }, sendMessage() {} }, storage: { local: { get: async () => ({}), set: async () => {} } } };
+  });
+  await page.setContent('<!doctype html><html><head><meta charset="utf-8"></head><body></body></html>');
+  await page.evaluate(buildPage, report);
+  await page.evaluate(() => { for (let i = 0; i < 4; i++) { const h = document.createElement('input'); h.style.display = 'none'; document.body.prepend(h); } });
+  await page.addScriptTag({ path: path.join(EXT, 'schema.js') });
+  await page.addScriptTag({ path: path.join(EXT, 'content.js') });
+  const out = await page.evaluate((saved) => {
+    const gone = 'body > div:nth-of-type(99) > input';
+    const map = Object.fromEntries(Object.entries(saved).map(([k, e]) => [k, { ...e, selector: gone, label: e.label.replace(/^field_(\d+)$/, (_, n) => 'field_' + (Number(n) + 4)) }]));
+    const at = boxes => Object.fromEntries(Object.keys(saved).map(k => [k, boxes.get(k) ? Number(boxes.get(k).dataset.i) : -1]));
+    const fields = getAllFields(true);
+    const got = at(resolveMap(map, fields, { heal: true }));
+    const relabelled = resolveMap.healed;
+    // A further visit: the paths are lost again, the updated setup has to be enough
+    const again = at(resolveMap(Object.fromEntries(Object.entries(map).map(([k, e]) => [k, { ...e, selector: gone }])), fields));
+    return { got, relabelled, again };
+  }, report.map || {});
+  await page.close();
+  return out;
+}
+
 // The saved mapping in the report, as { schemaKey: field index } (an entry is matched as the extension matches it)
 function savedMap(report) {
   const out = {};
@@ -134,4 +164,4 @@ if (require.main === module) {
   })().catch(e => { console.error(e); process.exit(1); });
 }
 
-module.exports = { replay, savedMap };
+module.exports = { replay, savedMap, nextVisit };

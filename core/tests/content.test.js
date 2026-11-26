@@ -348,6 +348,26 @@ const val = (page, name) => page.$eval(`[name="${name}"]`, el => el.value);
   });
   check('ids the page renumbers on every visit are not used to find a box again', !sels[0].startsWith('#') && !sels[1].startsWith('#') && sels[2] === '#iop_method', sels.join(' , '));
 
+  // A saved setup whose stored paths all stopped working (the next visit laid the page out differently): this tab's
+  // boxes are still found, and the other tab's keys wait for their tab instead of moving to look-alike boxes here
+  const lostPaths = await (await openMock(browser)).evaluate(async () => {
+    const map = {};
+    autoMapVisible(map);
+    const pre = Object.keys(map);
+    document.querySelector('[data-tab=refraction]').click();
+    await new Promise(r => setTimeout(r, 50));
+    autoMapVisible(map);
+    const refraction = Object.keys(map).filter(k => !pre.includes(k));
+    document.querySelector('[data-tab=pretest]').click();
+    await new Promise(r => setTimeout(r, 50));
+    const want = new Map(pre.map(k => [k, locateMapped(map[k], getAllFields(true))]));
+    for (const k of Object.keys(map)) map[k] = { ...map[k], selector: '#gone', label: map[k].label.replace(/^field_\d+$/, 'field_999') };
+    const boxes = resolveMap(map, getAllFields(true));
+    return { pre: pre.length, found: pre.filter(k => boxes.get(k) === want.get(k)).length, refraction: refraction.length, moved: refraction.filter(k => boxes.has(k)) };
+  });
+  check(`lost paths: every box on this tab is still found (${lostPaths.found}/${lostPaths.pre})`, lostPaths.found === lostPaths.pre && lostPaths.pre > 40);
+  check(`lost paths: none of the other tab’s ${lostPaths.refraction} keys lands on a box here`, lostPaths.refraction > 20 && !lostPaths.moved.length, lostPaths.moved.join(', '));
+
   await browser.close();
   console.log(failures ? `\n${failures} check(s) failed` : '\nAll checks passed');
   process.exit(failures ? 1 : 0);

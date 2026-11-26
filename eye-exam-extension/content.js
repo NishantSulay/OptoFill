@@ -699,20 +699,108 @@ function mappingEntry(el, f) {
   };
 }
 
-// Find the box for a saved mapping among the currently visible fields
+// A box with no label of its own is called "field_<n>": its number among all the page's inputs. That changes on the
+// next visit as soon as one input more or less comes before it, so it can't be used to find the box again.
+const stableLabel = l => (/^field_\d+$/.test(l || '') ? '' : l || '');
+// Section headings around a box, for telling apart boxes with the same row and column (OD | Add in several Rx grids)
+function contextCloseness(a, b) {
+  const A = new Set(String(a || '').split(' / ').filter(Boolean)), B = new Set(String(b || '').split(' / ').filter(Boolean));
+  let shared = 0;
+  for (const t of A) if (B.has(t)) shared++;
+  return shared / (A.size + B.size - shared || 1);
+}
+
+// Find the box for a saved mapping among the currently visible fields. locateMapped.how says how it was found:
+// 'selector', 'labels', or 'context' (the closest of several boxes with the same labels — a guess, never saved back).
 function locateMapped(entry, fields) {
+  locateMapped.how = null;
+  const label = stableLabel(entry.label);
+  const known = !!(entry.row || entry.col || label || entry.name);   // anything besides the selector to know the box by
+  // The box with the saved labels: the only one, or the only one also under the saved headings; with guess, else the
+  // one whose headings come clearly closest
+  const byLabels = (guess) => {
+    if (!known) return null;
+    const cands = fields.filter(f => f.row === entry.row && f.col === entry.col && stableLabel(f.label) === label &&
+                                     (!entry.name || f.name === entry.name));
+    if (cands.length === 1) return [lastScannedEls[cands[0].index], 'labels'];
+    if (cands.length < 2) return null;
+    const exact = cands.filter(f => f.context === entry.context);
+    if (exact.length === 1) return [lastScannedEls[exact[0].index], 'labels'];
+    if (!guess) return null;
+    const near = cands.map(f => [f, contextCloseness(f.context, entry.context)]).sort((a, b) => b[1] - a[1]);
+    return near[0][1] > 0 && near[0][1] > near[1][1] ? [lastScannedEls[near[0][0].index], 'context'] : null;
+  };
+  let hit = null;
   try {
     const hits = Array.from(document.querySelectorAll(entry.selector)).filter(isVisibleField);
-    if (hits.length === 1 && lastScannedEls.includes(hits[0])) return hits[0];
+    if (hits.length === 1 && lastScannedEls.includes(hits[0])) hit = hits[0];
   } catch(e) {}
-  const cands = fields.filter(f => f.row === entry.row && f.col === entry.col && f.label === entry.label &&
-                                   (!entry.name || f.name === entry.name));
-  if (cands.length === 1) return lastScannedEls[cands[0].index];
-  if (cands.length > 1) {
-    const exact = cands.filter(f => f.context === entry.context);
-    if (exact.length === 1) return lastScannedEls[exact[0].index];
+  if (hit) {
+    // An id or name names the box. A path through the page ("body > div:nth-of-type(3) > …") can lead to a different
+    // box once the page is laid out differently (another patient, one more alert): when the box it leads to no longer
+    // has the saved row and column and the saved labels name another box, that one is it.
+    const f = fields.find(x => lastScannedEls[x.index] === hit);
+    const other = /^body > /.test(entry.selector) && !(f && f.row === entry.row && f.col === entry.col) && byLabels(false);
+    if (other && other[0] !== hit) { locateMapped.how = other[1]; return other[0]; }
+    locateMapped.how = 'selector';
+    return hit;
   }
-  return null;
+  const l = byLabels(true);
+  if (!l) return null;
+  locateMapped.how = l[1];
+  return l[0];
+}
+
+// Every saved key's box on this screen: { key → element }. A box auto-map chose that can't be found by what was
+// saved (the page is laid out a little differently on this visit, or an older OptoFill read its labels differently)
+// is found the way auto-map found it, if today's auto-map puts that key on a box no other key has. Boxes the doctor
+// picked or labelled themselves are only ever found by what was saved.
+// Saved entries found for sure are brought up to date (heal), so the next visit starts from today's labels.
+function resolveMap(map, fields, { heal = false } = {}) {
+  const found = new Map(), used = new Set(), sure = new Set();
+  for (const [key, entry] of Object.entries(map)) {
+    const el = locateMapped(entry, fields);
+    if (!el || used.has(el)) continue;
+    found.set(key, el);
+    used.add(el);
+    if (locateMapped.how !== 'context') sure.add(key);
+  }
+  const lost = Object.keys(map).filter(k => !found.has(k) && !map[k].manual && !map[k].custom && SCHEMA_BY_KEY[k]);
+  if (lost.length) {
+    const trial = Object.fromEntries([...found.keys()].map(k => [k, map[k]]));
+    autoAssign(trial, fields);
+    for (const key of lost) {
+      const el = trial[key] && locateMapped(trial[key], fields);
+      if (!el || used.has(el)) continue;
+      // Only where the saved box was: same row or a heading in common. A key whose box is on another tab of the EMR
+      // must not move to a look-alike box on this one (a vision summary, say); it waits for its own tab.
+      const f = fields.find(x => lastScannedEls[x.index] === el);
+      if (!f || !((map[key].row && f.row === map[key].row) || contextCloseness(f.context, map[key].context) > 0)) continue;
+      found.set(key, el);
+      used.add(el);
+      sure.add(key);
+    }
+  }
+  let healed = 0;
+  if (heal) for (const key of sure) {
+    const f = fields.find(x => lastScannedEls[x.index] === found.get(key));
+    if (!f) continue;
+    const now = mappingEntry(found.get(key), f), was = map[key];
+    if (['selector', 'name', 'id', 'label', 'row', 'col', 'context', 'stripPrefix'].every(k => (was[k] ?? '') === now[k])) continue;
+    map[key] = { ...was, ...now };
+    healed++;
+  }
+  resolveMap.healed = healed;
+  return found;
+}
+
+// Brings this screen's saved boxes up to date (see resolveMap) and saves them if anything changed
+async function healSavedMap() {
+  if (setup) return;
+  const map = await loadMap();
+  if (!Object.keys(map).length) return;
+  resolveMap(map, getAllFields(true), { heal: true });
+  if (resolveMap.healed) await saveMap(map);
 }
 
 function formatForBox(entry, value) {
@@ -738,12 +826,14 @@ async function fillSchema(input, { mergeIntoLast = false } = {}) {
     else values[key] = value;
   }
   const fields = getAllFields(true);
+  const boxes = resolveMap(map, fields, { heal: true });
+  if (resolveMap.healed) await saveMap(map);
   const items = [], out = [], usedEls = new Set();
   for (const [key, value] of Object.entries(values)) {
     const label = keyLabel(key, map);
     const entry = map[key];
     if (!entry) { out.push({ key, label, value, status: 'unmapped', reason: 'Not set up on this EMR yet' }); continue; }
-    const el = locateMapped(entry, fields);
+    const el = boxes.get(key);
     if (!el || usedEls.has(el)) { pendingSchema[key] = value; out.push({ key, label, value, status: 'pending', reason: 'Box is not on screen — it will fill when you open its tab' }); continue; }
     usedEls.add(el);
     items.push({ el, value: formatForBox(entry, value), info: { key, label } });
@@ -760,10 +850,10 @@ async function fillSchema(input, { mergeIntoLast = false } = {}) {
 async function fillPending() {
   if (!Object.keys(pendingSchema).length) return [];
   const map = await loadMap();
-  const fields = getAllFields(true);
+  const boxes = resolveMap(map, getAllFields(true));
   const ready = {};
   for (const [key, value] of Object.entries(pendingSchema)) {
-    if (map[key] && locateMapped(map[key], fields)) ready[key] = value;
+    if (boxes.has(key)) ready[key] = value;
   }
   if (!Object.keys(ready).length) return [];
   const results = await fillSchema(ready, { mergeIntoLast: true });
@@ -1028,6 +1118,7 @@ async function startSetup() {
       <div class="pf"><button class="unmap">Remove mapping</button><button class="cancel">Cancel</button></div>
     </div>`;
   document.documentElement.appendChild(host);
+  await healSavedMap().catch(() => {});   // boxes saved on an earlier visit show as mapped, even if the page has shifted
   setup = { host, root, map: await loadMap(), fields: [], current: null };
 
   root.querySelector('.done').addEventListener('click', stopSetup);
@@ -1240,7 +1331,7 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
     case 'fillSchema':     reply(fillSchema(msg.values).then(results => ({ results }))); return true;
     case 'refillPending':  reply(fillPending().then(results => ({ results }))); return true;
     case 'undoFill':       sendResponse({ restored: undoLastFill(), undoDepth: undoStack.length }); return true;
-    case 'getStatus':      reply(loadMap().then(map => ({ mappedCount: Object.keys(map).length, mappedKeys: Object.keys(map), undoDepth: undoStack.length, origin: location.origin, lastFill, customFields: customFieldsOf(map) }))); return true;
+    case 'getStatus':      reply(healSavedMap().catch(() => {}).then(loadMap).then(map => ({ mappedCount: Object.keys(map).length, mappedKeys: Object.keys(map), undoDepth: undoStack.length, origin: location.origin, lastFill, customFields: customFieldsOf(map) }))); return true;
     case 'forgetLastFill': lastFill = null; sendResponse({ ok: true }); return true;
     case 'getReport':      reply(buildReport()); return true;
     case 'exportMap':      reply(loadMap().then(map => ({ host: location.hostname, map }))); return true;
@@ -1252,7 +1343,7 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
     }
     case 'highlightKey':
       reply(loadMap().then(map => {
-        const el = map[msg.key] && locateMapped(map[msg.key], getAllFields(true));
+        const el = map[msg.key] && resolveMap(map, getAllFields(true)).get(msg.key);
         if (el) highlight(el);
         return { ok: !!el };
       }));
