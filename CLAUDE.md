@@ -20,6 +20,7 @@ Two steps, kept separate:
   - `redact.js` — removes patient identifiers (names after cues, dates, ID/phone numbers, emails, addresses) from text before it goes to Anthropic
   - `wordfix.js` — the doctor's "heard = meant" fixes for misheard words (Settings), applied to the dictation in the side panel before redaction and the AI
   - `speech.js` — optional medical speech engine (Settings; the doctor's own Deepgram key): eye-care key terms and the streaming session. `content.js` only records the audio and passes it to `background.js`, which holds the connection and falls back to Chrome's recognition if it can't connect
+  - `setups.js` — ready-made setups: for each EMR OptoFill knows, its boxes' labels from a setup a doctor checked and exported (no address, selectors or patient data). The side panel loads one automatically, once per site, the first time an EMR with nothing set up is recognised by its screen labels (`adoptReadySetup` in content.js). Add one with `node core/setups/add.js optofill-setup-….json --name "EMR name"`, which refuses a file with anything that looks like a patient identifier
   - `extract.js` — extraction prompt/request/parse (shared by background and `core/evals`)
   - `quickfill.js` — Quick fill prompt/request/parse (shared by background and `core/evals/quickfill.js`)
   - `content.js` — page scan, layout labels, fill + verify + undo, per-EMR mapping, in-page setup mode (runs in every frame; the side panel talks to the frame with the most boxes)
@@ -41,6 +42,7 @@ Two steps, kept separate:
 - Layout report and replay: `node core/tests/report.test.js` (needs `playwright`; every mock tab rebuilt from its report must map as the live one, and the real EMR layouts in `core/tests/fixtures/` — labels and box positions only — must map as recorded, from an empty setup and from the older setups saved with them, and those setups must still find their boxes on a next visit laid out a little differently)
 - Medical speech: `node core/tests/speech.test.js` (needs `playwright`; stand-in WebSocket and Chrome's fake microphone, no speech account)
 - Try-it page: `node core/tests/demo-page.test.js` (needs `playwright`; phone-sized, no API calls)
+- Ready-made setups: `node core/tests/setups.test.js` (needs `playwright`; a setup from the real EMR layouts is recognised on each of its screens and never on the mock EMR, and the side panel loads it once)
 - Word fixes: `node core/tests/wordfix.test.js` (no browser; the starter fixes must leave every correctly heard eval dictation unchanged)
 - Extraction eval: `ANTHROPIC_API_KEY=... node core/evals/run.js` (real API calls; `--dry-run` prints the request)
 - Quick fill eval: `ANTHROPIC_API_KEY=... node core/evals/quickfill.js` (real API calls; needs `playwright`)

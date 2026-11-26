@@ -277,7 +277,15 @@ async function refreshPageStatus() {
   const tab = await getExamTab();
   if (!tab) { emrSetupText.textContent = 'Open your EMR exam page to use OptoFill.'; return; }
   try {
-    const s = await sendToPage(tab.id, { action: 'getStatus' });
+    let s = await sendToPage(tab.id, { action: 'getStatus' });
+    // Nothing set up here yet: if this is an EMR OptoFill has a ready-made setup for (setups.js), load it
+    if (!s?.mappedCount && self.OPTOFILL_SETUPS?.length) {
+      const r = await sendToPage(tab.id, { action: 'adoptSetup', setups: self.OPTOFILL_SETUPS }).catch(() => null);
+      if (r?.adopted) {
+        s = await sendToPage(tab.id, { action: 'getStatus' });
+        showToast(`Loaded OptoFill’s setup for ${r.adopted} — check it any time with Edit setup`, 'success');
+      }
+    }
     mappedCount = s?.mappedCount || 0;
     mappedKeys = s?.mappedKeys || [];
     customFields = s?.customFields || [];

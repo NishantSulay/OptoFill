@@ -794,6 +794,46 @@ function resolveMap(map, fields, { heal = false } = {}) {
   return found;
 }
 
+// ─── Ready-made setups (setups.js) ───────────────────────────────────────────
+// A setup a doctor checked on an EMR, shipped with OptoFill. It holds each box's labels (row, column, own label,
+// headings), not where the box is on that doctor's page, so the EMR is recognised by what its screen says, whatever
+// its address. A setup counts when at least READY_MIN of its boxes are found here by their labels, and nearly all of
+// those (READY_EXACT) sit under exactly the headings saved with them: another EMR may share a grid's row and column
+// names ("Cornea | OD"), but hardly ever the headings over every one of them.
+const READY_MIN = 12, READY_EXACT = 0.9;
+const READY_KEY = 'optofillReadyLoaded';   // { origin: setup id } — loaded once per site; a doctor who clears it keeps it cleared
+
+function recogniseSetup(setups, fields) {
+  let best = null;
+  for (const s of setups || []) {
+    const used = new Set();
+    let exact = 0;
+    for (const e of Object.values(s.map || {})) {
+      const el = locateMapped({ ...e, selector: '' }, fields);
+      if (!el || locateMapped.how !== 'labels' || used.has(el)) continue;
+      used.add(el);
+      if (fields.find(f => lastScannedEls[f.index] === el)?.context === (e.context || '')) exact++;
+    }
+    if (exact >= READY_MIN && exact >= READY_EXACT * used.size && (!best || exact > best.n)) best = { setup: s, n: exact };
+  }
+  return best;
+}
+
+// Loads the ready-made setup this EMR is recognised as, if nothing is set up here yet and none was loaded before
+async function adoptReadySetup(setups) {
+  if (setup || !setups?.length) return { adopted: null };
+  const [map, done] = await Promise.all([loadMap(), chrome.storage.local.get(READY_KEY)]);
+  const loaded = done[READY_KEY] || {};
+  if (Object.keys(map).length || loaded[location.origin]) return { adopted: null };
+  const best = recogniseSetup(setups, getAllFields(true));
+  if (!best) return { adopted: null };
+  const ready = Object.fromEntries(Object.entries(best.setup.map).map(([k, e]) => [k, { ...e, selector: '', ready: best.setup.id }]));
+  resolveMap(ready, getAllFields(true), { heal: true });   // this page's own selectors for the boxes on screen
+  await saveMap(ready);
+  await chrome.storage.local.set({ [READY_KEY]: { ...loaded, [location.origin]: best.setup.id } });
+  return { adopted: best.setup.name, count: Object.keys(ready).length, onScreen: best.n };
+}
+
 // Brings this screen's saved boxes up to date (see resolveMap) and saves them if anything changed
 async function healSavedMap() {
   if (setup) return;
@@ -1335,6 +1375,7 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
     case 'forgetLastFill': lastFill = null; sendResponse({ ok: true }); return true;
     case 'getReport':      reply(buildReport()); return true;
     case 'exportMap':      reply(loadMap().then(map => ({ host: location.hostname, map }))); return true;
+    case 'adoptSetup':     reply(adoptReadySetup(msg.setups)); return true;
     case 'importMap':      reply(saveMap(msg.map).then(() => ({ mappedCount: Object.keys(msg.map).length }))); return true;
     case 'startSetup':     startSetup(); sendResponse({ ok: true }); return true;
     case 'highlightField': {
